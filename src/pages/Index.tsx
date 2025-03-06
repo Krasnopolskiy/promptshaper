@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import { Header } from '@/components/Header';
 import { PlaceholderPanel } from '@/components/PlaceholderPanel';
@@ -14,7 +15,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 
 const Index = () => {
   const { placeholders, addPlaceholder, updatePlaceholder, deletePlaceholder, setPlaceholders } = usePlaceholders();
-  const { promptText, setPromptText, generateFullPrompt, copyToClipboard } = usePrompt();
+  const { promptText, setPromptText, generateFullPrompt, insertPlaceholderTag, copyToClipboard } = usePrompt();
   const { templates, saveTemplate, loadTemplate, exportTemplates, importTemplates } = useTemplates();
   const { toast } = useToast();
   const isMobile = useIsMobile();
