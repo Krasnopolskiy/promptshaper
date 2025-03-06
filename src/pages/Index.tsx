@@ -99,7 +99,7 @@ const Index = () => {
   };
   
   const handleInsertPlaceholderFromPanel = (name: string) => {
-    const position = isMobile ? promptText.length : 0;
+    const position = isMobile ? promptText.length : cursorPosition || 0;
     insertPlaceholderTag(name, position);
     
     if (isMobile) {
@@ -110,6 +110,14 @@ const Index = () => {
         description: `<${name}> has been added to your prompt.`
       });
     }
+  };
+  
+  // Track cursor position globally to insert at correct position
+  const [cursorPosition, setCursorPosition] = useState(0);
+  
+  const handleInsertPlaceholderAtPosition = (name: string, position: number) => {
+    setCursorPosition(position);
+    return insertPlaceholderTag(name, position);
   };
   
   return (
@@ -176,7 +184,7 @@ const Index = () => {
                 value={promptText}
                 onChange={setPromptText}
                 placeholders={placeholders}
-                onInsertPlaceholder={insertPlaceholderTag}
+                onInsertPlaceholder={handleInsertPlaceholderAtPosition}
               />
             )}
             
@@ -203,7 +211,7 @@ const Index = () => {
               value={promptText}
               onChange={setPromptText}
               placeholders={placeholders}
-              onInsertPlaceholder={insertPlaceholderTag}
+              onInsertPlaceholder={handleInsertPlaceholderAtPosition}
             />
           </div>
           

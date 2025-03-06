@@ -15,18 +15,15 @@ export function usePrompt() {
   const generateFullPrompt = useCallback((promptText: string, placeholders: Placeholder[]) => {
     if (placeholders.length === 0) return promptText;
     
-    // For each placeholder, include just the name tag in the main prompt section
-    const placeholderTags = placeholders
-      .map(p => `<${p.name}>`)
-      .join(' ');
+    // Don't add placeholder tags at the beginning anymore, use only what's in the prompt text
     
     // Full placeholders with content for the bottom section
     const fullPlaceholders = placeholders
       .map(p => `<${p.name}>${p.content}</${p.name}>`)
       .join('\n');
     
-    // Combine prompt with placeholders
-    return `${promptText} ${placeholderTags}\n\n${fullPlaceholders}`;
+    // Combine prompt with placeholders section
+    return `${promptText}\n\n${fullPlaceholders}`;
   }, []);
 
   const insertPlaceholderTag = useCallback((name: string, cursorPosition: number) => {

@@ -66,7 +66,8 @@ export function PromptEditor({
           <PopoverTrigger asChild>
             <Button size="sm" variant="outline" className="gap-1">
               <PlusCircle size={16} />
-              Insert Placeholder
+              <span className="hidden sm:inline">Insert Placeholder</span>
+              <span className="sm:hidden">Insert</span>
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-64" align="end">
