@@ -15,20 +15,32 @@ export function usePrompt() {
   const generateFullPrompt = useCallback((promptText: string, placeholders: Placeholder[]) => {
     if (placeholders.length === 0) return promptText;
     
-    // Create the beginning part with placeholder references
-    const placeholderRefs = placeholders
-      .map(p => `<${p.name}></${p.name}>`)
-      .join(', ');
+    // For each placeholder, include just the name tag in the main prompt section
+    const placeholderTags = placeholders
+      .map(p => `<${p.name}>`)
+      .join(' ');
     
-    const beginningPart = placeholders.length > 0 ? `Write in style ${placeholderRefs}, ` : '';
-    
-    // Create the ending part with full placeholders
-    const endingPart = placeholders
+    // Full placeholders with content for the bottom section
+    const fullPlaceholders = placeholders
       .map(p => `<${p.name}>${p.content}</${p.name}>`)
       .join('\n');
     
-    return `${beginningPart}${promptText}\n\n${endingPart}`;
+    // Combine prompt with placeholders
+    return `${promptText} ${placeholderTags}\n\n${fullPlaceholders}`;
   }, []);
+
+  const insertPlaceholderTag = useCallback((name: string, cursorPosition: number) => {
+    const tag = `<${name}>`;
+    const newText = 
+      promptText.substring(0, cursorPosition) +
+      tag +
+      promptText.substring(cursorPosition);
+    
+    setPromptText(newText);
+    
+    // Return the new cursor position (after the inserted tag)
+    return cursorPosition + tag.length;
+  }, [promptText]);
 
   const copyToClipboard = useCallback(async (text: string) => {
     try {
@@ -44,6 +56,7 @@ export function usePrompt() {
     promptText,
     setPromptText,
     generateFullPrompt,
+    insertPlaceholderTag,
     copyToClipboard
   };
 }

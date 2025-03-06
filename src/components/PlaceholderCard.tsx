@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
@@ -7,14 +6,21 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Placeholder, PlaceholderCategory } from '@/types';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Plus } from 'lucide-react';
 
 interface PlaceholderCardProps {
   placeholder: Placeholder;
   onUpdate: (id: string, updates: Partial<Placeholder>) => void;
   onDelete: (id: string) => void;
+  onInsert?: (name: string) => void;
 }
 
-export function PlaceholderCard({ placeholder, onUpdate, onDelete }: PlaceholderCardProps) {
+export function PlaceholderCard({ 
+  placeholder, 
+  onUpdate, 
+  onDelete,
+  onInsert
+}: PlaceholderCardProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState(placeholder.name);
   const [content, setContent] = useState(placeholder.content);
@@ -46,6 +52,12 @@ export function PlaceholderCard({ placeholder, onUpdate, onDelete }: Placeholder
       case 'format': return 'bg-green-100 text-green-800';
       case 'terminology': return 'bg-amber-100 text-amber-800';
       default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const handleInsert = () => {
+    if (onInsert) {
+      onInsert(placeholder.name);
     }
   };
 
@@ -100,7 +112,7 @@ export function PlaceholderCard({ placeholder, onUpdate, onDelete }: Placeholder
           </>
         )}
       </CardContent>
-      <CardFooter className="p-2 bg-secondary/50 flex justify-end gap-2">
+      <CardFooter className="p-2 bg-secondary/50 flex justify-between gap-2">
         {isEditing ? (
           <>
             <Button size="sm" variant="ghost" onClick={handleCancel}>
@@ -112,12 +124,26 @@ export function PlaceholderCard({ placeholder, onUpdate, onDelete }: Placeholder
           </>
         ) : (
           <>
-            <Button size="sm" variant="ghost" onClick={() => setIsEditing(true)}>
-              Edit
-            </Button>
-            <Button size="sm" variant="ghost" className="text-destructive" onClick={() => onDelete(placeholder.id)}>
-              Delete
-            </Button>
+            <div>
+              <Button size="sm" variant="ghost" onClick={() => setIsEditing(true)}>
+                Edit
+              </Button>
+              <Button size="sm" variant="ghost" className="text-destructive" onClick={() => onDelete(placeholder.id)}>
+                Delete
+              </Button>
+            </div>
+            {onInsert && (
+              <Button 
+                size="sm" 
+                variant="outline" 
+                className="text-primary" 
+                onClick={handleInsert}
+                title={`Insert <${placeholder.name}> into prompt`}
+              >
+                <Plus size={14} />
+                Insert
+              </Button>
+            )}
           </>
         )}
       </CardFooter>

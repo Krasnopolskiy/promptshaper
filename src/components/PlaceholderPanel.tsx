@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -12,13 +11,15 @@ interface PlaceholderPanelProps {
   onAddPlaceholder: (name: string, content: string, category: PlaceholderCategory) => void;
   onUpdatePlaceholder: (id: string, updates: Partial<Placeholder>) => void;
   onDeletePlaceholder: (id: string) => void;
+  onInsertPlaceholder?: (name: string) => void;
 }
 
 export function PlaceholderPanel({
   placeholders,
   onAddPlaceholder,
   onUpdatePlaceholder,
-  onDeletePlaceholder
+  onDeletePlaceholder,
+  onInsertPlaceholder
 }: PlaceholderPanelProps) {
   const [activeTab, setActiveTab] = useState('add');
 
@@ -30,7 +31,6 @@ export function PlaceholderPanel({
     other: 'Other'
   };
 
-  // Group placeholders by category
   const placeholdersByCategory = placeholders.reduce((acc, placeholder) => {
     if (!acc[placeholder.category]) {
       acc[placeholder.category] = [];
@@ -75,6 +75,7 @@ export function PlaceholderPanel({
                             placeholder={placeholder}
                             onUpdate={onUpdatePlaceholder}
                             onDelete={onDeletePlaceholder}
+                            onInsert={onInsertPlaceholder}
                           />
                         ))}
                       </div>

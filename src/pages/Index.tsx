@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { Header } from '@/components/Header';
 import { PlaceholderPanel } from '@/components/PlaceholderPanel';
@@ -27,14 +26,11 @@ const Index = () => {
   const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
   const [importFile, setImportFile] = useState<File | null>(null);
   
-  // Update the full prompt when promptText or placeholders change
   useEffect(() => {
     setFullPrompt(generateFullPrompt(promptText, placeholders));
   }, [promptText, placeholders, generateFullPrompt]);
   
-  // Handle mobile/desktop view
   useEffect(() => {
-    // Set default panel view based on screen size
     setActivePanel(isMobile ? 'editor' : 'placeholders');
   }, [isMobile]);
   
@@ -101,7 +97,20 @@ const Index = () => {
     reader.readAsText(importFile);
   };
   
-  // Main layout with responsive design
+  const handleInsertPlaceholderFromPanel = (name: string) => {
+    const position = isMobile ? promptText.length : 0;
+    insertPlaceholderTag(name, position);
+    
+    if (isMobile) {
+      setActivePanel('editor');
+      
+      toast({
+        title: "Placeholder inserted",
+        description: `<${name}> has been added to your prompt.`
+      });
+    }
+  };
+  
   return (
     <div className="flex flex-col h-screen bg-background">
       <Header 
@@ -116,7 +125,6 @@ const Index = () => {
       />
       
       {isMobile ? (
-        // Mobile layout with tabs
         <div className="flex-1 flex flex-col overflow-hidden">
           <div className="flex border-b border-border">
             <button 
@@ -158,6 +166,7 @@ const Index = () => {
                 onAddPlaceholder={addPlaceholder}
                 onUpdatePlaceholder={updatePlaceholder}
                 onDeletePlaceholder={deletePlaceholder}
+                onInsertPlaceholder={handleInsertPlaceholderFromPanel}
               />
             )}
             
@@ -165,6 +174,8 @@ const Index = () => {
               <PromptEditor 
                 value={promptText}
                 onChange={setPromptText}
+                placeholders={placeholders}
+                onInsertPlaceholder={insertPlaceholderTag}
               />
             )}
             
@@ -177,19 +188,21 @@ const Index = () => {
           </div>
         </div>
       ) : (
-        // Desktop layout
         <div className="flex-1 flex overflow-hidden">
           <PlaceholderPanel 
             placeholders={placeholders}
             onAddPlaceholder={addPlaceholder}
             onUpdatePlaceholder={updatePlaceholder}
             onDeletePlaceholder={deletePlaceholder}
+            onInsertPlaceholder={handleInsertPlaceholderFromPanel}
           />
           
           <div className="flex-1 overflow-hidden">
             <PromptEditor 
               value={promptText}
               onChange={setPromptText}
+              placeholders={placeholders}
+              onInsertPlaceholder={insertPlaceholderTag}
             />
           </div>
           
@@ -200,7 +213,6 @@ const Index = () => {
         </div>
       )}
       
-      {/* Import Dialog */}
       <Dialog open={isImportDialogOpen} onOpenChange={setIsImportDialogOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
