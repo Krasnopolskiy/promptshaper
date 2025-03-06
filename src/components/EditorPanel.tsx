@@ -16,7 +16,7 @@ export function EditorPanel({
   onInsertPlaceholder
 }: EditorPanelProps) {
   return (
-    <div className="editor-panel">
+    <div className="w-full md:flex-1 flex flex-col overflow-hidden bg-white/50 backdrop-blur-sm shadow-lg rounded-lg border border-border/50">
       <PromptEditor
         value={promptText}
         onChange={setPromptText}

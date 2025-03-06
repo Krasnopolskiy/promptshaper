@@ -99,8 +99,9 @@
     border-radius: 3px;
   }
 
+  /* Updated editor panel styling */
   .editor-panel {
-    @apply flex-1 flex flex-col overflow-hidden bg-white/50 backdrop-blur-sm shadow-lg rounded-lg border border-border/50;
+    @apply w-full md:flex-1 flex flex-col overflow-hidden bg-white/50 backdrop-blur-sm shadow-lg rounded-lg border border-border/50;
   }
 
   .side-panel {
