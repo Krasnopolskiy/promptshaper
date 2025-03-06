@@ -1,8 +1,7 @@
-
 import { useEffect, useState } from 'react';
 import { Header } from '@/components/Header';
 import { PlaceholderPanel } from '@/components/PlaceholderPanel';
-import { PromptEditor } from '@/components/PromptEditor';
+import { EditorPanel } from '@/components/EditorPanel';
 import { PreviewPanel } from '@/components/PreviewPanel';
 import { usePlaceholders } from '@/hooks/usePlaceholders';
 import { usePrompt } from '@/hooks/usePrompt';
@@ -112,7 +111,6 @@ const Index = () => {
     }
   };
   
-  // Track cursor position globally to insert at correct position
   const [cursorPosition, setCursorPosition] = useState(0);
   
   const handleInsertPlaceholderAtPosition = (name: string, position: number) => {
@@ -121,7 +119,7 @@ const Index = () => {
   };
   
   return (
-    <div className="flex flex-col h-screen bg-background">
+    <div className="flex flex-col h-screen bg-gradient-to-br from-background to-accent/5">
       <Header 
         onSaveTemplate={saveTemplate}
         onExportTemplates={exportTemplates}
@@ -134,33 +132,33 @@ const Index = () => {
       />
       
       {isMobile ? (
-        <div className="flex-1 flex flex-col overflow-hidden">
-          <div className="flex border-b border-border">
+        <div className="flex-1 flex flex-col overflow-hidden p-4">
+          <div className="flex border-b border-border rounded-t-lg overflow-hidden bg-white/50 backdrop-blur-sm">
             <button 
-              className={`flex-1 py-2 text-sm font-medium transition-colors ${
+              className={`flex-1 py-3 text-sm font-medium transition-colors ${
                 activePanel === 'placeholders' 
-                  ? 'border-b-2 border-primary text-foreground' 
-                  : 'text-muted-foreground'
+                  ? 'bg-primary/10 text-primary border-b-2 border-primary' 
+                  : 'text-muted-foreground hover:bg-accent/5'
               }`}
               onClick={() => setActivePanel('placeholders')}
             >
               Placeholders
             </button>
             <button 
-              className={`flex-1 py-2 text-sm font-medium transition-colors ${
+              className={`flex-1 py-3 text-sm font-medium transition-colors ${
                 activePanel === 'editor' 
-                  ? 'border-b-2 border-primary text-foreground' 
-                  : 'text-muted-foreground'
+                  ? 'bg-primary/10 text-primary border-b-2 border-primary' 
+                  : 'text-muted-foreground hover:bg-accent/5'
               }`}
               onClick={() => setActivePanel('editor')}
             >
               Editor
             </button>
             <button 
-              className={`flex-1 py-2 text-sm font-medium transition-colors ${
+              className={`flex-1 py-3 text-sm font-medium transition-colors ${
                 activePanel === 'preview' 
-                  ? 'border-b-2 border-primary text-foreground' 
-                  : 'text-muted-foreground'
+                  ? 'bg-primary/10 text-primary border-b-2 border-primary' 
+                  : 'text-muted-foreground hover:bg-accent/5'
               }`}
               onClick={() => setActivePanel('preview')}
             >
@@ -168,7 +166,7 @@ const Index = () => {
             </button>
           </div>
           
-          <div className="flex-1 overflow-hidden">
+          <div className="flex-1 overflow-hidden rounded-b-lg glass-panel">
             {activePanel === 'placeholders' && (
               <PlaceholderPanel 
                 placeholders={placeholders}
@@ -180,9 +178,9 @@ const Index = () => {
             )}
             
             {activePanel === 'editor' && (
-              <PromptEditor 
-                value={promptText}
-                onChange={setPromptText}
+              <EditorPanel 
+                promptText={promptText}
+                setPromptText={setPromptText}
                 placeholders={placeholders}
                 onInsertPlaceholder={handleInsertPlaceholderAtPosition}
               />
@@ -197,7 +195,7 @@ const Index = () => {
           </div>
         </div>
       ) : (
-        <div className="flex-1 flex overflow-hidden">
+        <div className="flex-1 flex gap-4 p-4 overflow-hidden">
           <PlaceholderPanel 
             placeholders={placeholders}
             onAddPlaceholder={addPlaceholder}
@@ -206,14 +204,12 @@ const Index = () => {
             onInsertPlaceholder={handleInsertPlaceholderFromPanel}
           />
           
-          <div className="flex-1 overflow-hidden">
-            <PromptEditor 
-              value={promptText}
-              onChange={setPromptText}
-              placeholders={placeholders}
-              onInsertPlaceholder={handleInsertPlaceholderAtPosition}
-            />
-          </div>
+          <EditorPanel 
+            promptText={promptText}
+            setPromptText={setPromptText}
+            placeholders={placeholders}
+            onInsertPlaceholder={handleInsertPlaceholderAtPosition}
+          />
           
           <PreviewPanel 
             content={fullPrompt}

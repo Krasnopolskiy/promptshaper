@@ -38,6 +38,7 @@ export function PlaceholderForm({ onSubmit }: PlaceholderFormProps) {
           onChange={(e) => setName(e.target.value)}
           placeholder="e.g., style, tone, format"
           autoComplete="off"
+          className="bg-background"
         />
       </div>
       
@@ -47,10 +48,10 @@ export function PlaceholderForm({ onSubmit }: PlaceholderFormProps) {
           value={category} 
           onValueChange={(value) => setCategory(value as PlaceholderCategory)}
         >
-          <SelectTrigger>
+          <SelectTrigger id="placeholder-category" className="w-full bg-background">
             <SelectValue placeholder="Select a category" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent position="popper" className="w-full min-w-[8rem]">
             <SelectItem value="style">Style</SelectItem>
             <SelectItem value="tone">Tone</SelectItem>
             <SelectItem value="format">Format</SelectItem>
@@ -68,10 +69,11 @@ export function PlaceholderForm({ onSubmit }: PlaceholderFormProps) {
           onChange={(e) => setContent(e.target.value)}
           placeholder="Enter the content for this placeholder"
           rows={4}
+          className="resize-none bg-background"
         />
       </div>
       
-      <Button type="submit" className="w-full">
+      <Button type="submit" className="w-full bg-primary hover:bg-primary/90">
         Add Placeholder
       </Button>
     </form>
