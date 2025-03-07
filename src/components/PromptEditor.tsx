@@ -75,7 +75,7 @@ export function PromptEditor({
 
   return (
     <div className="flex flex-col h-full">
-      <div className="p-4 border-b border-border flex justify-between items-center">
+      <div className="p-4 border-b border-border flex flex-col">
         <div>
           <h2 className="text-lg font-medium">Prompt Editor</h2>
           <p className="text-sm text-muted-foreground">
@@ -83,39 +83,41 @@ export function PromptEditor({
           </p>
         </div>
 
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button size="sm" variant="outline" className="gap-1">
-              <PlusCircle size={16} />
-              <span className="hidden sm:inline">Insert Placeholder</span>
-              <span className="sm:hidden">Insert</span>
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-64" align="end">
-            <div className="space-y-2">
-              <h3 className="font-medium text-sm">Available Placeholders</h3>
-              {placeholders.length > 0 ? (
-                <div className="max-h-[200px] overflow-y-auto">
-                  {placeholders.map((placeholder) => (
-                    <Button
-                      key={placeholder.id}
-                      variant="ghost"
-                      size="sm"
-                      className="w-full justify-start text-left"
-                      onClick={() => handleInsertPlaceholder(placeholder.name)}
-                    >
-                      <span className="text-xs font-mono text-primary">{`<${placeholder.name}>`}</span>
-                    </Button>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-xs text-muted-foreground">
-                  No placeholders available. Create one first.
-                </p>
-              )}
-            </div>
-          </PopoverContent>
-        </Popover>
+        <div className="mt-3">
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button size="sm" variant="outline" className="gap-1">
+                <PlusCircle size={16} />
+                <span className="hidden sm:inline">Insert Placeholder</span>
+                <span className="sm:hidden">Insert</span>
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-64" align="end">
+              <div className="space-y-2">
+                <h3 className="font-medium text-sm">Available Placeholders</h3>
+                {placeholders.length > 0 ? (
+                  <div className="max-h-[200px] overflow-y-auto">
+                    {placeholders.map((placeholder) => (
+                      <Button
+                        key={placeholder.id}
+                        variant="ghost"
+                        size="sm"
+                        className="w-full justify-start text-left"
+                        onClick={() => handleInsertPlaceholder(placeholder.name)}
+                      >
+                        <span className="text-xs font-mono text-primary">{`<${placeholder.name}>`}</span>
+                      </Button>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-xs text-muted-foreground">
+                    No placeholders available. Create one first.
+                  </p>
+                )}
+              </div>
+            </PopoverContent>
+          </Popover>
+        </div>
       </div>
       
       <ScrollArea className="flex-1 p-4">
@@ -127,10 +129,10 @@ export function PromptEditor({
             onSelect={handleSelectionChange}
             onClick={handleSelectionChange}
             placeholder="Enter your prompt here..."
-            className="min-h-[200px] text-base resize-none border-0 shadow-none focus-visible:ring-0 bg-transparent p-0 absolute inset-0 opacity-0 z-10"
+            className="min-h-[200px] text-base resize-none border-0 shadow-none focus-visible:ring-0 bg-transparent z-10 absolute inset-0 p-0"
           />
           <div 
-            className="min-h-[200px] text-base whitespace-pre-wrap break-words"
+            className="min-h-[200px] text-base whitespace-pre-wrap break-words pointer-events-none"
             dangerouslySetInnerHTML={{ __html: formattedContent }}
           />
         </div>
@@ -147,3 +149,4 @@ export function PromptEditor({
     </div>
   );
 }
+
