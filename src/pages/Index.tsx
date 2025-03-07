@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import { Header } from '@/components/Header';
 import { PlaceholderPanel } from '@/components/PlaceholderPanel';
@@ -119,7 +120,7 @@ const Index = () => {
   };
   
   return (
-    <div className="flex flex-col h-screen bg-gradient-to-br from-background to-accent/5">
+    <div className="flex flex-col h-screen overflow-hidden bg-gradient-to-br from-background to-accent/5">
       <Header 
         onSaveTemplate={saveTemplate}
         onExportTemplates={exportTemplates}
@@ -132,7 +133,7 @@ const Index = () => {
       />
       
       {isMobile ? (
-        <div className="flex-1 flex flex-col overflow-hidden p-4">
+        <div className="flex-1 flex flex-col overflow-hidden p-4 max-w-full">
           <div className="flex border-b border-border rounded-t-lg overflow-hidden bg-white/50 backdrop-blur-sm">
             <button 
               className={`flex-1 py-3 text-sm font-medium transition-colors ${
@@ -166,7 +167,7 @@ const Index = () => {
             </button>
           </div>
           
-          <div className="flex-1 overflow-hidden rounded-b-lg glass-panel">
+          <div className="flex-1 overflow-hidden rounded-b-lg">
             {activePanel === 'placeholders' && (
               <PlaceholderPanel 
                 placeholders={placeholders}

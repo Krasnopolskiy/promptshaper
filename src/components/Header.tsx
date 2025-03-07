@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -125,18 +124,8 @@ export function Header({
         >
           Export
         </Button>
-        
-        <Button 
-          variant="default" 
-          size="sm"
-          onClick={onCopyFullPrompt}
-          className="text-sm"
-        >
-          Copy Full Prompt
-        </Button>
       </div>
       
-      {/* Save Template Dialog */}
       <Dialog open={isSaveDialogOpen} onOpenChange={setIsSaveDialogOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
@@ -165,7 +154,6 @@ export function Header({
         </DialogContent>
       </Dialog>
       
-      {/* Load Template Dialog */}
       <Dialog open={isLoadDialogOpen} onOpenChange={setIsLoadDialogOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
