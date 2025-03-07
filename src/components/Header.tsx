@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -89,38 +90,38 @@ export function Header({
   };
 
   return (
-    <header className="w-full bg-background/80 backdrop-blur-sm border-b border-border z-10 flex justify-between items-center px-6 py-3">
+    <header className="w-full bg-background/80 backdrop-blur-sm border-b border-border z-10 flex justify-between items-center px-4 sm:px-6 py-3">
       <div className="flex items-center gap-2">
         <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
           <span className="text-primary-foreground font-semibold text-lg">P</span>
         </div>
-        <h1 className="text-xl font-medium">Prompt Generator</h1>
+        <h1 className="text-xl font-medium">Prompt Shaper</h1>
       </div>
       
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2">
         <Button 
           variant="outline" 
           size="sm"
           onClick={() => setIsLoadDialogOpen(true)}
-          className="text-sm"
+          className="text-xs sm:text-sm"
         >
-          Load Template
+          Load
         </Button>
         
         <Button 
           variant="outline" 
           size="sm"
           onClick={() => setIsSaveDialogOpen(true)}
-          className="text-sm"
+          className="text-xs sm:text-sm"
         >
-          Save Template
+          Save
         </Button>
         
         <Button 
           variant="outline" 
           size="sm"
           onClick={onExportTemplates}
-          className="text-sm"
+          className="text-xs sm:text-sm"
         >
           Export
         </Button>

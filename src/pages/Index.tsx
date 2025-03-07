@@ -136,7 +136,7 @@ const Index = () => {
         <div className="flex-1 flex flex-col overflow-hidden p-4 max-w-full">
           <div className="flex border-b border-border rounded-t-lg overflow-hidden bg-white/50 backdrop-blur-sm">
             <button 
-              className={`flex-1 py-3 text-sm font-medium transition-colors ${
+              className={`flex-1 py-3 text-xs font-medium transition-colors ${
                 activePanel === 'placeholders' 
                   ? 'bg-primary/10 text-primary border-b-2 border-primary' 
                   : 'text-muted-foreground hover:bg-accent/5'
@@ -146,7 +146,7 @@ const Index = () => {
               Placeholders
             </button>
             <button 
-              className={`flex-1 py-3 text-sm font-medium transition-colors ${
+              className={`flex-1 py-3 text-xs font-medium transition-colors ${
                 activePanel === 'editor' 
                   ? 'bg-primary/10 text-primary border-b-2 border-primary' 
                   : 'text-muted-foreground hover:bg-accent/5'
@@ -156,7 +156,7 @@ const Index = () => {
               Editor
             </button>
             <button 
-              className={`flex-1 py-3 text-sm font-medium transition-colors ${
+              className={`flex-1 py-3 text-xs font-medium transition-colors ${
                 activePanel === 'preview' 
                   ? 'bg-primary/10 text-primary border-b-2 border-primary' 
                   : 'text-muted-foreground hover:bg-accent/5'
@@ -197,25 +197,31 @@ const Index = () => {
         </div>
       ) : (
         <div className="flex-1 flex gap-4 p-4 overflow-hidden">
-          <PlaceholderPanel 
-            placeholders={placeholders}
-            onAddPlaceholder={addPlaceholder}
-            onUpdatePlaceholder={updatePlaceholder}
-            onDeletePlaceholder={deletePlaceholder}
-            onInsertPlaceholder={handleInsertPlaceholderFromPanel}
-          />
+          <div className="w-80 h-full flex-shrink-0">
+            <PlaceholderPanel 
+              placeholders={placeholders}
+              onAddPlaceholder={addPlaceholder}
+              onUpdatePlaceholder={updatePlaceholder}
+              onDeletePlaceholder={deletePlaceholder}
+              onInsertPlaceholder={handleInsertPlaceholderFromPanel}
+            />
+          </div>
           
-          <EditorPanel 
-            promptText={promptText}
-            setPromptText={setPromptText}
-            placeholders={placeholders}
-            onInsertPlaceholder={handleInsertPlaceholderAtPosition}
-          />
+          <div className="flex-1 h-full">
+            <EditorPanel 
+              promptText={promptText}
+              setPromptText={setPromptText}
+              placeholders={placeholders}
+              onInsertPlaceholder={handleInsertPlaceholderAtPosition}
+            />
+          </div>
           
-          <PreviewPanel 
-            content={fullPrompt}
-            onCopy={handleCopyFullPrompt}
-          />
+          <div className="w-80 h-full flex-shrink-0">
+            <PreviewPanel 
+              content={fullPrompt}
+              onCopy={handleCopyFullPrompt}
+            />
+          </div>
         </div>
       )}
       

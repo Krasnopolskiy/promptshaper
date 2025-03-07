@@ -108,6 +108,11 @@
   .side-panel {
     @apply w-full md:w-80 border-r border-border/50 h-full flex flex-col bg-white/50 backdrop-blur-sm shadow-lg rounded-lg;
   }
+  
+  /* Logo square */
+  .app-logo {
+    @apply flex-shrink-0 h-8 w-8 rounded-lg bg-primary flex items-center justify-center;
+  }
 }
 
 @layer utilities {
