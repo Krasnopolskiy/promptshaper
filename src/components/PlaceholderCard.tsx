@@ -1,4 +1,5 @@
-import { useState } from 'react';
+
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -13,29 +14,49 @@ interface PlaceholderCardProps {
   onUpdate: (id: string, updates: Partial<Placeholder>) => void;
   onDelete: (id: string) => void;
   onInsert?: (name: string) => void;
+  onNameChange?: (oldName: string, newName: string) => void;
 }
 
 export function PlaceholderCard({ 
   placeholder, 
   onUpdate, 
   onDelete,
-  onInsert
+  onInsert,
+  onNameChange
 }: PlaceholderCardProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState(placeholder.name);
   const [content, setContent] = useState(placeholder.content);
   const [category, setCategory] = useState<PlaceholderCategory>(placeholder.category);
+  const [originalName, setOriginalName] = useState(placeholder.name);
+
+  useEffect(() => {
+    // Update form values when placeholder changes
+    setName(placeholder.name);
+    setContent(placeholder.content);
+    setCategory(placeholder.category);
+    setOriginalName(placeholder.name);
+  }, [placeholder]);
 
   const handleSave = () => {
     if (!name.trim() || !content.trim()) return;
     
+    const trimmedName = name.trim();
+    const trimmedContent = content.trim();
+    
+    // Update placeholders in the prompt if name changed
+    if (originalName !== trimmedName && onNameChange) {
+      onNameChange(originalName, trimmedName);
+    }
+    
     onUpdate(placeholder.id, {
-      name: name.trim(),
-      content: content.trim(),
+      name: trimmedName,
+      content: trimmedContent,
       category
     });
     
     setIsEditing(false);
+    setOriginalName(trimmedName);
   };
 
   const handleCancel = () => {

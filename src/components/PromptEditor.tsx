@@ -22,6 +22,27 @@ export function PromptEditor({
 }: PromptEditorProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [cursorPosition, setCursorPosition] = useState<number>(0);
+  const [formattedContent, setFormattedContent] = useState<string>('');
+
+  // Update the formatted display with highlighted placeholders
+  useEffect(() => {
+    let formatted = value;
+    
+    // Sort placeholders by name length (descending) to ensure longer names are replaced first
+    const sortedPlaceholders = [...placeholders].sort(
+      (a, b) => b.name.length - a.name.length
+    );
+    
+    // Replace placeholder tags with highlighted spans
+    sortedPlaceholders.forEach(placeholder => {
+      const pattern = new RegExp(`<${placeholder.name}>`, 'g');
+      formatted = formatted.replace(pattern, 
+        `<span class="placeholder-tag" data-placeholder-id="${placeholder.id}">&lt;${placeholder.name}&gt;</span>`
+      );
+    });
+    
+    setFormattedContent(formatted);
+  }, [value, placeholders]);
 
   useEffect(() => {
     // Auto-resize the textarea based on content
@@ -98,15 +119,21 @@ export function PromptEditor({
       </div>
       
       <ScrollArea className="flex-1 p-4">
-        <Textarea
-          ref={textareaRef}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          onSelect={handleSelectionChange}
-          onClick={handleSelectionChange}
-          placeholder="Enter your prompt here..."
-          className="min-h-[200px] text-base resize-none border-0 shadow-none focus-visible:ring-0 bg-transparent p-0"
-        />
+        <div className="relative min-h-[200px]">
+          <Textarea
+            ref={textareaRef}
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            onSelect={handleSelectionChange}
+            onClick={handleSelectionChange}
+            placeholder="Enter your prompt here..."
+            className="min-h-[200px] text-base resize-none border-0 shadow-none focus-visible:ring-0 bg-transparent p-0 absolute inset-0 opacity-0 z-10"
+          />
+          <div 
+            className="min-h-[200px] text-base whitespace-pre-wrap break-words"
+            dangerouslySetInnerHTML={{ __html: formattedContent }}
+          />
+        </div>
       </ScrollArea>
       
       <div className="p-3 border-t border-border text-xs text-muted-foreground flex justify-between items-center">

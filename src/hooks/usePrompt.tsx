@@ -15,15 +15,35 @@ export function usePrompt() {
   const generateFullPrompt = useCallback((promptText: string, placeholders: Placeholder[]) => {
     if (placeholders.length === 0) return promptText;
     
-    // Don't add placeholder tags at the beginning anymore, use only what's in the prompt text
+    // Get all unique placeholders used in the prompt text
+    const placeholderRegex = /<([^>]+)>/g;
+    const usedPlaceholderNames = new Set<string>();
+    let match;
     
-    // Full placeholders with content for the bottom section
-    const fullPlaceholders = placeholders
-      .map(p => `<${p.name}>${p.content}</${p.name}>`)
-      .join('\n');
+    while ((match = placeholderRegex.exec(promptText)) !== null) {
+      usedPlaceholderNames.add(match[1]);
+    }
     
-    // Combine prompt with placeholders section
-    return `${promptText}\n\n${fullPlaceholders}`;
+    // Filter placeholders to those that are actually used in the text
+    const usedPlaceholders = placeholders.filter(p => 
+      usedPlaceholderNames.has(p.name)
+    );
+    
+    // Generate full placeholders with proper newlines
+    const fullPlaceholders = usedPlaceholders
+      .map(p => {
+        // Add newlines between tags and content for multiline content
+        if (p.content.includes('\n') || p.content.length > 50) {
+          return `<${p.name}>\n${p.content}\n</${p.name}>`;
+        }
+        return `<${p.name}>${p.content}</${p.name}>`;
+      })
+      .join('\n\n');
+    
+    // Return the prompt with placeholders section if we have any
+    return usedPlaceholders.length > 0 
+      ? `${promptText}\n\n${fullPlaceholders}`
+      : promptText;
   }, []);
 
   const insertPlaceholderTag = useCallback((name: string, cursorPosition: number) => {
@@ -37,6 +57,17 @@ export function usePrompt() {
     
     // Return the new cursor position (after the inserted tag)
     return cursorPosition + tag.length;
+  }, [promptText]);
+
+  const updatePlaceholdersInPrompt = useCallback((oldName: string, newName: string) => {
+    if (oldName === newName) return;
+    
+    const pattern = new RegExp(`<${oldName}>`, 'g');
+    const updatedPrompt = promptText.replace(pattern, `<${newName}>`);
+    
+    if (updatedPrompt !== promptText) {
+      setPromptText(updatedPrompt);
+    }
   }, [promptText]);
 
   const copyToClipboard = useCallback(async (text: string) => {
@@ -54,6 +85,7 @@ export function usePrompt() {
     setPromptText,
     generateFullPrompt,
     insertPlaceholderTag,
+    updatePlaceholdersInPrompt,
     copyToClipboard
   };
 }

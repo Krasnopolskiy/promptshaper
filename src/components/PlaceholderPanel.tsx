@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -12,6 +13,7 @@ interface PlaceholderPanelProps {
   onUpdatePlaceholder: (id: string, updates: Partial<Placeholder>) => void;
   onDeletePlaceholder: (id: string) => void;
   onInsertPlaceholder?: (name: string) => void;
+  onPlaceholderNameChange?: (oldName: string, newName: string) => void;
 }
 
 export function PlaceholderPanel({
@@ -19,7 +21,8 @@ export function PlaceholderPanel({
   onAddPlaceholder,
   onUpdatePlaceholder,
   onDeletePlaceholder,
-  onInsertPlaceholder
+  onInsertPlaceholder,
+  onPlaceholderNameChange
 }: PlaceholderPanelProps) {
   const [activeTab, setActiveTab] = useState('add');
 
@@ -76,6 +79,7 @@ export function PlaceholderPanel({
                             onUpdate={onUpdatePlaceholder}
                             onDelete={onDeletePlaceholder}
                             onInsert={onInsertPlaceholder}
+                            onNameChange={onPlaceholderNameChange}
                           />
                         ))}
                       </div>

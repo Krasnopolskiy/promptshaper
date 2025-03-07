@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { Header } from '@/components/Header';
 import { PlaceholderPanel } from '@/components/PlaceholderPanel';
@@ -15,7 +14,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 
 const Index = () => {
   const { placeholders, addPlaceholder, updatePlaceholder, deletePlaceholder, setPlaceholders } = usePlaceholders();
-  const { promptText, setPromptText, generateFullPrompt, insertPlaceholderTag, copyToClipboard } = usePrompt();
+  const { promptText, setPromptText, generateFullPrompt, insertPlaceholderTag, updatePlaceholdersInPrompt, copyToClipboard } = usePrompt();
   const { templates, saveTemplate, loadTemplate, exportTemplates, importTemplates } = useTemplates();
   const { toast } = useToast();
   const isMobile = useIsMobile();
@@ -119,6 +118,10 @@ const Index = () => {
     return insertPlaceholderTag(name, position);
   };
   
+  const handlePlaceholderNameChange = (oldName: string, newName: string) => {
+    updatePlaceholdersInPrompt(oldName, newName);
+  };
+  
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-gradient-to-br from-background to-accent/5">
       <Header 
@@ -175,6 +178,7 @@ const Index = () => {
                 onUpdatePlaceholder={updatePlaceholder}
                 onDeletePlaceholder={deletePlaceholder}
                 onInsertPlaceholder={handleInsertPlaceholderFromPanel}
+                onPlaceholderNameChange={handlePlaceholderNameChange}
               />
             )}
             
@@ -204,6 +208,7 @@ const Index = () => {
               onUpdatePlaceholder={updatePlaceholder}
               onDeletePlaceholder={deletePlaceholder}
               onInsertPlaceholder={handleInsertPlaceholderFromPanel}
+              onPlaceholderNameChange={handlePlaceholderNameChange}
             />
           </div>
           
