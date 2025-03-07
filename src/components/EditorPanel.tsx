@@ -16,13 +16,13 @@ export function EditorPanel({
   onInsertPlaceholder
 }: EditorPanelProps) {
   return (
-    <div className="editor-panel">
+    <aside className="w-full md:w-80 border-r border-border h-full flex flex-col bg-background/90">
       <PromptEditor
         value={promptText}
         onChange={setPromptText}
         placeholders={placeholders}
         onInsertPlaceholder={onInsertPlaceholder}
       />
-    </div>
+    </aside>
   );
 }

@@ -53,7 +53,27 @@
 
 @layer components {
   .placeholder-tag {
-    @apply text-primary font-mono text-sm px-1.5 py-0.5 bg-primary/10 rounded-md border border-primary/20 hover:bg-primary/20 transition-colors inline-flex;
+    @apply font-mono text-sm px-1.5 py-0.5 rounded-md border inline-flex transition-colors;
+  }
+
+  .placeholder-style {
+    @apply bg-blue-100 text-blue-800 border-blue-200 hover:bg-blue-200;
+  }
+
+  .placeholder-tone {
+    @apply bg-purple-100 text-purple-800 border-purple-200 hover:bg-purple-200;
+  }
+
+  .placeholder-format {
+    @apply bg-green-100 text-green-800 border-green-200 hover:bg-green-200;
+  }
+
+  .placeholder-terminology {
+    @apply bg-amber-100 text-amber-800 border-amber-200 hover:bg-amber-200;
+  }
+
+  .placeholder-other {
+    @apply bg-gray-100 text-gray-800 border-gray-200 hover:bg-gray-200;
   }
 
   .glass-panel {
@@ -99,7 +119,6 @@
     border-radius: 3px;
   }
 
-  /* Updated editor panel styling */
   .editor-panel {
     @apply w-full md:flex-1 flex flex-col overflow-hidden bg-white/50 backdrop-blur-sm shadow-lg rounded-lg border border-border/50;
   }
@@ -108,7 +127,6 @@
     @apply w-full md:w-80 border-r border-border/50 h-full flex flex-col bg-white/50 backdrop-blur-sm shadow-lg rounded-lg;
   }
   
-  /* Logo square */
   .app-logo {
     @apply flex-shrink-0 h-8 w-8 rounded-lg bg-primary flex items-center justify-center;
   }

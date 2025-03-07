@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { PlusCircle } from 'lucide-react';
+import { PlusCircle, Undo, Redo } from 'lucide-react';
 import { Placeholder } from '@/types';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
@@ -23,6 +23,20 @@ export function PromptEditor({
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [cursorPosition, setCursorPosition] = useState<number>(0);
   const [formattedContent, setFormattedContent] = useState<string>('');
+  const [historyStack, setHistoryStack] = useState<string[]>([]);
+  const [historyIndex, setHistoryIndex] = useState<number>(-1);
+  const [isUndoRedo, setIsUndoRedo] = useState<boolean>(false);
+
+  // Color map for different placeholder categories
+  const getCategoryColor = (category: string) => {
+    switch (category) {
+      case 'style': return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'tone': return 'bg-purple-100 text-purple-800 border-purple-200';
+      case 'format': return 'bg-green-100 text-green-800 border-green-200';
+      case 'terminology': return 'bg-amber-100 text-amber-800 border-amber-200';
+      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
+  };
 
   // Update the formatted display with highlighted placeholders
   useEffect(() => {
@@ -36,13 +50,29 @@ export function PromptEditor({
     // Replace placeholder tags with highlighted spans
     sortedPlaceholders.forEach(placeholder => {
       const pattern = new RegExp(`<${placeholder.name}>`, 'g');
+      const colorClasses = getCategoryColor(placeholder.category);
       formatted = formatted.replace(pattern, 
-        `<span class="placeholder-tag" data-placeholder-id="${placeholder.id}">&lt;${placeholder.name}&gt;</span>`
+        `<span class="placeholder-tag ${colorClasses}" data-placeholder-id="${placeholder.id}">&lt;${placeholder.name}&gt;</span>`
       );
     });
     
     setFormattedContent(formatted);
   }, [value, placeholders]);
+
+  // Handle history stack for undo/redo
+  useEffect(() => {
+    if (isUndoRedo) {
+      setIsUndoRedo(false);
+      return;
+    }
+    
+    if (value && (historyStack.length === 0 || value !== historyStack[historyIndex])) {
+      const newStack = historyStack.slice(0, historyIndex + 1);
+      newStack.push(value);
+      setHistoryStack(newStack);
+      setHistoryIndex(newStack.length - 1);
+    }
+  }, [value]);
 
   useEffect(() => {
     // Auto-resize the textarea based on content
@@ -60,7 +90,8 @@ export function PromptEditor({
 
   const handleInsertPlaceholder = (name: string) => {
     if (onInsertPlaceholder && textareaRef.current) {
-      const newPosition = onInsertPlaceholder(name, cursorPosition);
+      const position = textareaRef.current.selectionStart;
+      const newPosition = onInsertPlaceholder(name, position);
       
       // Focus and set cursor position after insertion
       setTimeout(() => {
@@ -73,14 +104,53 @@ export function PromptEditor({
     }
   };
 
+  const handleUndo = () => {
+    if (historyIndex > 0) {
+      setIsUndoRedo(true);
+      setHistoryIndex(historyIndex - 1);
+      onChange(historyStack[historyIndex - 1]);
+    }
+  };
+
+  const handleRedo = () => {
+    if (historyIndex < historyStack.length - 1) {
+      setIsUndoRedo(true);
+      setHistoryIndex(historyIndex + 1);
+      onChange(historyStack[historyIndex + 1]);
+    }
+  };
+
   return (
     <div className="flex flex-col h-full">
-      <div className="p-4 border-b border-border flex flex-col">
-        <div>
-          <h2 className="text-lg font-medium">Prompt Editor</h2>
-          <p className="text-sm text-muted-foreground">
-            Write your main prompt text here
-          </p>
+      <div className="p-4 border-b border-border">
+        <div className="flex justify-between items-center">
+          <div>
+            <h2 className="text-lg font-medium">Prompt Editor</h2>
+            <p className="text-sm text-muted-foreground">
+              Write your main prompt text here
+            </p>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <Button 
+              size="sm" 
+              variant="ghost" 
+              onClick={handleUndo} 
+              disabled={historyIndex <= 0}
+              title="Undo"
+            >
+              <Undo size={16} />
+            </Button>
+            <Button 
+              size="sm" 
+              variant="ghost" 
+              onClick={handleRedo} 
+              disabled={historyIndex >= historyStack.length - 1}
+              title="Redo"
+            >
+              <Redo size={16} />
+            </Button>
+          </div>
         </div>
 
         <div className="mt-3">
@@ -105,7 +175,9 @@ export function PromptEditor({
                         className="w-full justify-start text-left"
                         onClick={() => handleInsertPlaceholder(placeholder.name)}
                       >
-                        <span className="text-xs font-mono text-primary">{`<${placeholder.name}>`}</span>
+                        <span className={`text-xs font-mono px-1.5 py-0.5 rounded-md ${getCategoryColor(placeholder.category)}`}>
+                          {`<${placeholder.name}>`}
+                        </span>
                       </Button>
                     ))}
                   </div>
@@ -149,4 +221,3 @@ export function PromptEditor({
     </div>
   );
 }
-

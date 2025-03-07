@@ -120,8 +120,10 @@ export function PlaceholderCard({
         ) : (
           <>
             <div className="flex items-center justify-between mb-2">
-              <h3 className="font-medium text-sm placeholder-tag">
-                {placeholder.name}
+              <h3 className="font-medium text-sm">
+                <span className={`px-1.5 py-0.5 rounded-md ${getCategoryColor(placeholder.category)}`}>
+                  {placeholder.name}
+                </span>
               </h3>
               <Badge variant="outline" className={`text-xs ${getCategoryColor(placeholder.category)}`}>
                 {placeholder.category}
