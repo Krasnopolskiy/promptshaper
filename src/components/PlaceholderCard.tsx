@@ -1,13 +1,11 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
-import { Placeholder, PlaceholderCategory } from '@/types';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Placeholder } from '@/types';
 import { Plus } from 'lucide-react';
+import { PLACEHOLDER_COLORS } from '@/hooks/usePlaceholders';
 
 interface PlaceholderCardProps {
   placeholder: Placeholder;
@@ -27,16 +25,19 @@ export function PlaceholderCard({
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState(placeholder.name);
   const [content, setContent] = useState(placeholder.content);
-  const [category, setCategory] = useState<PlaceholderCategory>(placeholder.category);
   const [originalName, setOriginalName] = useState(placeholder.name);
 
   useEffect(() => {
     // Update form values when placeholder changes
     setName(placeholder.name);
     setContent(placeholder.content);
-    setCategory(placeholder.category);
     setOriginalName(placeholder.name);
   }, [placeholder]);
+
+  // Get a random color from the PLACEHOLDER_COLORS array
+  const getRandomColor = () => {
+    return PLACEHOLDER_COLORS[Math.floor(Math.random() * PLACEHOLDER_COLORS.length)];
+  };
 
   const handleSave = () => {
     if (!name.trim() || !content.trim()) return;
@@ -49,10 +50,13 @@ export function PlaceholderCard({
       onNameChange(originalName, trimmedName);
     }
     
+    // Assign a new random color when saving
+    const newColor = getRandomColor();
+    
     onUpdate(placeholder.id, {
       name: trimmedName,
       content: trimmedContent,
-      category
+      color: newColor
     });
     
     setIsEditing(false);
@@ -62,18 +66,15 @@ export function PlaceholderCard({
   const handleCancel = () => {
     setName(placeholder.name);
     setContent(placeholder.content);
-    setCategory(placeholder.category);
     setIsEditing(false);
   };
 
-  const getCategoryColor = (category: PlaceholderCategory) => {
-    switch (category) {
-      case 'style': return 'bg-blue-100 text-blue-800';
-      case 'tone': return 'bg-purple-100 text-purple-800';
-      case 'format': return 'bg-green-100 text-green-800';
-      case 'terminology': return 'bg-amber-100 text-amber-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
+  const getColorStyle = (color: string) => {
+    return {
+      backgroundColor: `${color}10`, // 10% opacity
+      color: color,
+      borderColor: `${color}30` // 30% opacity
+    };
   };
 
   const handleInsert = () => {
@@ -94,22 +95,6 @@ export function PlaceholderCard({
               className="mb-2"
             />
             
-            <Select 
-              value={category} 
-              onValueChange={(value) => setCategory(value as PlaceholderCategory)}
-            >
-              <SelectTrigger className="mb-2">
-                <SelectValue placeholder="Select a category" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="style">Style</SelectItem>
-                <SelectItem value="tone">Tone</SelectItem>
-                <SelectItem value="format">Format</SelectItem>
-                <SelectItem value="terminology">Terminology</SelectItem>
-                <SelectItem value="other">Other</SelectItem>
-              </SelectContent>
-            </Select>
-            
             <Textarea 
               value={content}
               onChange={(e) => setContent(e.target.value)}
@@ -121,13 +106,13 @@ export function PlaceholderCard({
           <>
             <div className="flex items-center justify-between mb-2">
               <h3 className="font-medium text-sm">
-                <span className={`px-1.5 py-0.5 rounded-md ${getCategoryColor(placeholder.category)}`}>
+                <span 
+                  className="px-1.5 py-0.5 rounded-md border"
+                  style={getColorStyle(placeholder.color)}
+                >
                   {placeholder.name}
                 </span>
               </h3>
-              <Badge variant="outline" className={`text-xs ${getCategoryColor(placeholder.category)}`}>
-                {placeholder.category}
-              </Badge>
             </div>
             <p className="text-sm text-muted-foreground line-clamp-3">
               {placeholder.content}
@@ -141,7 +126,11 @@ export function PlaceholderCard({
             <Button size="sm" variant="ghost" onClick={handleCancel}>
               Cancel
             </Button>
-            <Button size="sm" onClick={handleSave}>
+            <Button 
+              size="sm" 
+              onClick={handleSave}
+              className="bg-primary hover:bg-primary/90"
+            >
               Save
             </Button>
           </>
@@ -159,7 +148,7 @@ export function PlaceholderCard({
               <Button 
                 size="sm" 
                 variant="outline" 
-                className="text-primary" 
+                style={{ color: placeholder.color }}
                 onClick={handleInsert}
                 title={'Insert <' + placeholder.name + '> into prompt'}
               >

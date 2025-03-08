@@ -1,31 +1,41 @@
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { PlaceholderCategory } from '@/types';
+import { PLACEHOLDER_COLORS } from '@/hooks/usePlaceholders';
 
 interface PlaceholderFormProps {
-  onSubmit: (name: string, content: string, category: PlaceholderCategory) => void;
+  onSubmit: (name: string, content: string, color: string) => void;
 }
 
 export function PlaceholderForm({ onSubmit }: PlaceholderFormProps) {
   const [name, setName] = useState('');
   const [content, setContent] = useState('');
-  const [category, setCategory] = useState<PlaceholderCategory>('style');
+  const [color, setColor] = useState('');
+  
+  // Set a random color when the component mounts
+  useEffect(() => {
+    const randomColor = PLACEHOLDER_COLORS[Math.floor(Math.random() * PLACEHOLDER_COLORS.length)];
+    setColor(randomColor);
+  }, []);
+  
+  // Select a new random color when form is submitted
+  const getRandomColor = () => {
+    return PLACEHOLDER_COLORS[Math.floor(Math.random() * PLACEHOLDER_COLORS.length)];
+  };
   
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!name.trim() || !content.trim()) return;
     
-    onSubmit(name.trim(), content.trim(), category);
+    onSubmit(name.trim(), content.trim(), color);
     
-    // Clear form
+    // Clear form and set a new random color
     setName('');
     setContent('');
+    setColor(getRandomColor());
   };
   
   return (
@@ -43,25 +53,6 @@ export function PlaceholderForm({ onSubmit }: PlaceholderFormProps) {
       </div>
       
       <div className="space-y-2">
-        <Label htmlFor="placeholder-category">Category</Label>
-        <Select 
-          value={category} 
-          onValueChange={(value) => setCategory(value as PlaceholderCategory)}
-        >
-          <SelectTrigger id="placeholder-category" className="w-full bg-background">
-            <SelectValue placeholder="Select a category" />
-          </SelectTrigger>
-          <SelectContent position="popper" className="w-full min-w-[8rem]">
-            <SelectItem value="style">Style</SelectItem>
-            <SelectItem value="tone">Tone</SelectItem>
-            <SelectItem value="format">Format</SelectItem>
-            <SelectItem value="terminology">Terminology</SelectItem>
-            <SelectItem value="other">Other</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-      
-      <div className="space-y-2">
         <Label htmlFor="placeholder-content">Content</Label>
         <Textarea 
           id="placeholder-content"
@@ -73,7 +64,10 @@ export function PlaceholderForm({ onSubmit }: PlaceholderFormProps) {
         />
       </div>
       
-      <Button type="submit" className="w-full bg-primary hover:bg-primary/90">
+      <Button 
+        type="submit" 
+        className="w-full bg-primary hover:bg-primary/90"
+      >
         Add Placeholder
       </Button>
     </form>
