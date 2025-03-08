@@ -57,17 +57,6 @@ export function PlaceholderPanel({
         
         <TabsContent value="add" className="flex-1 p-4">
           <PlaceholderForm onSubmit={onAddPlaceholder} />
-          
-          {placeholders.length === 0 && (
-            <div className="text-center py-8 px-4 mt-4">
-              <div className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 mb-3">
-                <PlusCircle className="h-6 w-6 text-primary" />
-              </div>
-              <p className="text-sm text-muted-foreground">
-                No placeholders yet. Create your first one above.
-              </p>
-            </div>
-          )}
         </TabsContent>
         
         <TabsContent value="manage" className="flex-1 flex flex-col mt-0">
