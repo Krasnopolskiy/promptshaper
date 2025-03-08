@@ -34,20 +34,21 @@ export function usePrompt() {
       .map(p => {
         // Add newlines between tags and content for multiline content
         if (p.content.includes('\n') || p.content.length > 50) {
-          return `<${p.name}>\n${p.content}\n</${p.name}>`;
+          return '<' + p.name + '>\n' + p.content + '\n</' + p.name + '>';
         }
-        return `<${p.name}>${p.content}</${p.name}>`;
+        return '<' + p.name + '>' + p.content + '</' + p.name + '>';
       })
       .join('\n\n');
     
     // Return the prompt with placeholders section if we have any
     return usedPlaceholders.length > 0 
-      ? `${promptText}\n\n${fullPlaceholders}`
+      ? promptText + '\n\n' + fullPlaceholders
       : promptText;
   }, []);
 
   const insertPlaceholderTag = useCallback((name: string, cursorPosition: number) => {
-    const tag = `<${name}>`;
+    // Make sure we're inserting just the tag without any additional characters
+    const tag = '<' + name + '>';
     const newText = 
       promptText.substring(0, cursorPosition) +
       tag +
@@ -62,8 +63,8 @@ export function usePrompt() {
   const updatePlaceholdersInPrompt = useCallback((oldName: string, newName: string) => {
     if (oldName === newName) return;
     
-    const pattern = new RegExp(`<${oldName}>`, 'g');
-    const updatedPrompt = promptText.replace(pattern, `<${newName}>`);
+    const pattern = new RegExp('<' + oldName + '>', 'g');
+    const updatedPrompt = promptText.replace(pattern, '<' + newName + '>');
     
     if (updatedPrompt !== promptText) {
       setPromptText(updatedPrompt);

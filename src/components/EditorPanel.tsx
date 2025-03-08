@@ -1,4 +1,3 @@
-
 import { PromptEditor } from './PromptEditor';
 import { Placeholder } from '@/types';
 
@@ -16,13 +15,11 @@ export function EditorPanel({
   onInsertPlaceholder
 }: EditorPanelProps) {
   return (
-    <aside className="editor-panel">
-      <PromptEditor
-        value={promptText}
-        onChange={setPromptText}
-        placeholders={placeholders}
-        onInsertPlaceholder={onInsertPlaceholder}
-      />
-    </aside>
+    <PromptEditor
+      value={promptText}
+      onChange={setPromptText}
+      placeholders={placeholders}
+      onInsertPlaceholder={onInsertPlaceholder}
+    />
   );
 }

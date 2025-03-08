@@ -161,7 +161,7 @@ export function PlaceholderCard({
                 variant="outline" 
                 className="text-primary" 
                 onClick={handleInsert}
-                title={`Insert <${placeholder.name}> into prompt`}
+                title={'Insert <' + placeholder.name + '> into prompt'}
               >
                 <Plus size={14} />
                 Insert

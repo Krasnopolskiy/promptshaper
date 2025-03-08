@@ -50,6 +50,7 @@ const Index = () => {
   };
   
   const handleInsertPlaceholderFromPanel = (name: string) => {
+
     const position = isMobile ? promptText.length : cursorPosition || 0;
     insertPlaceholderTag(name, position);
     
