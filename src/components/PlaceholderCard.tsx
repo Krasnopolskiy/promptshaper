@@ -137,22 +137,32 @@ export function PlaceholderCard({
         ) : (
           <>
             <div>
-              <Button size="sm" variant="ghost" onClick={() => setIsEditing(true)}>
+              <Button 
+                size="sm" 
+                variant="ghost" 
+                onClick={() => setIsEditing(true)}
+                className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:text-blue-400 dark:hover:text-blue-300 dark:hover:bg-blue-900/50"
+              >
                 Edit
               </Button>
-              <Button size="sm" variant="ghost" className="text-destructive" onClick={() => onDelete(placeholder.id)}>
+              <Button 
+                size="sm" 
+                variant="ghost" 
+                onClick={() => onDelete(placeholder.id)}
+                className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/50"
+              >
                 Delete
               </Button>
             </div>
             {onInsert && (
               <Button 
                 size="sm" 
-                variant="outline" 
-                style={{ color: placeholder.color }}
+                variant="ghost" 
                 onClick={handleInsert}
                 title={'Insert <' + placeholder.name + '> into prompt'}
+                className="text-green-600 hover:text-green-700 hover:bg-green-50 dark:text-green-400 dark:hover:text-green-300 dark:hover:bg-green-900/50"
               >
-                <Plus size={14} />
+                <Plus size={14} className="mr-1" />
                 Insert
               </Button>
             )}

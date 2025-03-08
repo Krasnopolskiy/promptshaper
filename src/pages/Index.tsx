@@ -236,9 +236,9 @@ const Index = () => {
           </div>
         </div>
       ) : (
-        <div className="flex-1 p-4 overflow-y-auto">
-          <div className="flex flex-col lg:flex-row gap-4">
-            <div className="w-full lg:w-80 h-[400px] lg:h-full flex-shrink-0 shadow-lg rounded-lg overflow-hidden bg-white/70 dark:bg-background/70 backdrop-blur-sm border border-border/50 transition-all duration-300 hover:shadow-xl">
+        <div className="flex-1 p-4 overflow-hidden">
+          <div className="flex flex-col lg:flex-row gap-4 h-[calc(100vh-120px)]">
+            <div className="w-full lg:w-80 h-full flex-shrink-0 shadow-lg rounded-lg overflow-hidden bg-white/70 dark:bg-background/70 backdrop-blur-sm border border-border/50 transition-all duration-300 hover:shadow-xl">
               <PlaceholderPanel 
                 placeholders={placeholders}
                 onAddPlaceholder={addPlaceholder}
@@ -249,7 +249,7 @@ const Index = () => {
               />
             </div>
             
-            <div className="w-full lg:flex-1 h-[400px] lg:h-full shadow-lg rounded-lg overflow-hidden bg-white/70 dark:bg-background/70 backdrop-blur-sm border border-border/50 transition-all duration-300 hover:shadow-xl">
+            <div className="w-full lg:flex-1 h-full shadow-lg rounded-lg overflow-hidden bg-white/70 dark:bg-background/70 backdrop-blur-sm border border-border/50 transition-all duration-300 hover:shadow-xl">
               <EditorPanel 
                 promptText={promptText}
                 setPromptText={setPromptText}
@@ -258,7 +258,7 @@ const Index = () => {
               />
             </div>
             
-            <div className="w-full lg:w-80 h-[400px] lg:h-full flex-shrink-0 shadow-lg rounded-lg overflow-hidden bg-white/70 dark:bg-background/70 backdrop-blur-sm border border-border/50 transition-all duration-300 hover:shadow-xl">
+            <div className="w-full lg:w-80 h-full flex-shrink-0 shadow-lg rounded-lg overflow-hidden bg-white/70 dark:bg-background/70 backdrop-blur-sm border border-border/50 transition-all duration-300 hover:shadow-xl">
               <PreviewPanel 
                 content={fullPrompt}
                 onCopy={handleCopyFullPrompt}

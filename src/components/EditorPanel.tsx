@@ -27,12 +27,14 @@ export function EditorPanel({
         </p>
       </div>
       
-      <PromptEditor
-        value={promptText}
-        onChange={setPromptText}
-        placeholders={placeholders}
-        onInsertPlaceholder={onInsertPlaceholder}
-      />
+      <div className="flex-1 overflow-hidden">
+        <PromptEditor
+          value={promptText}
+          onChange={setPromptText}
+          placeholders={placeholders}
+          onInsertPlaceholder={onInsertPlaceholder}
+        />
+      </div>
     </div>
   );
 }

@@ -68,7 +68,7 @@ export function PreviewPanel({ content, onCopy }: PreviewPanelProps) {
           {content ? (
             <div 
               ref={previewRef}
-              className="whitespace-pre-wrap text-sm bg-green-50 dark:bg-green-950/30 p-4 rounded-lg border border-green-100 dark:border-green-900" 
+              className="whitespace-pre-wrap text-sm" 
               dangerouslySetInnerHTML={{ 
                 __html: formatContentWithSyntaxHighlighting(content) 
               }}

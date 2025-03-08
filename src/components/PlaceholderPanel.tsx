@@ -30,7 +30,7 @@ export function PlaceholderPanel({
   const sortedPlaceholders = [...placeholders].sort((a, b) => b.createdAt - a.createdAt);
 
   return (
-    <aside className="w-full md:w-80 h-full flex flex-col bg-background">
+    <aside className="w-full h-full flex flex-col bg-background">
       <div className="p-4 border-b border-border/50 bg-background">
         <div className="flex items-center gap-2 mb-2">
           <Sparkles className="h-4 w-4 text-primary" />
@@ -55,34 +55,34 @@ export function PlaceholderPanel({
           </TabsList>
         </div>
         
-        <TabsContent value="add" className="flex-1 flex flex-col mt-0 p-0">
-          <div className="p-4 flex-1">
-            <PlaceholderForm onSubmit={onAddPlaceholder} />
-            
-            {placeholders.length === 0 && (
-              <div className="text-center py-8 px-4 mt-4">
-                <div className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 mb-3">
-                  <PlusCircle className="h-6 w-6 text-primary" />
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  No placeholders yet. Create your first one above.
-                </p>
+        <TabsContent value="add" className="flex-1 p-4">
+          <PlaceholderForm onSubmit={onAddPlaceholder} />
+          
+          {placeholders.length === 0 && (
+            <div className="text-center py-8 px-4 mt-4">
+              <div className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 mb-3">
+                <PlusCircle className="h-6 w-6 text-primary" />
               </div>
-            )}
-          </div>
+              <p className="text-sm text-muted-foreground">
+                No placeholders yet. Create your first one above.
+              </p>
+            </div>
+          )}
         </TabsContent>
         
-        <TabsContent value="manage" className="flex-1 flex flex-col mt-0 p-0">
-          <div className="p-4 flex-1">
-            <div className="flex items-center justify-between mb-2">
+        <TabsContent value="manage" className="flex-1 flex flex-col mt-0">
+          <div className="p-4 border-b border-border/50">
+            <div className="flex items-center justify-between">
               <h3 className="text-sm font-medium">All Placeholders</h3>
               <span className="text-xs text-muted-foreground bg-accent/30 px-2 py-0.5 rounded-full">
                 {placeholders.length} total
               </span>
             </div>
-            
+          </div>
+          
+          <div className="flex-1 overflow-auto">
             <ScrollArea className="h-[calc(100vh-250px)]">
-              <div className="space-y-3 pr-3">
+              <div className="p-4 space-y-3">
                 {sortedPlaceholders.map((placeholder) => (
                   <PlaceholderCard
                     key={placeholder.id}

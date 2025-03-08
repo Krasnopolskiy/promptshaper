@@ -325,6 +325,7 @@ export function PromptEditor({
               fontSize: "14px",
               fontFamily: "inherit",
               minHeight: "200px",
+              height: "auto",
             }}
             className="w-full"
             data-color-mode={theme}
