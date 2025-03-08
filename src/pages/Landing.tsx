@@ -1,0 +1,424 @@
+import { useState, useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { LandingHeader } from '@/components/LandingHeader';
+import { 
+  Wand2, FileCode, Layers, 
+  Palette, RotateCw, Check, ArrowRight,
+  MessageSquare, Bot, User, ChevronRight, Sparkles
+} from 'lucide-react';
+
+const Landing = () => {
+  const [activeFeature, setActiveFeature] = useState(0);
+  const [isVisible, setIsVisible] = useState<{[key: string]: boolean}>({
+    hero: false,
+    features: false,
+    workflow: false,
+    testimonials: false,
+    cta: false
+  });
+  const sectionRefs = {
+    hero: useRef<HTMLDivElement>(null),
+    features: useRef<HTMLDivElement>(null),
+    workflow: useRef<HTMLDivElement>(null),
+    testimonials: useRef<HTMLDivElement>(null),
+    cta: useRef<HTMLDivElement>(null)
+  };
+
+  // Rotate through features automatically
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveFeature((prev) => (prev + 1) % features.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Intersection observer for animations
+  useEffect(() => {
+    const observers: IntersectionObserver[] = [];
+    
+    Object.entries(sectionRefs).forEach(([key, ref]) => {
+      if (ref.current) {
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach(entry => {
+              if (entry.isIntersecting) {
+                setIsVisible(prev => ({ ...prev, [key]: true }));
+              }
+            });
+          },
+          { threshold: 0.1 }
+        );
+        
+        observer.observe(ref.current);
+        observers.push(observer);
+      }
+    });
+    
+    return () => {
+      observers.forEach(observer => observer.disconnect());
+    };
+  }, []);
+
+  const features = [
+    {
+      title: "Reusable Placeholders",
+      description: "Create and manage placeholders that can be reused across multiple prompts.",
+      icon: <Layers className="h-6 w-6 text-blue-500" />
+    },
+    {
+      title: "Custom Templates",
+      description: "Build and save prompt templates with your placeholders for consistent results.",
+      icon: <FileCode className="h-6 w-6 text-purple-500" />
+    },
+    {
+      title: "Real-time Preview",
+      description: "See your completed prompt with all placeholders filled in as you type.",
+      icon: <Wand2 className="h-6 w-6 text-amber-500" />
+    },
+    {
+      title: "Color Coding",
+      description: "Visually organize your placeholders with custom colors for better recognition.",
+      icon: <Palette className="h-6 w-6 text-red-500" />
+    }
+  ];
+
+  const workflowSteps = [
+    {
+      title: "Create placeholders",
+      description: "Define reusable variables like customer names, product features, or timelines.",
+      icon: <Layers className="h-6 w-6 text-blue-500" />
+    },
+    {
+      title: "Build templates",
+      description: "Create prompt templates that incorporate your custom placeholders.",
+      icon: <FileCode className="h-6 w-6 text-purple-500" />
+    },
+    {
+      title: "Fill in values",
+      description: "Replace placeholders with actual values for each specific use case.",
+      icon: <Wand2 className="h-6 w-6 text-amber-500" />
+    },
+    {
+      title: "Generate content",
+      description: "Use your completed prompt to generate perfect AI content every time.",
+      icon: <Bot className="h-6 w-6 text-green-500" />
+    }
+  ];
+
+  const testimonials = [
+    {
+      quote: "Prompt Shaper has completely transformed how our team creates AI prompts. We save hours every week!",
+      author: "Sarah J.",
+      role: "Content Manager"
+    },
+    {
+      quote: "The ability to reuse placeholders across different templates is a game-changer for consistency.",
+      author: "Michael T.",
+      role: "AI Prompt Engineer"
+    },
+    {
+      quote: "I love how I can visually organize my prompts with color coding. Makes complex prompts so much easier.",
+      author: "Alex R.",
+      role: "UX Designer"
+    }
+  ];
+
+  return (
+    <div className="flex flex-col min-h-screen bg-gradient-to-br from-background via-accent/5 to-background">
+      <LandingHeader />
+      
+      {/* Animated background elements */}
+      <div className="fixed inset-0 -z-10 overflow-hidden">
+        <div className="absolute top-20 left-[10%] w-64 h-64 rounded-full bg-primary/5 blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-20 right-[10%] w-96 h-96 rounded-full bg-accent/10 blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+        <div className="absolute top-[40%] right-[20%] w-48 h-48 rounded-full bg-primary/10 blur-2xl animate-pulse" style={{ animationDelay: '2s' }}></div>
+      </div>
+      
+      {/* Hero Section */}
+      <section 
+        ref={sectionRefs.hero}
+        className="relative px-4 py-20 md:py-32 overflow-hidden"
+      >
+        <div className={`max-w-6xl mx-auto transition-all duration-1000 ${isVisible.hero ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+          <div className="flex flex-col md:flex-row items-center gap-8 md:gap-16">
+            <div className="flex-1">
+              <div className="inline-flex items-center rounded-full bg-primary/10 px-3 py-1 text-sm font-medium text-primary mb-6">
+                <Sparkles className="h-3.5 w-3.5 mr-2" />
+                AI Prompt Management
+              </div>
+              
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6">
+                Create <span className="text-primary">perfect AI prompts</span> with reusable placeholders
+              </h1>
+              
+              <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-xl">
+                Prompt Shaper helps you create, manage, and reuse placeholders for consistent AI interactions across your team or projects.
+              </p>
+              
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Link to="/app">
+                  <Button size="lg" className="w-full sm:w-auto">
+                    Get Started <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </Link>
+              </div>
+            </div>
+            
+            <div className="flex-1 relative">
+              <div className="relative z-10 bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-border/50 overflow-hidden">
+                <div className="border-b border-border/50 p-4 flex items-center gap-2">
+                  <div className="h-3 w-3 rounded-full bg-red-400"></div>
+                  <div className="h-3 w-3 rounded-full bg-yellow-400"></div>
+                  <div className="h-3 w-3 rounded-full bg-green-400"></div>
+                  <div className="ml-2 text-sm font-medium">Prompt Shaper</div>
+                </div>
+                <div className="p-6">
+                  <div className="mb-4 text-sm font-medium">Template:</div>
+                  <div className="p-3 rounded-md bg-background/50 border border-border/50 text-sm mb-4">
+                    Write a compelling ad for <span className="inline-block px-1.5 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">{"<company>"}</span> promoting their <span className="inline-block px-1.5 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">{"<product>"}</span> to <span className="inline-block px-1.5 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-800">{"<audience>"}</span>.
+                  </div>
+                  <div className="mb-4 text-sm font-medium">Values:</div>
+                  <div className="space-y-2 mb-6">
+                    <div className="flex items-center">
+                      <div className="w-24 text-xs text-muted-foreground">company:</div>
+                      <div className="text-sm">Acme Inc</div>
+                    </div>
+                    <div className="flex items-center">
+                      <div className="w-24 text-xs text-muted-foreground">product:</div>
+                      <div className="text-sm">Smart Home Hub</div>
+                    </div>
+                    <div className="flex items-center">
+                      <div className="w-24 text-xs text-muted-foreground">audience:</div>
+                      <div className="text-sm">tech enthusiasts</div>
+                    </div>
+                  </div>
+                  <div className="mb-4 text-sm font-medium">Result:</div>
+                  <div className="p-3 rounded-md bg-green-50 border border-green-100 text-sm">
+                    Write a compelling ad for Acme Inc promoting their Smart Home Hub to tech enthusiasts.
+                  </div>
+                </div>
+              </div>
+              
+              {/* Decorative elements */}
+              <div className="absolute -bottom-6 -right-6 h-24 w-24 rounded-full bg-primary/20 blur-xl"></div>
+              <div className="absolute -top-6 -left-6 h-16 w-16 rounded-full bg-accent/30 blur-xl"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+      
+      {/* Features Section */}
+      <section 
+        ref={sectionRefs.features}
+        className="px-4 py-20 bg-white/50"
+      >
+        <div className={`max-w-6xl mx-auto transition-all duration-1000 ${isVisible.features ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Powerful Features</h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Everything you need to create and manage your AI prompts efficiently
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {features.map((feature, index) => (
+              <div 
+                key={index}
+                className={`bg-white rounded-xl p-6 shadow-lg border border-border/50 transition-all duration-500 ${
+                  activeFeature === index 
+                    ? 'scale-105 border-primary/20 shadow-xl' 
+                    : 'hover:shadow-xl hover:scale-[1.02]'
+                }`}
+                onMouseEnter={() => setActiveFeature(index)}
+              >
+                <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+                  {feature.icon}
+                </div>
+                <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
+                <p className="text-muted-foreground">{feature.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+      
+      {/* How It Works Section */}
+      <section 
+        ref={sectionRefs.workflow}
+        className="px-4 py-20"
+      >
+        <div className={`max-w-6xl mx-auto transition-all duration-1000 ${isVisible.workflow ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">How It Works</h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Prompt Shaper simplifies the process of creating consistent AI prompts
+            </p>
+          </div>
+          
+          <div className="relative">
+            {/* Connecting line */}
+            <div className="absolute left-[50%] top-0 bottom-0 w-0.5 bg-primary/20 hidden md:block"></div>
+            
+            <div className="space-y-12 md:space-y-0">
+              {workflowSteps.map((step, index) => (
+                <div 
+                  key={index} 
+                  className={`flex flex-col md:flex-row items-center gap-8 md:gap-16 transition-all duration-500 delay-${index * 200} ${
+                    isVisible.workflow ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+                  }`}
+                >
+                  <div className={`flex-1 order-2 ${index % 2 === 0 ? 'md:order-1 text-left' : 'md:order-2 md:text-right'}`}>
+                    <h3 className="text-xl font-semibold mb-2">{step.title}</h3>
+                    <p className="text-muted-foreground">{step.description}</p>
+                  </div>
+                  
+                  <div className="relative order-1 md:order-2">
+                    <div className="h-16 w-16 rounded-full bg-white shadow-lg border border-border/50 flex items-center justify-center z-10 relative">
+                      {step.icon}
+                    </div>
+                    <div className="absolute top-0 left-0 right-0 bottom-0 bg-primary/10 rounded-full blur-xl -z-10"></div>
+                  </div>
+                  
+                  <div className={`flex-1 order-3 ${index % 2 === 0 ? 'md:order-3 md:text-right' : 'md:order-1 text-left'}`}>
+                    {index === 0 && (
+                      <div className="bg-white p-4 rounded-lg shadow-lg border border-border/50">
+                        <div className="flex gap-2">
+                          <div className="chip chip-primary">{"<company>"}</div>
+                          <div className="chip chip-secondary">{"<product>"}</div>
+                          <div className="chip" style={{ backgroundColor: "#f97316", color: "white" }}>{"<audience>"}</div>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {index === 1 && (
+                      <div className="bg-white p-4 rounded-lg shadow-lg border border-border/50">
+                        <p className="text-sm">
+                          Write a compelling ad for <span className="chip chip-primary text-xs px-1">{"<company>"}</span> promoting their <span className="chip chip-secondary text-xs px-1">{"<product>"}</span> to <span className="chip text-xs px-1" style={{ backgroundColor: "#f97316", color: "white" }}>{"<audience>"}</span>.
+                        </p>
+                      </div>
+                    )}
+                    
+                    {index === 2 && (
+                      <div className="bg-white p-4 rounded-lg shadow-lg border border-border/50">
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2">
+                            <div className="w-20 text-xs text-muted-foreground">company:</div>
+                            <div className="text-sm">Acme Inc</div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <div className="w-20 text-xs text-muted-foreground">product:</div>
+                            <div className="text-sm">Smart Home Hub</div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <div className="w-20 text-xs text-muted-foreground">audience:</div>
+                            <div className="text-sm">tech enthusiasts</div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {index === 3 && (
+                      <div className="bg-white p-4 rounded-lg shadow-lg border border-border/50">
+                        <div className="bg-green-50 p-2 rounded border border-green-100 text-sm">
+                          Write a compelling ad for Acme Inc promoting their Smart Home Hub to tech enthusiasts.
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+      
+      {/* Testimonials Section */}
+      <section 
+        ref={sectionRefs.testimonials}
+        className="px-4 py-20 bg-gradient-to-br from-primary/5 to-accent/10"
+      >
+        <div className={`max-w-4xl mx-auto transition-all duration-1000 ${isVisible.testimonials ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">What Users Say</h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Join thousands of users who are already improving their AI prompts
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-3 gap-6">
+            {testimonials.map((testimonial, index) => (
+              <div 
+                key={index}
+                className="bg-white rounded-xl p-6 shadow-lg border border-border/50 transition-all duration-300 hover:shadow-xl"
+              >
+                <div className="mb-4 text-primary">
+                  {[...Array(5)].map((_, i) => (
+                    <Sparkles key={i} className="inline-block h-4 w-4 fill-current" />
+                  ))}
+                </div>
+                <p className="italic mb-4 text-muted-foreground">"{testimonial.quote}"</p>
+                <div>
+                  <div className="font-medium">{testimonial.author}</div>
+                  <div className="text-sm text-muted-foreground">{testimonial.role}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+      
+      {/* CTA Section */}
+      <section 
+        ref={sectionRefs.cta}
+        className="px-4 py-20"
+      >
+        <div className={`max-w-4xl mx-auto transition-all duration-1000 ${isVisible.cta ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+          <div className="bg-gradient-to-r from-primary/90 to-primary rounded-2xl p-8 md:p-12 text-white text-center shadow-xl">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              Ready to improve your AI prompts?
+            </h2>
+            <p className="text-lg mb-8 text-white/90 max-w-2xl mx-auto">
+              Start creating consistent, reusable prompts that save time and improve results.
+            </p>
+            <Link to="/app">
+              <Button size="lg" variant="secondary" className="text-primary">
+                Get Started Today <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+      
+      {/* Footer */}
+      <footer className="bg-background px-4 py-8 border-t border-border/50">
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center">
+          <div className="flex items-center gap-2 mb-4 md:mb-0">
+            <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
+              <span className="text-primary font-semibold">P</span>
+            </div>
+            <span className="font-medium">Prompt Shaper</span>
+          </div>
+          
+          <div className="flex gap-6">
+            <Link to="/app" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              App
+            </Link>
+            <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              Privacy
+            </a>
+            <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              Terms
+            </a>
+          </div>
+          
+          <div className="text-sm text-muted-foreground mt-4 md:mt-0">
+            © {new Date().getFullYear()} Prompt Shaper
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+};
+
+export default Landing; 

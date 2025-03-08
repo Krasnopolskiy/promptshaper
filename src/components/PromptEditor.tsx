@@ -93,7 +93,7 @@ export function PromptEditor({
         const spans = editor.querySelectorAll('span');
         spans.forEach(span => {
           const text = span.textContent || '';
-          // Check if this span contains a placeholder pattern <name>
+          // Check if this span contains a placeholder pattern <n>
           if (text.match(/<([\p{L}0-9]+)>/u)) {
             // Find which placeholder this is
             const placeholderName = text.replace(/[<>]/g, '');
@@ -245,113 +245,88 @@ export function PromptEditor({
   };
 
   return (
-    <aside className="w-full h-full flex flex-col bg-background/90">
-      <div className="p-4 border-b border-border flex flex-col gap-2">
-        <div>
-          <h2 className="text-lg font-medium">Editor</h2>
-          <p className="text-sm text-muted-foreground">
-            Create and edit your prompt template
-          </p>
-        </div>
+    <div className="w-full h-full flex flex-col">
+      <div className="p-4 border-b border-border flex items-center gap-2">
+        <Button 
+          size="sm" 
+          variant="ghost" 
+          onClick={handleUndo} 
+          disabled={historyIndex >= historyStack.length - 1}
+          className="text-sm gap-1.5"
+        >
+          <Undo size={14} />
+          Undo
+        </Button>
         
-        <div className="flex items-center gap-2">
-          <Button 
-            size="sm" 
-            variant="ghost" 
-            onClick={handleUndo} 
-            disabled={historyIndex >= historyStack.length - 1}
-            className="text-sm gap-1.5"
-          >
-            <Undo size={14} />
-            Undo
-          </Button>
-          
-          <Button 
-            size="sm" 
-            variant="ghost" 
-            onClick={handleRedo} 
-            disabled={historyIndex <= 0}
-            className="text-sm gap-1.5"
-          >
-            <Redo size={14} />
-            Redo
-          </Button>
-          
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button 
-                size="sm" 
-                variant="outline" 
-                className="text-sm gap-1.5"
-              >
-                <PlusCircle size={14} />
-                Insert
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-56 p-2" align="end">
-              {placeholders.length > 0 ? (
-                <div className="grid gap-1">
-                  {placeholders.map((placeholder) => (
-                    <Button
-                      key={placeholder.id}
-                      variant="ghost"
-                      size="sm"
-                      className="justify-start font-normal"
-                      onClick={() => handleInsertPlaceholder(placeholder.name)}
-                      style={{ color: placeholder.color }}
-                    >
-                      <span 
-                        className="w-2 h-2 rounded-full mr-2" 
-                        style={{ backgroundColor: placeholder.color }}
-                      />
-                      {placeholder.name}
-                    </Button>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-sm text-muted-foreground p-2 text-center">
-                  No placeholders available yet
-                </div>
-              )}
-            </PopoverContent>
-          </Popover>
-        </div>
+        <Button 
+          size="sm" 
+          variant="ghost" 
+          onClick={handleRedo} 
+          disabled={historyIndex <= 0}
+          className="text-sm gap-1.5"
+        >
+          <Redo size={14} />
+          Redo
+        </Button>
+        
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button 
+              size="sm" 
+              variant="outline" 
+              className="text-sm gap-1.5"
+            >
+              <PlusCircle size={14} />
+              Insert
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-56 p-2" align="end">
+            {placeholders.length > 0 ? (
+              <div className="grid gap-1">
+                {placeholders.map((placeholder) => (
+                  <Button
+                    key={placeholder.id}
+                    variant="ghost"
+                    size="sm"
+                    className="justify-start font-normal"
+                    onClick={() => handleInsertPlaceholder(placeholder.name)}
+                  >
+                    <span 
+                      className="mr-2 h-2 w-2 rounded-full"
+                      style={{ backgroundColor: placeholder.color }}
+                    />
+                    {placeholder.name}
+                  </Button>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-2 text-sm text-muted-foreground">
+                No placeholders available
+              </div>
+            )}
+          </PopoverContent>
+        </Popover>
       </div>
       
-      <ScrollArea className="flex-1 relative">
+      <ScrollArea className="flex-1">
         <div className="p-4">
-          <div className="relative min-h-[200px]">
-            <CodeEditor
-              value={value}
-              language="markdown"
-              placeholder="Enter your prompt here..."
-              onChange={(e) => handleEditorChange(e.target.value)}
-              onKeyDown={handleKeyDown}
-              ref={editorRef}
-              padding={0}
-              style={{
-                fontSize: 14,
-                backgroundColor: 'transparent',
-                fontFamily: 'inherit',
-                minHeight: '200px',
-                width: '100%',
-              }}
-              className="min-h-[200px] text-base leading-relaxed resize-none border-0 shadow-none focus-visible:ring-0 w-full p-0"
-              data-color-mode="light"
-              data-gramm="false"
-            />
-          </div>
+          <CodeEditor
+            value={value}
+            language="text"
+            placeholder="Write your prompt here..."
+            onChange={(e) => handleEditorChange(e.target.value)}
+            onKeyDown={handleKeyDown}
+            ref={editorRef as any}
+            style={{
+              fontSize: "14px",
+              fontFamily: "inherit",
+              minHeight: "200px",
+            }}
+            className="w-full"
+            data-color-mode="light"
+          />
         </div>
       </ScrollArea>
-      
-      <div className="p-3 border-t border-border text-xs text-muted-foreground flex justify-between items-center">
-        <div>
-          {value.length} characters
-        </div>
-        <div>
-          ~{Math.ceil(value.length / 4)} tokens
-        </div>
-      </div>
-    </aside>
+    </div>
   );
 }

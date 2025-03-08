@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -6,6 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Template, Placeholder } from '@/types';
+import { Link } from 'react-router-dom';
+import { Save, Download, Sparkles } from 'lucide-react';
 
 interface HeaderProps {
   onSaveTemplate: (name: string, prompt: string, placeholders: Placeholder[]) => Template;
@@ -88,32 +89,41 @@ export function Header({
   };
 
   return (
-    <header className="w-full bg-background/80 backdrop-blur-sm border-b border-border z-10 flex justify-between items-center px-4 sm:px-6 py-3">
-      <div className="flex items-center gap-2">
-        <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
-          <span className="text-primary-foreground font-semibold text-lg">P</span>
-        </div>
-        <h1 className="text-xl font-medium">Prompt Shaper</h1>
-      </div>
-      
-      <div className="flex items-center gap-2">
-        <Button 
-          variant="outline" 
-          size="sm"
-          onClick={() => setIsLoadDialogOpen(true)}
-          className="text-xs sm:text-sm"
-        >
-          Load
-        </Button>
+    <header className="w-full bg-white/80 backdrop-blur-sm border-b border-border/50 z-10 shadow-sm">
+      <div className="container mx-auto flex justify-between items-center px-4 sm:px-6 py-3">
+        <Link to="/" className="flex items-center gap-3 hover:opacity-90 transition-opacity">
+          <div className="h-9 w-9 rounded-lg bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-sm">
+            <span className="text-primary-foreground font-semibold text-lg">P</span>
+          </div>
+          <div>
+            <h1 className="text-xl font-semibold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/80">
+              Prompt Shaper
+            </h1>
+            <p className="text-xs text-muted-foreground">Create perfect AI prompts</p>
+          </div>
+        </Link>
         
-        <Button 
-          variant="outline" 
-          size="sm"
-          onClick={() => setIsSaveDialogOpen(true)}
-          className="text-xs sm:text-sm"
-        >
-          Save
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => setIsLoadDialogOpen(true)}
+            className="text-xs sm:text-sm flex items-center gap-1 border-border/50 shadow-sm hover:bg-accent/10"
+          >
+            <Download className="h-3.5 w-3.5" />
+            <span className="hidden sm:inline">Load</span>
+          </Button>
+          
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => setIsSaveDialogOpen(true)}
+            className="text-xs sm:text-sm flex items-center gap-1 border-border/50 shadow-sm hover:bg-accent/10"
+          >
+            <Save className="h-3.5 w-3.5" />
+            <span className="hidden sm:inline">Save</span>
+          </Button>
+        </div>
       </div>
       
       <Dialog open={isSaveDialogOpen} onOpenChange={setIsSaveDialogOpen}>
