@@ -1,15 +1,14 @@
-
 import { useState } from 'react';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { PlaceholderForm } from './PlaceholderForm';
 import { PlaceholderCard } from './PlaceholderCard';
-import { Placeholder, PlaceholderCategory } from '@/types';
+import { Placeholder } from '@/types';
 
 interface PlaceholderPanelProps {
   placeholders: Placeholder[];
-  onAddPlaceholder: (name: string, content: string, category: PlaceholderCategory) => void;
+  onAddPlaceholder: (name: string, content: string, color: string) => void;
   onUpdatePlaceholder: (id: string, updates: Partial<Placeholder>) => void;
   onDeletePlaceholder: (id: string) => void;
   onInsertPlaceholder?: (name: string) => void;
@@ -26,21 +25,8 @@ export function PlaceholderPanel({
 }: PlaceholderPanelProps) {
   const [activeTab, setActiveTab] = useState('add');
 
-  const categoryMap: Record<PlaceholderCategory, string> = {
-    style: 'Style',
-    tone: 'Tone',
-    format: 'Format',
-    terminology: 'Terminology',
-    other: 'Other'
-  };
-
-  const placeholdersByCategory = placeholders.reduce((acc, placeholder) => {
-    if (!acc[placeholder.category]) {
-      acc[placeholder.category] = [];
-    }
-    acc[placeholder.category].push(placeholder);
-    return acc;
-  }, {} as Record<PlaceholderCategory, Placeholder[]>);
+  // Sort placeholders by creation date (newest first)
+  const sortedPlaceholders = [...placeholders].sort((a, b) => b.createdAt - a.createdAt);
 
   return (
     <aside className="w-full md:w-80 border-r border-border h-full flex flex-col bg-background/90">
@@ -64,27 +50,16 @@ export function PlaceholderPanel({
         <TabsContent value="view" className="flex-1 flex flex-col">
           <ScrollArea className="flex-1 p-4">
             {placeholders.length > 0 ? (
-              <div className="space-y-6">
-                {Object.entries(placeholdersByCategory).map(([category, items]) => (
-                  items.length > 0 && (
-                    <div key={category} className="space-y-3">
-                      <h3 className="text-sm font-medium text-muted-foreground">
-                        {categoryMap[category as PlaceholderCategory]}
-                      </h3>
-                      <div className="grid gap-3">
-                        {items.map(placeholder => (
-                          <PlaceholderCard
-                            key={placeholder.id}
-                            placeholder={placeholder}
-                            onUpdate={onUpdatePlaceholder}
-                            onDelete={onDeletePlaceholder}
-                            onInsert={onInsertPlaceholder}
-                            onNameChange={onPlaceholderNameChange}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                  )
+              <div className="grid gap-3">
+                {sortedPlaceholders.map(placeholder => (
+                  <PlaceholderCard
+                    key={placeholder.id}
+                    placeholder={placeholder}
+                    onUpdate={onUpdatePlaceholder}
+                    onDelete={onDeletePlaceholder}
+                    onInsert={onInsertPlaceholder}
+                    onNameChange={onPlaceholderNameChange}
+                  />
                 ))}
               </div>
             ) : (

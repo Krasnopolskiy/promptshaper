@@ -1,6 +1,19 @@
-
 import { useState, useCallback, useEffect } from 'react';
-import { Placeholder, PlaceholderCategory } from '@/types';
+import { Placeholder } from '@/types';
+
+// Array of colors for placeholders
+export const PLACEHOLDER_COLORS = [
+  '#3b82f6', // blue
+  '#8b5cf6', // purple
+  '#10b981', // green
+  '#f59e0b', // amber
+  '#ef4444', // red
+  '#ec4899', // pink
+  '#6366f1', // indigo
+  '#14b8a6', // teal
+  '#f97316', // orange
+  '#84cc16', // lime
+];
 
 export function usePlaceholders() {
   const [placeholders, setPlaceholders] = useState<Placeholder[]>(() => {
@@ -12,14 +25,14 @@ export function usePlaceholders() {
     localStorage.setItem('promptGenerator_placeholders', JSON.stringify(placeholders));
   }, [placeholders]);
 
-  const addPlaceholder = useCallback((name: string, content: string, category: PlaceholderCategory = 'other') => {
+  const addPlaceholder = useCallback((name: string, content: string, color: string) => {
     setPlaceholders(prev => [
       ...prev,
       {
         id: crypto.randomUUID(),
         name,
         content,
-        category,
+        color,
         createdAt: Date.now()
       }
     ]);

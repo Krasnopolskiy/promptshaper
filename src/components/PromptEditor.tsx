@@ -133,6 +133,42 @@ export function PromptEditor({
 
   // Simple editor change handler
   const handleEditorChange = (newValue: string) => {
+    // Check if a new placeholder was manually added
+    const placeholderRegex = /<([\p{L}0-9]+)>/gu;
+    const existingPlaceholderNames = new Set(placeholders.map(p => p.name));
+    
+    // Find all placeholders in the new text
+    let match;
+    const foundPlaceholders = new Set<string>();
+    
+    while ((match = placeholderRegex.exec(newValue)) !== null) {
+      const placeholderName = match[1];
+      foundPlaceholders.add(placeholderName);
+      
+      // If this placeholder doesn't exist yet, create it
+      if (!existingPlaceholderNames.has(placeholderName) && onInsertPlaceholder) {
+        // Create a new placeholder with empty content
+        onInsertPlaceholder(placeholderName, match.index);
+      }
+    }
+    
+    // Check if any placeholders with empty content were removed
+    if (value !== newValue) {
+      const removedPlaceholders = [...existingPlaceholderNames].filter(name => 
+        !foundPlaceholders.has(name) && 
+        placeholders.find(p => p.name === name)?.content === ''
+      );
+      
+      // If any empty placeholders were removed, notify parent component
+      if (removedPlaceholders.length > 0 && onInsertPlaceholder) {
+        // We use onInsertPlaceholder as a way to communicate with the parent component
+        // The parent component can check if the placeholder exists and remove it if needed
+        removedPlaceholders.forEach(name => {
+          onInsertPlaceholder(name, -1); // Use -1 as a signal that the placeholder was removed
+        });
+      }
+    }
+    
     onChange(newValue);
   };
 

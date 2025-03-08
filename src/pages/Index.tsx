@@ -3,7 +3,7 @@ import { Header } from '@/components/Header';
 import { PlaceholderPanel } from '@/components/PlaceholderPanel';
 import { EditorPanel } from '@/components/EditorPanel';
 import { PreviewPanel } from '@/components/PreviewPanel';
-import { usePlaceholders } from '@/hooks/usePlaceholders';
+import { usePlaceholders, PLACEHOLDER_COLORS } from '@/hooks/usePlaceholders';
 import { usePrompt } from '@/hooks/usePrompt';
 import { useTemplates } from '@/hooks/useTemplates';
 import { useToast } from '@/hooks/use-toast';
@@ -68,6 +68,31 @@ const Index = () => {
   
   const handleInsertPlaceholderAtPosition = (name: string, position: number) => {
     setCursorPosition(position);
+    
+    // If position is -1, it means the placeholder was removed from the editor
+    if (position === -1) {
+      // Find the placeholder
+      const placeholder = placeholders.find(p => p.name === name);
+      
+      // Only remove if the content is empty
+      if (placeholder && placeholder.content === '') {
+        deletePlaceholder(placeholder.id);
+        return -1;
+      }
+      
+      return -1;
+    }
+    
+    // Check if this placeholder already exists
+    const existingPlaceholder = placeholders.find(p => p.name === name);
+    
+    // If it doesn't exist, create it with empty content
+    if (!existingPlaceholder) {
+      // Get a random color from the PLACEHOLDER_COLORS array
+      const randomColor = PLACEHOLDER_COLORS[Math.floor(Math.random() * PLACEHOLDER_COLORS.length)];
+      addPlaceholder(name, '', randomColor);
+    }
+    
     return insertPlaceholderTag(name, position);
   };
   

@@ -1,11 +1,10 @@
-
 export type PlaceholderCategory = 'style' | 'tone' | 'format' | 'terminology' | 'other';
 
 export interface Placeholder {
   id: string;
   name: string;
   content: string;
-  category: PlaceholderCategory;
+  color: string;
   createdAt: number;
 }
 
