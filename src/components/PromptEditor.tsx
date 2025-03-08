@@ -13,7 +13,7 @@ const editorStyles = `
     font-variant-ligatures: none;
   }
   .w-tc-editor-text > div {
-    font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace !important;
+    font-family: inherit !important;
   }
   .w-tc-editor-text {
     color: inherit !important;
@@ -277,7 +277,7 @@ export function PromptEditor({
 
   return (
     <aside className="w-full h-full flex flex-col bg-background/90">
-      <div className="p-4 border-b border-border flex justify-between items-center">
+      <div className="p-4 border-b border-border flex flex-col gap-2">
         <div>
           <h2 className="text-lg font-medium">Editor</h2>
           <p className="text-sm text-muted-foreground">
@@ -342,8 +342,6 @@ export function PromptEditor({
               )}
             </PopoverContent>
           </Popover>
-          
-
         </div>
       </div>
       
@@ -361,7 +359,7 @@ export function PromptEditor({
               style={{
                 fontSize: 14,
                 backgroundColor: 'transparent',
-                fontFamily: 'ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace',
+                fontFamily: 'inherit',
                 minHeight: '200px',
                 width: '100%',
               }}
