@@ -28,28 +28,6 @@ const editorStyles = `
     color: rgb(59 130 246) !important;
     font-weight: 500;
   }
-  .suggestion-item {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.375rem 0.5rem;
-    font-size: 0.875rem;
-    line-height: 1.25rem;
-    border-radius: 0.25rem;
-    cursor: pointer;
-    outline: none;
-  }
-  .suggestion-item:hover, .suggestion-item.selected {
-    background-color: rgb(59 130 246 / 0.1);
-    color: rgb(59 130 246);
-  }
-  .suggestion-item .dot {
-    width: 0.5rem;
-    height: 0.5rem;
-    border-radius: 9999px;
-    background-color: rgb(59 130 246);
-  }
   .w-tc-editor [data-placeholder] {
     color: rgb(59 130 246) !important;
     font-weight: 500;
@@ -73,10 +51,6 @@ export function PromptEditor({
   const [historyStack, setHistoryStack] = useState<string[]>([]);
   const [historyIndex, setHistoryIndex] = useState<number>(-1);
   const [isUndoRedo, setIsUndoRedo] = useState<boolean>(false);
-  const [showSuggestions, setShowSuggestions] = useState(false);
-  const [cursorPosition, setCursorPosition] = useState({ top: 0, left: 0 });
-  const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(0);
-
 
   // Add to history stack when value changes (except during undo/redo)
   useEffect(() => {
@@ -98,48 +72,14 @@ export function PromptEditor({
     };
   }, []);
 
-  // Reset selected suggestion index when suggestions appear
-  useEffect(() => {
-    if (showSuggestions) {
-      setSelectedSuggestionIndex(0);
-    }
-  }, [showSuggestions]);
-
-  // Handle suggestions when typing '<'
+  // Simple editor change handler
   const handleEditorChange = (newValue: string) => {
-    const textarea = editorRef.current;
-    if (textarea) {
-      const position = textarea.selectionStart;
-      const currentChar = newValue[position - 1];
-      
-      // Get cursor position for suggestions popup
-      const textBeforeCursor = newValue.substring(0, position);
-      const lines = textBeforeCursor.split('\n');
-      const currentLineNumber = lines.length - 1;
-      const currentLineStart = position - lines[currentLineNumber].length;
-      
-      const rect = textarea.getBoundingClientRect();
-      const lineHeight = 20; // Approximate line height
-      
-      setCursorPosition({
-        top: rect.top + (currentLineNumber * lineHeight),
-        left: rect.left + ((position - currentLineStart) * 8) // Approximate character width
-      });
-      
-      // Check if the last character typed was '<' and there are placeholders
-      if (currentChar === '<' && placeholders.length > 0) {
-        setShowSuggestions(true);
-        setSelectedSuggestionIndex(0); // Reset selection when showing suggestions
-      } else if (currentChar !== '<') {
-        setShowSuggestions(false);
-      }
-    }
     onChange(newValue);
   };
 
-  // Handle keyboard navigation for suggestions
+  // Handle keyboard shortcuts
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
-    // Handle undo/redo first
+    // Handle undo/redo
     if (e.ctrlKey && e.key === 'z' && !e.shiftKey) {
       e.preventDefault();
       handleUndo();
@@ -151,35 +91,6 @@ export function PromptEditor({
       handleRedo();
       return;
     }
-
-    // Handle suggestions navigation
-    if (showSuggestions) {
-      switch (e.key) {
-        case 'ArrowDown':
-          e.preventDefault();
-          setSelectedSuggestionIndex((prev) => 
-            prev < placeholders.length - 1 ? prev + 1 : 0
-          );
-          return; // Add return to prevent event propagation
-        case 'ArrowUp':
-          e.preventDefault();
-          setSelectedSuggestionIndex((prev) => 
-            prev > 0 ? prev - 1 : placeholders.length - 1
-          );
-          return; // Add return to prevent event propagation
-        case 'Enter':
-        case 'Tab':
-          e.preventDefault();
-          if (placeholders[selectedSuggestionIndex]) {
-            handleInsertPlaceholder(placeholders[selectedSuggestionIndex].name);
-          }
-          return; // Add return to prevent event propagation
-        case 'Escape':
-          e.preventDefault();
-          setShowSuggestions(false);
-          return; // Add return to prevent event propagation
-      }
-    }
   };
 
   // Insert a placeholder at the current cursor position
@@ -190,7 +101,7 @@ export function PromptEditor({
       const end = textarea.selectionEnd;
       
       // Get the text before and after the cursor
-      const textBefore = value.substring(0, Math.max(0, start - 1)); // Remove the triggering '<'
+      const textBefore = value.substring(0, start);
       const textAfter = value.substring(end);
       
       // Create the new text with the placeholder
@@ -215,12 +126,8 @@ export function PromptEditor({
       if (onInsertPlaceholder) {
         onInsertPlaceholder(name, textBefore.length);
       }
-      
-      setShowSuggestions(false);
     }
   };
-  
-
 
   // Undo the last change
   const handleUndo = () => {
@@ -240,39 +147,6 @@ export function PromptEditor({
       setHistoryIndex(newIndex);
       onChange(historyStack[historyStack.length - 1 - newIndex]);
     }
-  };
-
-  // Render suggestions list
-  const renderSuggestions = () => {
-
-    
-    if (!showSuggestions || placeholders.length === 0) return null;
-
-    return (
-      <div 
-        className="fixed z-50 w-64 bg-popover border rounded-md shadow-md overflow-hidden"
-        style={{
-          top: `${cursorPosition.top + 24}px`,
-          left: `${cursorPosition.left}px`
-        }}
-      >
-        <div className="py-1">
-          {placeholders.map((placeholder, index) => (
-            <div
-              key={placeholder.id}
-              className={`suggestion-item${index === selectedSuggestionIndex ? ' selected' : ''}`}
-              onClick={() => handleInsertPlaceholder(placeholder.name)}
-              onMouseEnter={() => setSelectedSuggestionIndex(index)}
-              role="button"
-              tabIndex={0}
-            >
-              <span className="dot" />
-              {placeholder.name}
-            </div>
-          ))}
-        </div>
-      </div>
-    );
   };
 
   return (
@@ -367,9 +241,6 @@ export function PromptEditor({
               data-color-mode="light"
               data-gramm="false"
             />
-            
-            {/* Suggestions popover */}
-            {renderSuggestions()}
           </div>
         </div>
       </ScrollArea>
@@ -382,8 +253,6 @@ export function PromptEditor({
           ~{Math.ceil(value.length / 4)} tokens
         </div>
       </div>
-      
-
     </aside>
   );
 }
