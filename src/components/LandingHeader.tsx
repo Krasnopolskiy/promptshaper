@@ -1,10 +1,11 @@
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
+import { ThemeToggle } from '@/components/ui/theme-toggle';
 
 export function LandingHeader() {
   return (
-    <header className="w-full bg-white/80 backdrop-blur-sm border-b border-border/50 z-10 shadow-sm">
+    <header className="w-full bg-white/80 dark:bg-background/80 backdrop-blur-sm border-b border-border/50 z-10 shadow-sm">
       <div className="container mx-auto flex justify-between items-center px-4 sm:px-6 py-3">
         <Link to="/" className="flex items-center gap-3 hover:opacity-90 transition-opacity">
           <div className="h-9 w-9 rounded-lg bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-sm">
@@ -18,7 +19,9 @@ export function LandingHeader() {
           </div>
         </Link>
         
-        <div className="flex items-center">
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
+          
           <Link to="/app">
             <Button 
               size="sm"

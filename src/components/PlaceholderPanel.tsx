@@ -30,8 +30,8 @@ export function PlaceholderPanel({
   const sortedPlaceholders = [...placeholders].sort((a, b) => b.createdAt - a.createdAt);
 
   return (
-    <aside className="w-full md:w-80 h-full flex flex-col bg-white/90 backdrop-blur-sm">
-      <div className="p-4 border-b border-border/50 bg-white">
+    <aside className="w-full md:w-80 h-full flex flex-col bg-background">
+      <div className="p-4 border-b border-border/50 bg-background">
         <div className="flex items-center gap-2 mb-2">
           <Sparkles className="h-4 w-4 text-primary" />
           <h2 className="text-lg font-medium">Placeholders</h2>

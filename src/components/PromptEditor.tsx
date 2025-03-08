@@ -5,6 +5,7 @@ import { PlusCircle, Undo, Redo } from 'lucide-react';
 import { Placeholder } from '@/types';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import CodeEditor from '@uiw/react-textarea-code-editor';
+import { useTheme } from '@/hooks/useTheme';
 
 // Add custom styles for syntax highlighting
 const editorStyles = `
@@ -46,6 +47,7 @@ export function PromptEditor({
   const [historyStack, setHistoryStack] = useState<string[]>([]);
   const [historyIndex, setHistoryIndex] = useState<number>(-1);
   const [isUndoRedo, setIsUndoRedo] = useState<boolean>(false);
+  const { theme } = useTheme();
 
   // Add to history stack when value changes (except during undo/redo)
   useEffect(() => {
@@ -245,8 +247,10 @@ export function PromptEditor({
   };
 
   return (
-    <div className="w-full h-full flex flex-col">
-      <div className="p-4 border-b border-border flex items-center gap-2">
+    <div className="flex flex-col h-full">
+      <style>{editorStyles}</style>
+      
+      <div className="flex items-center gap-2 p-2 border-b border-border/50">
         <Button 
           size="sm" 
           variant="ghost" 
@@ -323,7 +327,7 @@ export function PromptEditor({
               minHeight: "200px",
             }}
             className="w-full"
-            data-color-mode="light"
+            data-color-mode={theme}
           />
         </div>
       </ScrollArea>

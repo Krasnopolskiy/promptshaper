@@ -35,6 +35,36 @@
     --radius: 0.75rem;
   }
 
+  .dark {
+    --background: 222 47% 11%;
+    --foreground: 210 40% 98%;
+
+    --card: 222 47% 11%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222 47% 11%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 248 90% 66%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 217 32% 17%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217 32% 17%;
+    --muted-foreground: 215 20% 65%;
+
+    --accent: 248 90% 20%;
+    --accent-foreground: 248 90% 66%;
+
+    --destructive: 0 62% 30%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217 32% 17%;
+    --input: 217 32% 17%;
+    --ring: 248 90% 66%;
+  }
+
   * {
     @apply border-border;
   }
@@ -53,7 +83,7 @@
 
 @layer components {
   .glass-panel {
-    @apply bg-white/50 backdrop-blur-sm shadow-lg rounded-lg border border-border/50;
+    @apply bg-white/50 dark:bg-black/20 backdrop-blur-sm shadow-lg rounded-lg border border-border/50;
   }
 
   .text-balance {
@@ -96,7 +126,7 @@
   }
 
   .side-panel {
-    @apply w-full md:w-80 border-r border-border/50 h-full flex flex-col bg-white/50 backdrop-blur-sm shadow-lg rounded-lg;
+    @apply w-full md:w-80 border-r border-border/50 h-full flex flex-col bg-white/50 dark:bg-black/20 backdrop-blur-sm shadow-lg rounded-lg;
   }
 
   .app-logo {

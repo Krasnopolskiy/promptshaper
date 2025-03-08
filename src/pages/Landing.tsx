@@ -125,15 +125,8 @@ const Landing = () => {
   ];
 
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-br from-background via-accent/5 to-background">
+    <div className="flex flex-col min-h-screen bg-background">
       <LandingHeader />
-      
-      {/* Animated background elements */}
-      <div className="fixed inset-0 -z-10 overflow-hidden">
-        <div className="absolute top-20 left-[10%] w-64 h-64 rounded-full bg-primary/5 blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-20 right-[10%] w-96 h-96 rounded-full bg-accent/10 blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
-        <div className="absolute top-[40%] right-[20%] w-48 h-48 rounded-full bg-primary/10 blur-2xl animate-pulse" style={{ animationDelay: '2s' }}></div>
-      </div>
       
       {/* Hero Section */}
       <section 
@@ -166,7 +159,7 @@ const Landing = () => {
             </div>
             
             <div className="flex-1 relative">
-              <div className="relative z-10 bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-border/50 overflow-hidden">
+              <div className="relative z-10 bg-white dark:bg-background backdrop-blur-none rounded-2xl shadow-xl border border-border/50 overflow-hidden">
                 <div className="border-b border-border/50 p-4 flex items-center gap-2">
                   <div className="h-3 w-3 rounded-full bg-red-400"></div>
                   <div className="h-3 w-3 rounded-full bg-yellow-400"></div>
@@ -176,7 +169,7 @@ const Landing = () => {
                 <div className="p-6">
                   <div className="mb-4 text-sm font-medium">Template:</div>
                   <div className="p-3 rounded-md bg-background/50 border border-border/50 text-sm mb-4">
-                    Write a compelling ad for <span className="inline-block px-1.5 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">{"<company>"}</span> promoting their <span className="inline-block px-1.5 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">{"<product>"}</span> to <span className="inline-block px-1.5 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-800">{"<audience>"}</span>.
+                    Write a compelling ad for <span className="inline-block px-1.5 py-0.5 rounded text-xs font-medium bg-blue-100 dark:bg-blue-800/70 text-blue-800 dark:text-blue-200 dark:shadow-[0_0_10px_rgba(59,130,246,0.3)]">{"<company>"}</span> promoting their <span className="inline-block px-1.5 py-0.5 rounded text-xs font-medium bg-purple-100 dark:bg-purple-800/70 text-purple-800 dark:text-purple-200 dark:shadow-[0_0_10px_rgba(168,85,247,0.3)]">{"<product>"}</span> to <span className="inline-block px-1.5 py-0.5 rounded text-xs font-medium bg-amber-100 dark:bg-amber-800/70 text-amber-800 dark:text-amber-200 dark:shadow-[0_0_10px_rgba(245,158,11,0.3)]">{"<audience>"}</span>
                   </div>
                   <div className="mb-4 text-sm font-medium">Values:</div>
                   <div className="space-y-2 mb-6">
@@ -194,15 +187,11 @@ const Landing = () => {
                     </div>
                   </div>
                   <div className="mb-4 text-sm font-medium">Result:</div>
-                  <div className="p-3 rounded-md bg-green-50 border border-green-100 text-sm">
+                  <div className="p-3 rounded-md bg-green-50 dark:bg-green-900/20 border border-green-100 dark:border-green-900/50 text-sm">
                     Write a compelling ad for Acme Inc promoting their Smart Home Hub to tech enthusiasts.
                   </div>
                 </div>
               </div>
-              
-              {/* Decorative elements */}
-              <div className="absolute -bottom-6 -right-6 h-24 w-24 rounded-full bg-primary/20 blur-xl"></div>
-              <div className="absolute -top-6 -left-6 h-16 w-16 rounded-full bg-accent/30 blur-xl"></div>
             </div>
           </div>
         </div>
@@ -211,7 +200,7 @@ const Landing = () => {
       {/* Features Section */}
       <section 
         ref={sectionRefs.features}
-        className="px-4 py-20 bg-white/50"
+        className="px-4 py-20 bg-white dark:bg-background"
       >
         <div className={`max-w-6xl mx-auto transition-all duration-1000 ${isVisible.features ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
           <div className="text-center mb-16">
@@ -225,7 +214,7 @@ const Landing = () => {
             {features.map((feature, index) => (
               <div 
                 key={index}
-                className={`bg-white rounded-xl p-6 shadow-lg border border-border/50 transition-all duration-500 ${
+                className={`bg-white dark:bg-background rounded-xl p-6 shadow-lg border border-border/50 transition-all duration-500 ${
                   activeFeature === index 
                     ? 'scale-105 border-primary/20 shadow-xl' 
                     : 'hover:shadow-xl hover:scale-[1.02]'
@@ -246,7 +235,7 @@ const Landing = () => {
       {/* How It Works Section */}
       <section 
         ref={sectionRefs.workflow}
-        className="px-4 py-20 bg-white"
+        className="px-4 py-20 bg-white dark:bg-background"
       >
         <div className={`max-w-6xl mx-auto transition-all duration-1000 ${isVisible.workflow ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
           <div className="text-center mb-16">
@@ -258,7 +247,7 @@ const Landing = () => {
           
           <div className="relative">
             {/* Vertical timeline line */}
-            <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-blue-100 hidden md:block"></div>
+            <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-border hidden md:block"></div>
             
             {/* Step 1: Create placeholders */}
             <div className="flex flex-col md:flex-row items-center mb-16 md:mb-24">
@@ -270,17 +259,17 @@ const Landing = () => {
               </div>
               
               <div className="relative flex-shrink-0">
-                <div className="h-16 w-16 rounded-full bg-white shadow-lg border border-blue-100 flex items-center justify-center z-10 relative">
+                <div className="h-16 w-16 rounded-full bg-white dark:bg-background shadow-lg border border-blue-100 dark:border-blue-900/50 flex items-center justify-center z-10 relative">
                   <Layers className="h-8 w-8 text-blue-500" />
                 </div>
               </div>
               
               <div className="md:w-1/2 md:pl-12 mt-8 md:mt-0">
-                <div className="bg-white p-6 rounded-lg shadow-md border border-blue-100">
+                <div className="bg-white dark:bg-background p-6 rounded-lg shadow-md border border-blue-100 dark:border-blue-900/50">
                   <div className="flex flex-wrap gap-2">
-                    <div className="inline-block px-3 py-1 rounded-full text-sm font-medium bg-indigo-100 text-indigo-800">{"<company>"}</div>
-                    <div className="inline-block px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-800">{"<product>"}</div>
-                    <div className="inline-block px-3 py-1 rounded-full text-sm font-medium bg-orange-100 text-orange-800">{"<audience>"}</div>
+                    <div className="inline-block px-3 py-1 rounded-full text-sm font-medium bg-indigo-100 dark:bg-indigo-800/70 text-indigo-800 dark:text-indigo-200 dark:shadow-[0_0_10px_rgba(99,102,241,0.3)]">{"<company>"}</div>
+                    <div className="inline-block px-3 py-1 rounded-full text-sm font-medium bg-purple-100 dark:bg-purple-800/70 text-purple-800 dark:text-purple-200 dark:shadow-[0_0_10px_rgba(168,85,247,0.3)]">{"<product>"}</div>
+                    <div className="inline-block px-3 py-1 rounded-full text-sm font-medium bg-orange-100 dark:bg-orange-800/70 text-orange-800 dark:text-orange-200 dark:shadow-[0_0_10px_rgba(249,115,22,0.3)]">{"<audience>"}</div>
                   </div>
                 </div>
               </div>
@@ -289,15 +278,15 @@ const Landing = () => {
             {/* Step 2: Build templates */}
             <div className="flex flex-col md:flex-row items-center mb-16 md:mb-24">
               <div className="md:w-1/2 md:pr-12 md:text-right mb-8 md:mb-0 md:order-1 order-2">
-                <div className="bg-white p-6 rounded-lg shadow-md border border-blue-100">
+                <div className="bg-white dark:bg-background p-6 rounded-lg shadow-md border border-blue-100 dark:border-blue-900/50">
                   <p className="text-base">
-                    Write a compelling ad for <span className="inline-block px-2 py-0.5 rounded text-xs font-medium bg-indigo-100 text-indigo-800">{"<company>"}</span> promoting their <span className="inline-block px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">{"<product>"}</span> to <span className="inline-block px-2 py-0.5 rounded text-xs font-medium bg-orange-100 text-orange-800">{"<audience>"}</span>.
+                    Write a compelling ad for <span className="inline-block px-2 py-0.5 rounded text-xs font-medium bg-indigo-100 dark:bg-indigo-800/70 text-indigo-800 dark:text-indigo-200 dark:shadow-[0_0_10px_rgba(99,102,241,0.3)]">{"<company>"}</span> promoting their <span className="inline-block px-2 py-0.5 rounded text-xs font-medium bg-purple-100 dark:bg-purple-800/70 text-purple-800 dark:text-purple-200 dark:shadow-[0_0_10px_rgba(168,85,247,0.3)]">{"<product>"}</span> to <span className="inline-block px-2 py-0.5 rounded text-xs font-medium bg-orange-100 dark:bg-orange-800/70 text-orange-800 dark:text-orange-200 dark:shadow-[0_0_10px_rgba(249,115,22,0.3)]">{"<audience>"}</span>
                   </p>
                 </div>
               </div>
               
               <div className="relative flex-shrink-0 order-1 md:order-2">
-                <div className="h-16 w-16 rounded-full bg-white shadow-lg border border-blue-100 flex items-center justify-center z-10 relative">
+                <div className="h-16 w-16 rounded-full bg-white dark:bg-background shadow-lg border border-blue-100 dark:border-blue-900/50 flex items-center justify-center z-10 relative">
                   <FileCode className="h-8 w-8 text-purple-500" />
                 </div>
               </div>
@@ -320,13 +309,13 @@ const Landing = () => {
               </div>
               
               <div className="relative flex-shrink-0">
-                <div className="h-16 w-16 rounded-full bg-white shadow-lg border border-blue-100 flex items-center justify-center z-10 relative">
+                <div className="h-16 w-16 rounded-full bg-white dark:bg-background shadow-lg border border-blue-100 dark:border-blue-900/50 flex items-center justify-center z-10 relative">
                   <Wand2 className="h-8 w-8 text-amber-500" />
                 </div>
               </div>
               
               <div className="md:w-1/2 md:pl-12 mt-8 md:mt-0">
-                <div className="bg-white p-6 rounded-lg shadow-md border border-blue-100">
+                <div className="bg-white dark:bg-background p-6 rounded-lg shadow-md border border-blue-100 dark:border-blue-900/50">
                   <div className="space-y-3">
                     <div className="flex items-center">
                       <div className="w-24 text-sm text-right text-muted-foreground mr-4">company:</div>
@@ -348,15 +337,15 @@ const Landing = () => {
             {/* Step 4: Generate content */}
             <div className="flex flex-col md:flex-row items-center">
               <div className="md:w-1/2 md:pr-12 md:text-right mb-8 md:mb-0 md:order-1 order-2">
-                <div className="bg-white p-6 rounded-lg shadow-md border border-blue-100">
-                  <div className="bg-green-50 p-3 rounded border border-green-100 text-base">
+                <div className="bg-white dark:bg-background p-6 rounded-lg shadow-md border border-blue-100 dark:border-blue-900/50">
+                  <div className="bg-green-50 dark:bg-green-900/30 p-3 rounded border border-green-100 dark:border-green-900/50 text-base">
                     Write a compelling ad for Acme Inc promoting their Smart Home Hub to tech enthusiasts.
                   </div>
                 </div>
               </div>
               
               <div className="relative flex-shrink-0 order-1 md:order-2">
-                <div className="h-16 w-16 rounded-full bg-white shadow-lg border border-blue-100 flex items-center justify-center z-10 relative">
+                <div className="h-16 w-16 rounded-full bg-white dark:bg-background shadow-lg border border-blue-100 dark:border-blue-900/50 flex items-center justify-center z-10 relative">
                   <Bot className="h-8 w-8 text-green-500" />
                 </div>
               </div>
@@ -375,7 +364,7 @@ const Landing = () => {
       {/* Testimonials Section */}
       <section 
         ref={sectionRefs.testimonials}
-        className="px-4 py-20 bg-gradient-to-br from-primary/5 to-accent/10"
+        className="px-4 py-20 bg-white dark:bg-background"
       >
         <div className={`max-w-4xl mx-auto transition-all duration-1000 ${isVisible.testimonials ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
           <div className="text-center mb-16">
@@ -389,7 +378,7 @@ const Landing = () => {
             {testimonials.map((testimonial, index) => (
               <div 
                 key={index}
-                className="bg-white rounded-xl p-6 shadow-lg border border-border/50 transition-all duration-300 hover:shadow-xl"
+                className="bg-white dark:bg-background rounded-xl p-6 shadow-lg border border-border/50 transition-all duration-300 hover:shadow-xl"
               >
                 <div className="mb-4 text-primary">
                   {[...Array(5)].map((_, i) => (
@@ -421,7 +410,7 @@ const Landing = () => {
               Start creating consistent, reusable prompts that save time and improve results.
             </p>
             <Link to="/app">
-              <Button size="lg" variant="secondary" className="text-primary">
+              <Button size="lg" variant="secondary" className="text-primary dark:text-primary-foreground">
                 Get Started Today <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </Link>

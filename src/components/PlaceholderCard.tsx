@@ -120,7 +120,7 @@ export function PlaceholderCard({
           </>
         )}
       </CardContent>
-      <CardFooter className="p-2 bg-secondary/50 flex justify-between gap-2">
+      <CardFooter className="p-2 bg-secondary/50 dark:bg-secondary/30 flex justify-between gap-2">
         {isEditing ? (
           <>
             <Button size="sm" variant="ghost" onClick={handleCancel}>
