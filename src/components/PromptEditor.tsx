@@ -14,6 +14,14 @@ interface PromptEditorProps {
   onInsertPlaceholder?: (name: string, position: number) => number;
 }
 
+interface Token {
+  type: 'text' | 'placeholder';
+  content: string;
+  placeholderId?: string;
+  placeholderName?: string;
+  placeholderCategory?: string;
+}
+
 export function PromptEditor({ 
   value, 
   onChange, 
@@ -21,49 +29,74 @@ export function PromptEditor({
   onInsertPlaceholder 
 }: PromptEditorProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const editorRef = useRef<HTMLDivElement>(null);
   const [cursorPosition, setCursorPosition] = useState<number>(0);
-  const [formattedContent, setFormattedContent] = useState<string>('');
+  const [tokens, setTokens] = useState<Token[]>([]);
   const [historyStack, setHistoryStack] = useState<string[]>([]);
   const [historyIndex, setHistoryIndex] = useState<number>(-1);
   const [isUndoRedo, setIsUndoRedo] = useState<boolean>(false);
 
+  // Parse the input text into tokens (text and placeholders)
+  useEffect(() => {
+    const pattern = /<([^>]+)>/g;
+    const newTokens: Token[] = [];
+    let lastIndex = 0;
+    let match;
+
+    // Find all placeholder tags and split into tokens
+    while ((match = pattern.exec(value)) !== null) {
+      // Add text before the placeholder
+      if (match.index > lastIndex) {
+        newTokens.push({
+          type: 'text',
+          content: value.substring(lastIndex, match.index)
+        });
+      }
+
+      // Find the placeholder in our placeholders list to get category
+      const placeholderName = match[1];
+      const placeholder = placeholders.find(p => p.name === placeholderName);
+      
+      // Add the placeholder token
+      newTokens.push({
+        type: 'placeholder',
+        content: `<${placeholderName}>`,
+        placeholderId: placeholder?.id,
+        placeholderName: placeholderName,
+        placeholderCategory: placeholder?.category || 'other'
+      });
+
+      lastIndex = match.index + match[0].length;
+    }
+
+    // Add remaining text
+    if (lastIndex < value.length) {
+      newTokens.push({
+        type: 'text',
+        content: value.substring(lastIndex)
+      });
+    }
+
+    setTokens(newTokens);
+  }, [value, placeholders]);
+
   // Generate a unique color for each placeholder even within the same category
-  const getPlaceholderColor = (placeholder: Placeholder) => {
+  const getPlaceholderColor = (placeholder: { id?: string, category?: string }) => {
     // Base colors per category
     const categoryBaseColors: Record<string, string[]> = {
-      'style': ['bg-blue-100 text-blue-800 border-blue-200', 'bg-indigo-100 text-indigo-800 border-indigo-200'],
-      'tone': ['bg-purple-100 text-purple-800 border-purple-200', 'bg-fuchsia-100 text-fuchsia-800 border-fuchsia-200'],
-      'format': ['bg-green-100 text-green-800 border-green-200', 'bg-emerald-100 text-emerald-800 border-emerald-200'],
-      'terminology': ['bg-amber-100 text-amber-800 border-amber-200', 'bg-orange-100 text-orange-800 border-orange-200'],
-      'other': ['bg-gray-100 text-gray-800 border-gray-200', 'bg-slate-100 text-slate-800 border-slate-200']
+      'style': ['placeholder-style-1', 'placeholder-style-2'],
+      'tone': ['placeholder-tone-1', 'placeholder-tone-2'],
+      'format': ['placeholder-format-1', 'placeholder-format-2'],
+      'terminology': ['placeholder-terminology-1', 'placeholder-terminology-2'],
+      'other': ['placeholder-other-1', 'placeholder-other-2']
     };
     
     // Use placeholder ID to determine which color variation to use
-    const colorSet = categoryBaseColors[placeholder.category] || categoryBaseColors.other;
-    const colorIndex = placeholder.id.charCodeAt(0) % colorSet.length;
+    const category = placeholder.category || 'other';
+    const colorSet = categoryBaseColors[category] || categoryBaseColors.other;
+    const colorIndex = placeholder.id ? placeholder.id.charCodeAt(0) % colorSet.length : 0;
     return colorSet[colorIndex];
   };
-
-  // Update the formatted display with highlighted placeholders
-  useEffect(() => {
-    let formatted = value;
-    
-    // Sort placeholders by name length (descending) to ensure longer names are replaced first
-    const sortedPlaceholders = [...placeholders].sort(
-      (a, b) => b.name.length - a.name.length
-    );
-    
-    // Replace placeholder tags with highlighted spans
-    sortedPlaceholders.forEach(placeholder => {
-      const pattern = new RegExp(`<${placeholder.name}>`, 'g');
-      const colorClasses = getPlaceholderColor(placeholder);
-      formatted = formatted.replace(pattern, 
-        `<span class="placeholder-tag ${colorClasses}" data-placeholder-id="${placeholder.id}">&lt;${placeholder.name}&gt;</span>`
-      );
-    });
-    
-    setFormattedContent(formatted);
-  }, [value, placeholders]);
 
   // Handle history stack for undo/redo
   useEffect(() => {
@@ -138,6 +171,59 @@ export function PromptEditor({
     if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) {
       e.preventDefault();
       handleRedo();
+    }
+
+    // We need to handle backspace and delete to properly remove placeholders
+    if (e.key === 'Backspace' || e.key === 'Delete') {
+      const textarea = textareaRef.current;
+      if (!textarea) return;
+
+      const selectionStart = textarea.selectionStart;
+      const selectionEnd = textarea.selectionEnd;
+      
+      // If there's a selection, let the default behavior handle it
+      if (selectionStart !== selectionEnd) return;
+
+      // Check if we're at a placeholder boundary
+      const isBackspace = e.key === 'Backspace';
+      const checkPosition = isBackspace ? selectionStart - 1 : selectionStart;
+      let placeholderStartPos = -1;
+      let placeholderEndPos = -1;
+
+      // Find if we're at the edge of a placeholder
+      let pos = 0;
+      for (const token of tokens) {
+        if (token.type === 'placeholder') {
+          // Check if cursor is at the start or end of this placeholder
+          if (isBackspace && pos + token.content.length === selectionStart) {
+            // For backspace, check if cursor is right after placeholder
+            placeholderStartPos = pos;
+            placeholderEndPos = pos + token.content.length;
+            break;
+          } else if (!isBackspace && pos === selectionStart) {
+            // For delete, check if cursor is right before placeholder
+            placeholderStartPos = pos;
+            placeholderEndPos = pos + token.content.length;
+            break;
+          }
+        }
+        pos += token.content.length;
+      }
+
+      // If cursor is at placeholder boundary, delete the whole placeholder
+      if (placeholderStartPos !== -1) {
+        e.preventDefault();
+        const newValue = value.substring(0, placeholderStartPos) + value.substring(placeholderEndPos);
+        onChange(newValue);
+        
+        // Set cursor position
+        setTimeout(() => {
+          if (textarea) {
+            textarea.focus();
+            textarea.setSelectionRange(placeholderStartPos, placeholderStartPos);
+          }
+        }, 0);
+      }
     }
   };
 
@@ -214,7 +300,7 @@ export function PromptEditor({
       </div>
       
       <ScrollArea className="flex-1 p-4">
-        <div className="relative min-h-[200px]">
+        <div className="relative min-h-[200px]" ref={editorRef}>
           <Textarea
             ref={textareaRef}
             value={value}
@@ -223,12 +309,27 @@ export function PromptEditor({
             onClick={handleSelectionChange}
             onKeyDown={handleKeyDown}
             placeholder="Enter your prompt here..."
-            className="min-h-[200px] text-base resize-none border-0 shadow-none focus-visible:ring-0 bg-transparent z-10 absolute inset-0 p-0"
+            className="min-h-[200px] text-base resize-none border-0 shadow-none focus-visible:ring-0 bg-transparent z-10 absolute inset-0 p-0 caretColor-black"
           />
-          <div 
-            className="min-h-[200px] text-base whitespace-pre-wrap break-words pointer-events-none"
-            dangerouslySetInnerHTML={{ __html: formattedContent }}
-          />
+          <div className="min-h-[200px] text-base whitespace-pre-wrap break-words pointer-events-none">
+            {tokens.map((token, index) => {
+              if (token.type === 'text') {
+                return <span key={index}>{token.content}</span>;
+              } else {
+                const placeholder = placeholders.find(p => p.name === token.placeholderName);
+                const colorClass = getPlaceholderColor(placeholder || { id: token.placeholderId, category: token.placeholderCategory });
+                return (
+                  <span 
+                    key={index} 
+                    className={`placeholder-tag ${colorClass}`}
+                    data-placeholder-id={token.placeholderId}
+                  >
+                    &lt;{token.placeholderName}&gt;
+                  </span>
+                );
+              }
+            })}
+          </div>
         </div>
       </ScrollArea>
       
