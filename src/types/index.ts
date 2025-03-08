@@ -1,3 +1,4 @@
+
 export type PlaceholderCategory = 'style' | 'tone' | 'format' | 'terminology' | 'other';
 
 export interface Placeholder {
@@ -14,4 +15,11 @@ export interface Template {
   prompt: string;
   placeholders: Placeholder[];
   createdAt: number;
+}
+
+// Navigation related types
+export interface NavLink {
+  label: string;
+  href: string;
+  icon?: JSX.Element;
 }
