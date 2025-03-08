@@ -15,7 +15,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 const Index = () => {
   const { placeholders, addPlaceholder, updatePlaceholder, deletePlaceholder, setPlaceholders } = usePlaceholders();
   const { promptText, setPromptText, generateFullPrompt, insertPlaceholderTag, updatePlaceholdersInPrompt, copyToClipboard } = usePrompt();
-  const { templates, saveTemplate, loadTemplate, exportTemplates, importTemplates } = useTemplates();
+  const { templates, saveTemplate, loadTemplate } = useTemplates();
   const { toast } = useToast();
   const isMobile = useIsMobile();
   const [activePanel, setActivePanel] = useState<'placeholders' | 'editor' | 'preview'>(
@@ -23,8 +23,6 @@ const Index = () => {
   );
   
   const [fullPrompt, setFullPrompt] = useState('');
-  const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
-  const [importFile, setImportFile] = useState<File | null>(null);
   
   useEffect(() => {
     setFullPrompt(generateFullPrompt(promptText, placeholders));
@@ -49,52 +47,6 @@ const Index = () => {
         variant: "destructive"
       });
     }
-  };
-  
-  const handleImportFile = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setImportFile(e.target.files[0]);
-    }
-  };
-  
-  const handleImport = () => {
-    if (!importFile) {
-      toast({
-        title: "No file selected",
-        description: "Please select a JSON file to import.",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        const result = e.target?.result;
-        if (typeof result === 'string') {
-          const success = importTemplates(result);
-          
-          if (success) {
-            toast({
-              title: "Import successful",
-              description: "Templates have been imported successfully."
-            });
-            setIsImportDialogOpen(false);
-            setImportFile(null);
-          } else {
-            throw new Error("Invalid file format");
-          }
-        }
-      } catch (error) {
-        toast({
-          title: "Import failed",
-          description: "The selected file could not be imported. Please ensure it's a valid JSON file.",
-          variant: "destructive"
-        });
-      }
-    };
-    
-    reader.readAsText(importFile);
   };
   
   const handleInsertPlaceholderFromPanel = (name: string) => {
@@ -126,7 +78,6 @@ const Index = () => {
     <div className="flex flex-col h-screen overflow-hidden bg-gradient-to-br from-background to-accent/5">
       <Header 
         onSaveTemplate={saveTemplate}
-        onExportTemplates={exportTemplates}
         templates={templates}
         onLoadTemplate={loadTemplate}
         currentPrompt={promptText}
@@ -229,31 +180,6 @@ const Index = () => {
           </div>
         </div>
       )}
-      
-      <Dialog open={isImportDialogOpen} onOpenChange={setIsImportDialogOpen}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Import Templates</DialogTitle>
-            <DialogDescription>
-              Select a JSON file containing templates to import.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <Input
-              type="file"
-              accept=".json"
-              onChange={handleImportFile}
-            />
-            {importFile && (
-              <p className="text-sm">Selected file: {importFile.name}</p>
-            )}
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsImportDialogOpen(false)}>Cancel</Button>
-            <Button onClick={handleImport} disabled={!importFile}>Import</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };

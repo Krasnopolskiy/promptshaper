@@ -16,7 +16,7 @@ export function EditorPanel({
   onInsertPlaceholder
 }: EditorPanelProps) {
   return (
-    <aside className="w-full md:w-80 border-r border-border h-full flex flex-col bg-background/90">
+    <aside className="w-full md:w-80 h-full flex flex-col bg-white/50 backdrop-blur-sm shadow-lg rounded-lg border border-border/50">
       <PromptEditor
         value={promptText}
         onChange={setPromptText}

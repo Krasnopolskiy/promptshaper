@@ -1,5 +1,5 @@
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, KeyboardEvent } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
@@ -27,15 +27,21 @@ export function PromptEditor({
   const [historyIndex, setHistoryIndex] = useState<number>(-1);
   const [isUndoRedo, setIsUndoRedo] = useState<boolean>(false);
 
-  // Color map for different placeholder categories
-  const getCategoryColor = (category: string) => {
-    switch (category) {
-      case 'style': return 'bg-blue-100 text-blue-800 border-blue-200';
-      case 'tone': return 'bg-purple-100 text-purple-800 border-purple-200';
-      case 'format': return 'bg-green-100 text-green-800 border-green-200';
-      case 'terminology': return 'bg-amber-100 text-amber-800 border-amber-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
-    }
+  // Generate a unique color for each placeholder even within the same category
+  const getPlaceholderColor = (placeholder: Placeholder) => {
+    // Base colors per category
+    const categoryBaseColors: Record<string, string[]> = {
+      'style': ['bg-blue-100 text-blue-800 border-blue-200', 'bg-indigo-100 text-indigo-800 border-indigo-200'],
+      'tone': ['bg-purple-100 text-purple-800 border-purple-200', 'bg-fuchsia-100 text-fuchsia-800 border-fuchsia-200'],
+      'format': ['bg-green-100 text-green-800 border-green-200', 'bg-emerald-100 text-emerald-800 border-emerald-200'],
+      'terminology': ['bg-amber-100 text-amber-800 border-amber-200', 'bg-orange-100 text-orange-800 border-orange-200'],
+      'other': ['bg-gray-100 text-gray-800 border-gray-200', 'bg-slate-100 text-slate-800 border-slate-200']
+    };
+    
+    // Use placeholder ID to determine which color variation to use
+    const colorSet = categoryBaseColors[placeholder.category] || categoryBaseColors.other;
+    const colorIndex = placeholder.id.charCodeAt(0) % colorSet.length;
+    return colorSet[colorIndex];
   };
 
   // Update the formatted display with highlighted placeholders
@@ -50,7 +56,7 @@ export function PromptEditor({
     // Replace placeholder tags with highlighted spans
     sortedPlaceholders.forEach(placeholder => {
       const pattern = new RegExp(`<${placeholder.name}>`, 'g');
-      const colorClasses = getCategoryColor(placeholder.category);
+      const colorClasses = getPlaceholderColor(placeholder);
       formatted = formatted.replace(pattern, 
         `<span class="placeholder-tag ${colorClasses}" data-placeholder-id="${placeholder.id}">&lt;${placeholder.name}&gt;</span>`
       );
@@ -120,6 +126,21 @@ export function PromptEditor({
     }
   };
 
+  // Handle keyboard shortcuts for undo/redo
+  const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+    // Handle Ctrl+Z (Undo)
+    if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+      e.preventDefault();
+      handleUndo();
+    }
+    
+    // Handle Ctrl+Y or Ctrl+Shift+Z (Redo)
+    if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) {
+      e.preventDefault();
+      handleRedo();
+    }
+  };
+
   return (
     <div className="flex flex-col h-full">
       <div className="p-4 border-b border-border">
@@ -137,7 +158,7 @@ export function PromptEditor({
               variant="ghost" 
               onClick={handleUndo} 
               disabled={historyIndex <= 0}
-              title="Undo"
+              title="Undo (Ctrl+Z)"
             >
               <Undo size={16} />
             </Button>
@@ -146,7 +167,7 @@ export function PromptEditor({
               variant="ghost" 
               onClick={handleRedo} 
               disabled={historyIndex >= historyStack.length - 1}
-              title="Redo"
+              title="Redo (Ctrl+Y)"
             >
               <Redo size={16} />
             </Button>
@@ -175,7 +196,7 @@ export function PromptEditor({
                         className="w-full justify-start text-left"
                         onClick={() => handleInsertPlaceholder(placeholder.name)}
                       >
-                        <span className={`text-xs font-mono px-1.5 py-0.5 rounded-md ${getCategoryColor(placeholder.category)}`}>
+                        <span className={`text-xs font-mono px-1.5 py-0.5 rounded-md ${getPlaceholderColor(placeholder)}`}>
                           {`<${placeholder.name}>`}
                         </span>
                       </Button>
@@ -200,6 +221,7 @@ export function PromptEditor({
             onChange={(e) => onChange(e.target.value)}
             onSelect={handleSelectionChange}
             onClick={handleSelectionChange}
+            onKeyDown={handleKeyDown}
             placeholder="Enter your prompt here..."
             className="min-h-[200px] text-base resize-none border-0 shadow-none focus-visible:ring-0 bg-transparent z-10 absolute inset-0 p-0"
           />

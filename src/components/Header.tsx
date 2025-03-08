@@ -9,7 +9,6 @@ import { Template, Placeholder } from '@/types';
 
 interface HeaderProps {
   onSaveTemplate: (name: string, prompt: string, placeholders: Placeholder[]) => Template;
-  onExportTemplates: () => void;
   templates: Template[];
   onLoadTemplate: (id: string) => Template | undefined;
   currentPrompt: string;
@@ -20,7 +19,6 @@ interface HeaderProps {
 
 export function Header({
   onSaveTemplate,
-  onExportTemplates,
   templates,
   onLoadTemplate,
   currentPrompt,
@@ -115,15 +113,6 @@ export function Header({
           className="text-xs sm:text-sm"
         >
           Save
-        </Button>
-        
-        <Button 
-          variant="outline" 
-          size="sm"
-          onClick={onExportTemplates}
-          className="text-xs sm:text-sm"
-        >
-          Export
         </Button>
       </div>
       
