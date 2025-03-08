@@ -31,7 +31,7 @@ export function PreviewPanel({ content, onCopy }: PreviewPanelProps) {
 
   return (
     <div className="w-full h-full flex flex-col bg-white/90 backdrop-blur-sm">
-      <div className="p-4 border-b border-border/50 bg-gradient-to-r from-background to-accent/10">
+      <div className="p-4 border-b border-border/50 bg-white">
         <div className="flex items-center justify-between mb-1">
           <div className="flex items-center gap-2">
             <Eye className="h-4 w-4 text-primary" />

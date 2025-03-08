@@ -117,7 +117,7 @@ const Index = () => {
   };
   
   return (
-    <div className="flex flex-col h-screen overflow-hidden">
+    <div className="flex flex-col min-h-screen">
       {/* Animated background with gradient and pattern */}
       <div className="fixed inset-0 bg-gradient-to-br from-background via-accent/5 to-primary/5 -z-10"></div>
       <div className="fixed inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxjaXJjbGUgc3Ryb2tlPSIjOUI4N0Y1IiBzdHJva2Utb3BhY2l0eT0iLjA1IiBjeD0iMTAwIiBjeT0iMTAwIiByPSI5OSIvPjwvZz48L3N2Zz4=')] bg-center opacity-50 -z-10"></div>
@@ -241,32 +241,34 @@ const Index = () => {
           </div>
         </div>
       ) : (
-        <div className="flex-1 flex gap-4 p-4 overflow-hidden">
-          <div className="w-80 h-full flex-shrink-0 shadow-lg rounded-lg overflow-hidden bg-white/70 backdrop-blur-sm border border-border/50 transition-all duration-300 hover:shadow-xl">
-            <PlaceholderPanel 
-              placeholders={placeholders}
-              onAddPlaceholder={addPlaceholder}
-              onUpdatePlaceholder={updatePlaceholder}
-              onDeletePlaceholder={deletePlaceholder}
-              onInsertPlaceholder={handleInsertPlaceholderFromPanel}
-              onPlaceholderNameChange={handlePlaceholderNameChange}
-            />
-          </div>
-          
-          <div className="flex-1 h-full shadow-lg rounded-lg overflow-hidden bg-white/70 backdrop-blur-sm border border-border/50 transition-all duration-300 hover:shadow-xl">
-            <EditorPanel 
-              promptText={promptText}
-              setPromptText={setPromptText}
-              placeholders={placeholders}
-              onInsertPlaceholder={handleInsertPlaceholderAtPosition}
-            />
-          </div>
-          
-          <div className="w-80 h-full flex-shrink-0 shadow-lg rounded-lg overflow-hidden bg-white/70 backdrop-blur-sm border border-border/50 transition-all duration-300 hover:shadow-xl">
-            <PreviewPanel 
-              content={fullPrompt}
-              onCopy={handleCopyFullPrompt}
-            />
+        <div className="flex-1 p-4 overflow-y-auto">
+          <div className="flex flex-col lg:flex-row gap-4">
+            <div className="w-full lg:w-80 h-[400px] lg:h-full flex-shrink-0 shadow-lg rounded-lg overflow-hidden bg-white/70 backdrop-blur-sm border border-border/50 transition-all duration-300 hover:shadow-xl">
+              <PlaceholderPanel 
+                placeholders={placeholders}
+                onAddPlaceholder={addPlaceholder}
+                onUpdatePlaceholder={updatePlaceholder}
+                onDeletePlaceholder={deletePlaceholder}
+                onInsertPlaceholder={handleInsertPlaceholderFromPanel}
+                onPlaceholderNameChange={handlePlaceholderNameChange}
+              />
+            </div>
+            
+            <div className="w-full lg:flex-1 h-[400px] lg:h-full shadow-lg rounded-lg overflow-hidden bg-white/70 backdrop-blur-sm border border-border/50 transition-all duration-300 hover:shadow-xl">
+              <EditorPanel 
+                promptText={promptText}
+                setPromptText={setPromptText}
+                placeholders={placeholders}
+                onInsertPlaceholder={handleInsertPlaceholderAtPosition}
+              />
+            </div>
+            
+            <div className="w-full lg:w-80 h-[400px] lg:h-full flex-shrink-0 shadow-lg rounded-lg overflow-hidden bg-white/70 backdrop-blur-sm border border-border/50 transition-all duration-300 hover:shadow-xl">
+              <PreviewPanel 
+                content={fullPrompt}
+                onCopy={handleCopyFullPrompt}
+              />
+            </div>
           </div>
         </div>
       )}

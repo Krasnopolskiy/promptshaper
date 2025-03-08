@@ -17,7 +17,7 @@ export function EditorPanel({
 }: EditorPanelProps) {
   return (
     <div className="w-full h-full flex flex-col bg-white/90 backdrop-blur-sm">
-      <div className="p-4 border-b border-border/50 bg-gradient-to-r from-accent/10 to-background">
+      <div className="p-4 border-b border-border/50 bg-white">
         <div className="flex items-center gap-2 mb-1">
           <FileEdit className="h-4 w-4 text-primary" />
           <h2 className="text-lg font-medium">Editor</h2>

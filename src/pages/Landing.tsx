@@ -246,7 +246,7 @@ const Landing = () => {
       {/* How It Works Section */}
       <section 
         ref={sectionRefs.workflow}
-        className="px-4 py-20"
+        className="px-4 py-20 bg-white"
       >
         <div className={`max-w-6xl mx-auto transition-all duration-1000 ${isVisible.workflow ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
           <div className="text-center mb-16">
@@ -257,77 +257,116 @@ const Landing = () => {
           </div>
           
           <div className="relative">
-            {/* Connecting line */}
-            <div className="absolute left-[50%] top-0 bottom-0 w-0.5 bg-primary/20 hidden md:block"></div>
+            {/* Vertical timeline line */}
+            <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-blue-100 hidden md:block"></div>
             
-            <div className="space-y-12 md:space-y-0">
-              {workflowSteps.map((step, index) => (
-                <div 
-                  key={index} 
-                  className={`flex flex-col md:flex-row items-center gap-8 md:gap-16 transition-all duration-500 delay-${index * 200} ${
-                    isVisible.workflow ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
-                  }`}
-                >
-                  <div className={`flex-1 order-2 ${index % 2 === 0 ? 'md:order-1 text-left' : 'md:order-2 md:text-right'}`}>
-                    <h3 className="text-xl font-semibold mb-2">{step.title}</h3>
-                    <p className="text-muted-foreground">{step.description}</p>
-                  </div>
-                  
-                  <div className="relative order-1 md:order-2">
-                    <div className="h-16 w-16 rounded-full bg-white shadow-lg border border-border/50 flex items-center justify-center z-10 relative">
-                      {step.icon}
-                    </div>
-                    <div className="absolute top-0 left-0 right-0 bottom-0 bg-primary/10 rounded-full blur-xl -z-10"></div>
-                  </div>
-                  
-                  <div className={`flex-1 order-3 ${index % 2 === 0 ? 'md:order-3 md:text-right' : 'md:order-1 text-left'}`}>
-                    {index === 0 && (
-                      <div className="bg-white p-4 rounded-lg shadow-lg border border-border/50">
-                        <div className="flex gap-2">
-                          <div className="chip chip-primary">{"<company>"}</div>
-                          <div className="chip chip-secondary">{"<product>"}</div>
-                          <div className="chip" style={{ backgroundColor: "#f97316", color: "white" }}>{"<audience>"}</div>
-                        </div>
-                      </div>
-                    )}
-                    
-                    {index === 1 && (
-                      <div className="bg-white p-4 rounded-lg shadow-lg border border-border/50">
-                        <p className="text-sm">
-                          Write a compelling ad for <span className="chip chip-primary text-xs px-1">{"<company>"}</span> promoting their <span className="chip chip-secondary text-xs px-1">{"<product>"}</span> to <span className="chip text-xs px-1" style={{ backgroundColor: "#f97316", color: "white" }}>{"<audience>"}</span>.
-                        </p>
-                      </div>
-                    )}
-                    
-                    {index === 2 && (
-                      <div className="bg-white p-4 rounded-lg shadow-lg border border-border/50">
-                        <div className="space-y-2">
-                          <div className="flex items-center gap-2">
-                            <div className="w-20 text-xs text-muted-foreground">company:</div>
-                            <div className="text-sm">Acme Inc</div>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <div className="w-20 text-xs text-muted-foreground">product:</div>
-                            <div className="text-sm">Smart Home Hub</div>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <div className="w-20 text-xs text-muted-foreground">audience:</div>
-                            <div className="text-sm">tech enthusiasts</div>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                    
-                    {index === 3 && (
-                      <div className="bg-white p-4 rounded-lg shadow-lg border border-border/50">
-                        <div className="bg-green-50 p-2 rounded border border-green-100 text-sm">
-                          Write a compelling ad for Acme Inc promoting their Smart Home Hub to tech enthusiasts.
-                        </div>
-                      </div>
-                    )}
+            {/* Step 1: Create placeholders */}
+            <div className="flex flex-col md:flex-row items-center mb-16 md:mb-24">
+              <div className="md:w-1/2 md:pr-12 md:text-right mb-8 md:mb-0">
+                <h3 className="text-2xl font-bold mb-2">Create placeholders</h3>
+                <p className="text-muted-foreground text-lg">
+                  Define reusable variables like customer names, product features, or timelines.
+                </p>
+              </div>
+              
+              <div className="relative flex-shrink-0">
+                <div className="h-16 w-16 rounded-full bg-white shadow-lg border border-blue-100 flex items-center justify-center z-10 relative">
+                  <Layers className="h-8 w-8 text-blue-500" />
+                </div>
+              </div>
+              
+              <div className="md:w-1/2 md:pl-12 mt-8 md:mt-0">
+                <div className="bg-white p-6 rounded-lg shadow-md border border-blue-100">
+                  <div className="flex flex-wrap gap-2">
+                    <div className="inline-block px-3 py-1 rounded-full text-sm font-medium bg-indigo-100 text-indigo-800">{"<company>"}</div>
+                    <div className="inline-block px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-800">{"<product>"}</div>
+                    <div className="inline-block px-3 py-1 rounded-full text-sm font-medium bg-orange-100 text-orange-800">{"<audience>"}</div>
                   </div>
                 </div>
-              ))}
+              </div>
+            </div>
+            
+            {/* Step 2: Build templates */}
+            <div className="flex flex-col md:flex-row items-center mb-16 md:mb-24">
+              <div className="md:w-1/2 md:pr-12 md:text-right mb-8 md:mb-0 md:order-1 order-2">
+                <div className="bg-white p-6 rounded-lg shadow-md border border-blue-100">
+                  <p className="text-base">
+                    Write a compelling ad for <span className="inline-block px-2 py-0.5 rounded text-xs font-medium bg-indigo-100 text-indigo-800">{"<company>"}</span> promoting their <span className="inline-block px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">{"<product>"}</span> to <span className="inline-block px-2 py-0.5 rounded text-xs font-medium bg-orange-100 text-orange-800">{"<audience>"}</span>.
+                  </p>
+                </div>
+              </div>
+              
+              <div className="relative flex-shrink-0 order-1 md:order-2">
+                <div className="h-16 w-16 rounded-full bg-white shadow-lg border border-blue-100 flex items-center justify-center z-10 relative">
+                  <FileCode className="h-8 w-8 text-purple-500" />
+                </div>
+              </div>
+              
+              <div className="md:w-1/2 md:pl-12 mt-8 md:mt-0 order-3">
+                <h3 className="text-2xl font-bold mb-2">Build templates</h3>
+                <p className="text-muted-foreground text-lg">
+                  Create prompt templates that incorporate your custom placeholders.
+                </p>
+              </div>
+            </div>
+            
+            {/* Step 3: Fill in values */}
+            <div className="flex flex-col md:flex-row items-center mb-16 md:mb-24">
+              <div className="md:w-1/2 md:pr-12 md:text-right mb-8 md:mb-0">
+                <h3 className="text-2xl font-bold mb-2">Fill in values</h3>
+                <p className="text-muted-foreground text-lg">
+                  Replace placeholders with actual values for each specific use case.
+                </p>
+              </div>
+              
+              <div className="relative flex-shrink-0">
+                <div className="h-16 w-16 rounded-full bg-white shadow-lg border border-blue-100 flex items-center justify-center z-10 relative">
+                  <Wand2 className="h-8 w-8 text-amber-500" />
+                </div>
+              </div>
+              
+              <div className="md:w-1/2 md:pl-12 mt-8 md:mt-0">
+                <div className="bg-white p-6 rounded-lg shadow-md border border-blue-100">
+                  <div className="space-y-3">
+                    <div className="flex items-center">
+                      <div className="w-24 text-sm text-right text-muted-foreground mr-4">company:</div>
+                      <div className="text-base font-medium">Acme Inc</div>
+                    </div>
+                    <div className="flex items-center">
+                      <div className="w-24 text-sm text-right text-muted-foreground mr-4">product:</div>
+                      <div className="text-base font-medium">Smart Home Hub</div>
+                    </div>
+                    <div className="flex items-center">
+                      <div className="w-24 text-sm text-right text-muted-foreground mr-4">audience:</div>
+                      <div className="text-base font-medium">tech enthusiasts</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            {/* Step 4: Generate content */}
+            <div className="flex flex-col md:flex-row items-center">
+              <div className="md:w-1/2 md:pr-12 md:text-right mb-8 md:mb-0 md:order-1 order-2">
+                <div className="bg-white p-6 rounded-lg shadow-md border border-blue-100">
+                  <div className="bg-green-50 p-3 rounded border border-green-100 text-base">
+                    Write a compelling ad for Acme Inc promoting their Smart Home Hub to tech enthusiasts.
+                  </div>
+                </div>
+              </div>
+              
+              <div className="relative flex-shrink-0 order-1 md:order-2">
+                <div className="h-16 w-16 rounded-full bg-white shadow-lg border border-blue-100 flex items-center justify-center z-10 relative">
+                  <Bot className="h-8 w-8 text-green-500" />
+                </div>
+              </div>
+              
+              <div className="md:w-1/2 md:pl-12 mt-8 md:mt-0 order-3">
+                <h3 className="text-2xl font-bold mb-2">Generate content</h3>
+                <p className="text-muted-foreground text-lg">
+                  Use your completed prompt to generate perfect AI content every time.
+                </p>
+              </div>
             </div>
           </div>
         </div>
@@ -392,27 +431,15 @@ const Landing = () => {
       
       {/* Footer */}
       <footer className="bg-background px-4 py-8 border-t border-border/50">
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center">
-          <div className="flex items-center gap-2 mb-4 md:mb-0">
+        <div className="max-w-6xl mx-auto flex justify-center items-center">
+          <div className="flex items-center gap-2">
             <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
               <span className="text-primary font-semibold">P</span>
             </div>
             <span className="font-medium">Prompt Shaper</span>
           </div>
           
-          <div className="flex gap-6">
-            <Link to="/app" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-              App
-            </Link>
-            <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-              Privacy
-            </a>
-            <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-              Terms
-            </a>
-          </div>
-          
-          <div className="text-sm text-muted-foreground mt-4 md:mt-0">
+          <div className="text-sm text-muted-foreground ml-4">
             © {new Date().getFullYear()} Prompt Shaper
           </div>
         </div>

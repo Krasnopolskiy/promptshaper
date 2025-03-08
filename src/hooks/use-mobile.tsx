@@ -1,6 +1,7 @@
 import * as React from "react"
 
-const MOBILE_BREAKPOINT = 768
+// Increase the breakpoint to consider mid-size devices as "mobile" for layout purposes
+const MOBILE_BREAKPOINT = 1024 // Changed from 768 to 1024 (lg breakpoint in Tailwind)
 
 export function useIsMobile() {
   const [isMobile, setIsMobile] = React.useState<boolean | undefined>(undefined)

@@ -31,7 +31,7 @@ export function PlaceholderPanel({
 
   return (
     <aside className="w-full md:w-80 h-full flex flex-col bg-white/90 backdrop-blur-sm">
-      <div className="p-4 border-b border-border/50 bg-gradient-to-r from-primary/5 to-accent/10">
+      <div className="p-4 border-b border-border/50 bg-white">
         <div className="flex items-center gap-2 mb-2">
           <Sparkles className="h-4 w-4 text-primary" />
           <h2 className="text-lg font-medium">Placeholders</h2>
@@ -56,38 +56,19 @@ export function PlaceholderPanel({
         </div>
         
         <TabsContent value="add" className="flex-1 flex flex-col mt-0 p-0">
-          <div className="p-4">
+          <div className="p-4 flex-1">
             <PlaceholderForm onSubmit={onAddPlaceholder} />
-          </div>
-          
-          <Separator className="my-2 bg-border/50" />
-          
-          <div className="p-4">
-            <h3 className="text-sm font-medium mb-2">Recently Added</h3>
-            <ScrollArea className="h-[calc(100vh-350px)]">
-              <div className="space-y-3 pr-3">
-                {sortedPlaceholders.slice(0, 5).map((placeholder) => (
-                  <PlaceholderCard
-                    key={placeholder.id}
-                    placeholder={placeholder}
-                    onUpdate={onUpdatePlaceholder}
-                    onDelete={onDeletePlaceholder}
-                    onInsert={onInsertPlaceholder}
-                    onNameChange={onPlaceholderNameChange}
-                  />
-                ))}
-                {sortedPlaceholders.length === 0 && (
-                  <div className="text-center py-8 px-4">
-                    <div className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 mb-3">
-                      <PlusCircle className="h-6 w-6 text-primary" />
-                    </div>
-                    <p className="text-sm text-muted-foreground">
-                      No placeholders yet. Create your first one above.
-                    </p>
-                  </div>
-                )}
+            
+            {placeholders.length === 0 && (
+              <div className="text-center py-8 px-4 mt-4">
+                <div className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 mb-3">
+                  <PlusCircle className="h-6 w-6 text-primary" />
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  No placeholders yet. Create your first one above.
+                </p>
               </div>
-            </ScrollArea>
+            )}
           </div>
         </TabsContent>
         
