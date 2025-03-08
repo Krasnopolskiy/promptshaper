@@ -24,12 +24,7 @@ const editorStyles = `
   .w-tc-editor-text span {
     color: inherit !important;
   }
-  .placeholder-tag {
-    color: rgb(59 130 246) !important;
-    font-weight: 500;
-  }
   .w-tc-editor [data-placeholder] {
-    color: rgb(59 130 246) !important;
     font-weight: 500;
   }
 `;
@@ -67,10 +62,74 @@ export function PromptEditor({
     const styleElement = document.createElement('style');
     styleElement.textContent = editorStyles;
     document.head.appendChild(styleElement);
+    
+    // Add dynamic styles for each placeholder
+    placeholders.forEach(placeholder => {
+      const placeholderStyle = `
+        .placeholder-${placeholder.id} {
+          color: ${placeholder.color} !important;
+          background-color: ${placeholder.color}10 !important;
+          border: 1px solid ${placeholder.color}30;
+          border-radius: 4px;
+          padding: 2px 4px;
+          margin: 0 1px;
+          font-weight: 500;
+        }
+      `;
+      styleElement.textContent += placeholderStyle;
+    });
+    
     return () => {
       document.head.removeChild(styleElement);
     };
-  }, []);
+  }, [placeholders]);
+
+  // Apply placeholder styling to the editor content
+  useEffect(() => {
+    const applyPlaceholderStyling = () => {
+      const editorElements = document.querySelectorAll('.w-tc-editor-text');
+      editorElements.forEach(editor => {
+        // Find all spans that might contain placeholders
+        const spans = editor.querySelectorAll('span');
+        spans.forEach(span => {
+          const text = span.textContent || '';
+          // Check if this span contains a placeholder pattern <name>
+          if (text.match(/<([\p{L}0-9]+)>/u)) {
+            // Find which placeholder this is
+            const placeholderName = text.replace(/[<>]/g, '');
+            const placeholder = placeholders.find(p => p.name === placeholderName);
+            if (placeholder) {
+              // Apply the placeholder's color
+              span.style.color = placeholder.color;
+              span.style.backgroundColor = `${placeholder.color}10`;
+              span.style.border = `1px solid ${placeholder.color}30`;
+              span.style.borderRadius = '4px';
+              span.style.padding = '2px 4px';
+              span.style.margin = '0 1px';
+              span.style.fontWeight = '500';
+            }
+          }
+        });
+      });
+    };
+    
+    // Set up a MutationObserver to detect changes in the editor
+    const observer = new MutationObserver(() => {
+      setTimeout(applyPlaceholderStyling, 10);
+    });
+    
+    observer.observe(document.body, { 
+      childList: true, 
+      subtree: true 
+    });
+    
+    // Initial application
+    setTimeout(applyPlaceholderStyling, 100);
+    
+    return () => {
+      observer.disconnect();
+    };
+  }, [placeholders]);
 
   // Simple editor change handler
   const handleEditorChange = (newValue: string) => {
@@ -203,8 +262,12 @@ export function PromptEditor({
                       size="sm"
                       className="justify-start font-normal"
                       onClick={() => handleInsertPlaceholder(placeholder.name)}
+                      style={{ color: placeholder.color }}
                     >
-                      <span className="w-2 h-2 rounded-full mr-2 bg-blue-500" />
+                      <span 
+                        className="w-2 h-2 rounded-full mr-2" 
+                        style={{ backgroundColor: placeholder.color }}
+                      />
                       {placeholder.name}
                     </Button>
                   ))}
