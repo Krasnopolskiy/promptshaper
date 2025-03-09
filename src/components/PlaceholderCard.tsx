@@ -1,10 +1,11 @@
+
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Placeholder } from '@/types';
-import { Plus } from 'lucide-react';
+import { Plus, Edit, Trash } from 'lucide-react';
 import { PLACEHOLDER_COLORS } from '@/hooks/usePlaceholders';
 
 interface PlaceholderCardProps {
@@ -136,31 +137,33 @@ export function PlaceholderCard({
           </>
         ) : (
           <>
-            <div>
+            <div className="flex gap-1">
               <Button 
                 size="sm" 
-                variant="ghost" 
+                variant="outline" 
                 onClick={() => setIsEditing(true)}
-                className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:text-blue-400 dark:hover:text-blue-300 dark:hover:bg-blue-900/50"
+                className="text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-800/30"
               >
+                <Edit size={14} className="mr-1" />
                 Edit
               </Button>
               <Button 
                 size="sm" 
-                variant="ghost" 
+                variant="outline" 
                 onClick={() => onDelete(placeholder.id)}
-                className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/50"
+                className="text-red-600 dark:text-red-400 border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-800/30"
               >
+                <Trash size={14} className="mr-1" />
                 Delete
               </Button>
             </div>
             {onInsert && (
               <Button 
                 size="sm" 
-                variant="ghost" 
+                variant="outline" 
                 onClick={handleInsert}
                 title={'Insert <' + placeholder.name + '> into prompt'}
-                className="text-green-600 hover:text-green-700 hover:bg-green-50 dark:text-green-400 dark:hover:text-green-300 dark:hover:bg-green-900/50"
+                className="text-green-600 dark:text-green-400 border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/20 hover:bg-green-100 dark:hover:bg-green-800/30"
               >
                 <Plus size={14} className="mr-1" />
                 Insert
