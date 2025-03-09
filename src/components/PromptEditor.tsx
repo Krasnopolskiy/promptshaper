@@ -7,7 +7,6 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import CodeEditor from '@uiw/react-textarea-code-editor';
 import { useTheme } from '@/hooks/useTheme';
 
-// Add custom styles for syntax highlighting
 const editorStyles = `
   .w-tc-editor {
     background: transparent !important;
@@ -49,7 +48,6 @@ export function PromptEditor({
   const [isUndoRedo, setIsUndoRedo] = useState<boolean>(false);
   const { theme } = useTheme();
 
-  // Add to history stack when value changes (except during undo/redo)
   useEffect(() => {
     if (!isUndoRedo && value !== historyStack[historyStack.length - 1 - historyIndex]) {
       const newStack = historyStack.slice(0, historyStack.length - historyIndex);
@@ -59,13 +57,11 @@ export function PromptEditor({
     setIsUndoRedo(false);
   }, [value]);
 
-  // Add custom styles to the document
   useEffect(() => {
     const styleElement = document.createElement('style');
     styleElement.textContent = editorStyles;
     document.head.appendChild(styleElement);
     
-    // Add dynamic styles for each placeholder
     placeholders.forEach(placeholder => {
       const placeholderStyle = `
         .placeholder-${placeholder.id} {
@@ -86,22 +82,17 @@ export function PromptEditor({
     };
   }, [placeholders]);
 
-  // Apply placeholder styling to the editor content
   useEffect(() => {
     const applyPlaceholderStyling = () => {
       const editorElements = document.querySelectorAll('.w-tc-editor-text');
       editorElements.forEach(editor => {
-        // Find all spans that might contain placeholders
         const spans = editor.querySelectorAll('span');
         spans.forEach(span => {
           const text = span.textContent || '';
-          // Check if this span contains a placeholder pattern <n>
           if (text.match(/<([\p{L}0-9]+)>/u)) {
-            // Find which placeholder this is
             const placeholderName = text.replace(/[<>]/g, '');
             const placeholder = placeholders.find(p => p.name === placeholderName);
             if (placeholder) {
-              // Apply the placeholder's color
               span.style.color = placeholder.color;
               span.style.backgroundColor = `${placeholder.color}10`;
               span.style.border = `1px solid ${placeholder.color}30`;
@@ -115,7 +106,6 @@ export function PromptEditor({
       });
     };
     
-    // Set up a MutationObserver to detect changes in the editor
     const observer = new MutationObserver(() => {
       setTimeout(applyPlaceholderStyling, 10);
     });
@@ -125,7 +115,6 @@ export function PromptEditor({
       subtree: true 
     });
     
-    // Initial application
     setTimeout(applyPlaceholderStyling, 100);
     
     return () => {
@@ -133,13 +122,10 @@ export function PromptEditor({
     };
   }, [placeholders]);
 
-  // Simple editor change handler
   const handleEditorChange = (newValue: string) => {
-    // Check if a new placeholder was manually added
     const placeholderRegex = /<([\p{L}0-9]+)>/gu;
     const existingPlaceholderNames = new Set(placeholders.map(p => p.name));
     
-    // Find all placeholders in the new text
     let match;
     const foundPlaceholders = new Set<string>();
     
@@ -147,26 +133,20 @@ export function PromptEditor({
       const placeholderName = match[1];
       foundPlaceholders.add(placeholderName);
       
-      // If this placeholder doesn't exist yet, create it
       if (!existingPlaceholderNames.has(placeholderName) && onInsertPlaceholder) {
-        // Create a new placeholder with empty content
         onInsertPlaceholder(placeholderName, match.index);
       }
     }
     
-    // Check if any placeholders with empty content were removed
     if (value !== newValue) {
       const removedPlaceholders = [...existingPlaceholderNames].filter(name => 
         !foundPlaceholders.has(name) && 
         placeholders.find(p => p.name === name)?.content === ''
       );
       
-      // If any empty placeholders were removed, notify parent component
       if (removedPlaceholders.length > 0 && onInsertPlaceholder) {
-        // We use onInsertPlaceholder as a way to communicate with the parent component
-        // The parent component can check if the placeholder exists and remove it if needed
         removedPlaceholders.forEach(name => {
-          onInsertPlaceholder(name, -1); // Use -1 as a signal that the placeholder was removed
+          onInsertPlaceholder(name, -1);
         });
       }
     }
@@ -174,9 +154,7 @@ export function PromptEditor({
     onChange(newValue);
   };
 
-  // Handle keyboard shortcuts
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
-    // Handle undo/redo
     if (e.ctrlKey && e.key === 'z' && !e.shiftKey) {
       e.preventDefault();
       handleUndo();
@@ -190,28 +168,22 @@ export function PromptEditor({
     }
   };
 
-  // Insert a placeholder at the current cursor position
   const handleInsertPlaceholder = (name: string) => {
     if (editorRef.current) {
       const textarea = editorRef.current;
       const start = textarea.selectionStart;
       const end = textarea.selectionEnd;
       
-      // Get the text before and after the cursor
       const textBefore = value.substring(0, start);
       const textAfter = value.substring(end);
       
-      // Create the new text with the placeholder
       const tag = '<' + name + '>';
       const newValue = textBefore + tag + textAfter;
       
-      // Calculate new cursor position (after the inserted tag)
       const newPosition = textBefore.length + tag.length;
       
-      // Update the value
       onChange(newValue);
       
-      // Set cursor position after the tag
       requestAnimationFrame(() => {
         if (editorRef.current) {
           editorRef.current.focus();
@@ -219,14 +191,12 @@ export function PromptEditor({
         }
       });
       
-      // Notify parent component if callback provided
       if (onInsertPlaceholder) {
         onInsertPlaceholder(name, textBefore.length);
       }
     }
   };
 
-  // Undo the last change
   const handleUndo = () => {
     if (historyIndex < historyStack.length - 1) {
       setIsUndoRedo(true);
@@ -236,7 +206,6 @@ export function PromptEditor({
     }
   };
 
-  // Redo the last undone change
   const handleRedo = () => {
     if (historyIndex > 0) {
       setIsUndoRedo(true);
@@ -278,7 +247,7 @@ export function PromptEditor({
             <Button 
               size="sm" 
               variant="outline" 
-              className="text-sm gap-1.5"
+              className="text-sm gap-1.5 hover:bg-background"
             >
               <PlusCircle size={14} />
               Insert

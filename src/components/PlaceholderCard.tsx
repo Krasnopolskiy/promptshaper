@@ -142,7 +142,7 @@ export function PlaceholderCard({
                 size="sm" 
                 variant="outline" 
                 onClick={() => setIsEditing(true)}
-                className="text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-800/30"
+                className="bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-900/40 dark:text-blue-300 dark:border-blue-700 hover:bg-blue-200 dark:hover:bg-blue-800/60"
               >
                 <Edit size={14} className="mr-1" />
                 Edit
@@ -151,7 +151,7 @@ export function PlaceholderCard({
                 size="sm" 
                 variant="outline" 
                 onClick={() => onDelete(placeholder.id)}
-                className="text-red-600 dark:text-red-400 border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-800/30"
+                className="bg-red-100 text-red-700 border-red-300 dark:bg-red-900/40 dark:text-red-300 dark:border-red-700 hover:bg-red-200 dark:hover:bg-red-800/60"
               >
                 <Trash size={14} className="mr-1" />
                 Delete
@@ -163,7 +163,7 @@ export function PlaceholderCard({
                 variant="outline" 
                 onClick={handleInsert}
                 title={'Insert <' + placeholder.name + '> into prompt'}
-                className="text-green-600 dark:text-green-400 border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/20 hover:bg-green-100 dark:hover:bg-green-800/30"
+                className="bg-green-100 text-green-700 border-green-300 dark:bg-green-900/40 dark:text-green-300 dark:border-green-700 hover:bg-green-200 dark:hover:bg-green-800/60"
               >
                 <Plus size={14} className="mr-1" />
                 Insert
