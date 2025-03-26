@@ -1,0 +1,23 @@
+# Build artifacts
+dist
+build
+coverage
+
+# Package directories
+node_modules
+.npm
+
+# Lockfiles
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+bun.lockb
+
+# Environment and config files
+.env
+.env.*
+
+# Misc
+.DS_Store
+.idea
+.vscode 
