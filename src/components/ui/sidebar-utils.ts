@@ -14,13 +14,13 @@ export const SIDEBAR_KEYBOARD_SHORTCUT = "b"
  * Sidebar context type
  */
 export type SidebarContextType = {
-  state: "expanded" | "collapsed"
-  open: boolean
-  setOpen: (open: boolean) => void
-  openMobile: boolean
-  setOpenMobile: (open: boolean) => void
-  isMobile: boolean
-  toggleSidebar: () => void
+    state: "expanded" | "collapsed"
+    open: boolean
+    setOpen: (open: boolean) => void
+    openMobile: boolean
+    setOpenMobile: (open: boolean) => void
+    isMobile: boolean
+    toggleSidebar: () => void
 }
 
 /**
@@ -32,9 +32,9 @@ export const SidebarContext = React.createContext<SidebarContextType | null>(nul
  * Custom hook to access sidebar context
  */
 export function useSidebar() {
-  const context = React.useContext(SidebarContext)
-  if (!context) {
-    throw new Error("useSidebar must be used within a SidebarProvider.")
-  }
-  return context
+    const context = React.useContext(SidebarContext)
+    if (!context) {
+        throw new Error("useSidebar must be used within a SidebarProvider.")
+    }
+    return context
 } 
