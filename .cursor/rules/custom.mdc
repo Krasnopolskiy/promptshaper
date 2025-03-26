@@ -1,0 +1,11 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+
+# You MUST follow this rules
+
+- Always write comprehensive js-standart docs
+- Max file length: 200 lines
+- Max func length: 10 lines
