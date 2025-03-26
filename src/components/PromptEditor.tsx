@@ -5,7 +5,7 @@ import { PlusCircle, Undo, Redo } from 'lucide-react';
 import { Placeholder } from '@/types';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import CodeEditor from '@uiw/react-textarea-code-editor';
-import { useTheme } from '@/hooks/useTheme';
+import { useTheme } from '@/hooks';
 
 const editorStyles = `
   .w-tc-editor {
@@ -55,7 +55,7 @@ export function PromptEditor({
       setHistoryIndex(0);
     }
     setIsUndoRedo(false);
-  }, [value]);
+  }, [value, historyStack, historyIndex, isUndoRedo]);
 
   useEffect(() => {
     const styleElement = document.createElement('style');
@@ -289,7 +289,7 @@ export function PromptEditor({
             placeholder="Write your prompt here..."
             onChange={(e) => handleEditorChange(e.target.value)}
             onKeyDown={handleKeyDown}
-            ref={editorRef as any}
+            ref={editorRef as React.RefObject<HTMLTextAreaElement>}
             style={{
               fontSize: "14px",
               fontFamily: "inherit",

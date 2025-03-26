@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { LandingHeader } from '@/components/LandingHeader';
@@ -17,13 +17,43 @@ const Landing = () => {
     testimonials: false,
     cta: false
   });
-  const sectionRefs = {
-    hero: useRef<HTMLDivElement>(null),
-    features: useRef<HTMLDivElement>(null),
-    workflow: useRef<HTMLDivElement>(null),
-    testimonials: useRef<HTMLDivElement>(null),
-    cta: useRef<HTMLDivElement>(null)
-  };
+  
+  const heroRef = useRef<HTMLDivElement>(null);
+  const featuresRef = useRef<HTMLDivElement>(null);
+  const workflowRef = useRef<HTMLDivElement>(null);
+  const testimonialsRef = useRef<HTMLDivElement>(null);
+  const ctaRef = useRef<HTMLDivElement>(null);
+  
+  const sectionRefs = useMemo(() => ({
+    hero: heroRef,
+    features: featuresRef,
+    workflow: workflowRef,
+    testimonials: testimonialsRef,
+    cta: ctaRef
+  }), []);
+
+  const features = [
+    {
+      title: "Reusable Placeholders",
+      description: "Create and manage placeholders that can be reused across multiple prompts.",
+      icon: <Layers className="h-6 w-6 text-blue-500" />
+    },
+    {
+      title: "Custom Templates",
+      description: "Build and save prompt templates with your placeholders for consistent results.",
+      icon: <FileCode className="h-6 w-6 text-purple-500" />
+    },
+    {
+      title: "Real-time Preview",
+      description: "See your completed prompt with all placeholders filled in as you type.",
+      icon: <Wand2 className="h-6 w-6 text-amber-500" />
+    },
+    {
+      title: "Color Coding",
+      description: "Visually organize your placeholders with custom colors for better recognition.",
+      icon: <Palette className="h-6 w-6 text-red-500" />
+    }
+  ];
 
   // Rotate through features automatically
   useEffect(() => {
@@ -31,7 +61,7 @@ const Landing = () => {
       setActiveFeature((prev) => (prev + 1) % features.length);
     }, 3000);
     return () => clearInterval(interval);
-  }, []);
+  }, [features.length]);
 
   // Intersection observer for animations
   useEffect(() => {
@@ -58,30 +88,7 @@ const Landing = () => {
     return () => {
       observers.forEach(observer => observer.disconnect());
     };
-  }, []);
-
-  const features = [
-    {
-      title: "Reusable Placeholders",
-      description: "Create and manage placeholders that can be reused across multiple prompts.",
-      icon: <Layers className="h-6 w-6 text-blue-500" />
-    },
-    {
-      title: "Custom Templates",
-      description: "Build and save prompt templates with your placeholders for consistent results.",
-      icon: <FileCode className="h-6 w-6 text-purple-500" />
-    },
-    {
-      title: "Real-time Preview",
-      description: "See your completed prompt with all placeholders filled in as you type.",
-      icon: <Wand2 className="h-6 w-6 text-amber-500" />
-    },
-    {
-      title: "Color Coding",
-      description: "Visually organize your placeholders with custom colors for better recognition.",
-      icon: <Palette className="h-6 w-6 text-red-500" />
-    }
-  ];
+  }, [sectionRefs]);
 
   const workflowSteps = [
     {
@@ -130,7 +137,7 @@ const Landing = () => {
       
       {/* Hero Section */}
       <section 
-        ref={sectionRefs.hero}
+        ref={heroRef}
         className="relative px-4 py-20 md:py-32 overflow-hidden"
       >
         <div className={`max-w-6xl mx-auto transition-all duration-1000 ${isVisible.hero ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
@@ -199,7 +206,7 @@ const Landing = () => {
       
       {/* Features Section */}
       <section 
-        ref={sectionRefs.features}
+        ref={featuresRef}
         className="px-4 py-20 bg-white dark:bg-background"
       >
         <div className={`max-w-6xl mx-auto transition-all duration-1000 ${isVisible.features ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
@@ -234,7 +241,7 @@ const Landing = () => {
       
       {/* How It Works Section */}
       <section 
-        ref={sectionRefs.workflow}
+        ref={workflowRef}
         className="px-4 py-20 bg-white dark:bg-background"
       >
         <div className={`max-w-6xl mx-auto transition-all duration-1000 ${isVisible.workflow ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
@@ -363,7 +370,7 @@ const Landing = () => {
       
       {/* Testimonials Section */}
       <section 
-        ref={sectionRefs.testimonials}
+        ref={testimonialsRef}
         className="px-4 py-20 bg-white dark:bg-background"
       >
         <div className={`max-w-4xl mx-auto transition-all duration-1000 ${isVisible.testimonials ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
@@ -398,7 +405,7 @@ const Landing = () => {
       
       {/* CTA Section */}
       <section 
-        ref={sectionRefs.cta}
+        ref={ctaRef}
         className="px-4 py-20"
       >
         <div className={`max-w-4xl mx-auto transition-all duration-1000 ${isVisible.cta ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
