@@ -1,3 +1,4 @@
+
 import {PromptEditor} from './PromptEditor';
 import {Placeholder} from '@/types';
 import {FileEdit} from 'lucide-react';
@@ -18,8 +19,8 @@ export function EditorPanel({
   return (
     <div className="flex h-full w-full flex-col bg-background">
       <div className="border-b border-border/50 bg-background p-4">
-        <div className="mb-1 flex items-center gap-2">
-          <FileEdit className="h-4 w-4 text-primary"/>
+        <div className="flex items-center gap-2 text-primary mb-2">
+          <FileEdit className="h-4 w-4"/>
           <h2 className="text-lg font-medium">Editor</h2>
         </div>
         <p className="text-sm text-muted-foreground">Create and edit your prompt template</p>

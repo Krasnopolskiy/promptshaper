@@ -34,9 +34,9 @@ export function PreviewPanel({content, onCopy}: PreviewPanelProps) {
   return (
     <div className="flex h-full w-full flex-col bg-background">
       <div className="border-b border-border/50 bg-background p-4">
-        <div className="mb-1 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Eye className="h-4 w-4 text-primary"/>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 text-primary mb-2">
+            <Eye className="h-4 w-4"/>
             <h2 className="text-lg font-medium">Preview</h2>
           </div>
 

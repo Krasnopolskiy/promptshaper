@@ -1,3 +1,4 @@
+
 import {useState} from 'react';
 import {ScrollArea} from '@/components/ui/scroll-area';
 import {Tabs, TabsContent, TabsList, TabsTrigger} from '@/components/ui/tabs';
@@ -31,8 +32,8 @@ export function PlaceholderPanel({
   return (
     <aside className="flex h-full w-full flex-col bg-background">
       <div className="border-b border-border/50 bg-background p-4">
-        <div className="mb-2 flex items-center gap-2">
-          <Sparkles className="h-4 w-4 text-primary"/>
+        <div className="flex items-center gap-2 text-primary mb-2">
+          <Sparkles className="h-4 w-4" />
           <h2 className="text-lg font-medium">Placeholders</h2>
         </div>
         <p className="text-sm text-muted-foreground">Create and manage your prompt placeholders</p>

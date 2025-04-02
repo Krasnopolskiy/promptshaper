@@ -1,4 +1,3 @@
-
 import {useEffect, useState} from 'react';
 import {Header} from '@/components/Header';
 import {PlaceholderPanel} from '@/components/PlaceholderPanel';
@@ -33,11 +32,10 @@ const Index = () => {
 
   const [fullPrompt, setFullPrompt] = useState('');
   const [showWelcome, setShowWelcome] = useState(false);
-  // Default panel sizes (in percentages)
   const [panelSizes, setPanelSizes] = useState({
-    placeholders: 25, // 25% width
-    editor: 50, // 50% width
-    preview: 25, // 25% width
+    placeholders: 25,
+    editor: 50,
+    preview: 25,
   });
 
   useEffect(() => {
@@ -48,16 +46,13 @@ const Index = () => {
     setActivePanel(isMobile ? 'editor' : 'placeholders');
   }, [isMobile]);
 
-  // Check if this is the first visit
   useEffect(() => {
     const hasSeenWelcome = localStorage.getItem('promptShaper_hasSeenWelcome');
     if (!hasSeenWelcome) {
       setShowWelcome(true);
-      // Don't set localStorage yet - we'll do that when they dismiss the welcome screen
     }
   }, []);
 
-  // Load saved panel sizes from localStorage
   useEffect(() => {
     const savedSizes = localStorage.getItem('promptShaper_panelSizes');
     if (savedSizes && !isMobile) {
@@ -69,7 +64,6 @@ const Index = () => {
     }
   }, [isMobile]);
 
-  // Save panel sizes when they change
   const handlePanelResize = (newSizes: number[]) => {
     const [placeholders, editor, preview] = newSizes;
     const newPanelSizes = {placeholders, editor, preview};
@@ -113,12 +107,8 @@ const Index = () => {
   const handleInsertPlaceholderAtPosition = (name: string, position: number) => {
     setCursorPosition(position);
 
-    // If position is -1, it means the placeholder was removed from the editor
     if (position === -1) {
-      // Find the placeholder
       const placeholder = placeholders.find(p => p.name === name);
-
-      // Only remove if the content is empty
       if (placeholder && placeholder.content === '') {
         deletePlaceholder(placeholder.id);
         return -1;
@@ -127,12 +117,9 @@ const Index = () => {
       return -1;
     }
 
-    // Check if this placeholder already exists
     const existingPlaceholder = placeholders.find(p => p.name === name);
 
-    // If it doesn't exist, create it with empty content
     if (!existingPlaceholder) {
-      // Get a random color from the PLACEHOLDER_COLORS array
       const randomColor = PLACEHOLDER_COLORS[Math.floor(Math.random() * PLACEHOLDER_COLORS.length)];
       addPlaceholder(name, '', randomColor);
     }
@@ -146,13 +133,11 @@ const Index = () => {
 
   const handleSkipWelcome = () => {
     setShowWelcome(false);
-    // Mark that the user has seen the welcome screen
     localStorage.setItem('promptShaper_hasSeenWelcome', 'true');
   };
 
   return (
     <div className="flex min-h-screen flex-col">
-      {/* Simple background */}
       <div className="fixed inset-0 -z-10 bg-background"></div>
 
       <Header
@@ -165,7 +150,6 @@ const Index = () => {
         onCopyFullPrompt={handleCopyFullPrompt}
       />
 
-      {/* Welcome overlay */}
       {showWelcome && (
         <div
           className="absolute inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm transition-opacity duration-500">
@@ -289,7 +273,7 @@ const Index = () => {
             <ResizablePanel 
               defaultSize={panelSizes.placeholders} 
               minSize={15}
-              className="rounded-l-lg border border-border/50 bg-white/70 backdrop-blur-sm transition-all duration-300 hover:shadow-xl dark:bg-background/70"
+              className="rounded-l-lg border border-border/50 bg-white/70 backdrop-blur-sm transition-all duration-300 dark:bg-background/70"
             >
               <PlaceholderPanel
                 placeholders={placeholders}
@@ -306,7 +290,7 @@ const Index = () => {
             <ResizablePanel 
               defaultSize={panelSizes.editor} 
               minSize={25}
-              className="border-y border-border/50 bg-white/70 backdrop-blur-sm transition-all duration-300 hover:shadow-xl dark:bg-background/70"
+              className="border-y border-border/50 bg-white/70 backdrop-blur-sm transition-all duration-300 dark:bg-background/70"
             >
               <EditorPanel
                 promptText={promptText}
@@ -321,7 +305,7 @@ const Index = () => {
             <ResizablePanel 
               defaultSize={panelSizes.preview} 
               minSize={15}
-              className="rounded-r-lg border border-border/50 bg-white/70 backdrop-blur-sm transition-all duration-300 hover:shadow-xl dark:bg-background/70"
+              className="rounded-r-lg border border-border/50 bg-white/70 backdrop-blur-sm transition-all duration-300 dark:bg-background/70"
             >
               <PreviewPanel content={fullPrompt} onCopy={handleCopyFullPrompt} />
             </ResizablePanel>
