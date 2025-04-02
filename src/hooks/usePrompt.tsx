@@ -1,3 +1,4 @@
+
 import {useCallback, useEffect, useState} from 'react';
 import {Placeholder} from '@/types';
 
@@ -15,8 +16,8 @@ export function usePrompt() {
     if (placeholders.length === 0) return promptText;
 
     // Get all unique placeholders used in the prompt text
-    // Updated regex to support non-Latin characters like Cyrillic
-    const placeholderRegex = /<([\p{L}0-9]+)>/gu;
+    // Updated regex to support multi-word placeholders and non-Latin characters
+    const placeholderRegex = /<([\p{L}0-9\s_-]+)>/gu;
     const usedPlaceholderNames = new Set<string>();
     let match;
 
@@ -61,9 +62,9 @@ export function usePrompt() {
     (oldName: string, newName: string) => {
       if (oldName === newName) return;
 
-      // Updated regex to support non-Latin characters like Cyrillic
-      const pattern = new RegExp('<' + oldName + '>', 'gu');
-      const closingPattern = new RegExp('</' + oldName + '>', 'gu');
+      // Updated regex to support multi-word placeholders and non-Latin characters
+      const pattern = new RegExp('<' + oldName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '>', 'gu');
+      const closingPattern = new RegExp('</' + oldName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '>', 'gu');
 
       // Update both opening and closing tags
       let updatedPrompt = promptText.replace(pattern, '<' + newName + '>');
