@@ -1,3 +1,4 @@
+
 import {useRef, useState} from 'react';
 import {ScrollArea} from '@/components/ui/scroll-area';
 import {Button} from '@/components/ui/button';
@@ -14,9 +15,10 @@ export function PreviewPanel({content, onCopy}: PreviewPanelProps) {
 
   // Function to highlight XML tags in the preview
   const formatContentWithSyntaxHighlighting = (text: string) => {
-    // Replace XML tags with highlighted spans, supporting non-Latin characters like Cyrillic
+    // Replace XML tags with highlighted spans, supporting multi-word placeholders
+    // Updated regex to properly handle multi-word and special characters in placeholders
     const formattedText = text.replace(
-      /<(\/?[\p{L}0-9]+)>/gu,
+      /<(\/?[\p{L}0-9\s_-]+)>/gu,
       '<span class="text-primary font-mono">&#60;$1&#62;</span>'
     );
 

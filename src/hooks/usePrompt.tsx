@@ -28,7 +28,7 @@ export function usePrompt() {
     // Filter placeholders to those that are actually used in the text
     const usedPlaceholders = placeholders.filter(p => usedPlaceholderNames.has(p.name));
 
-    // Generate full placeholders with proper newlines
+    // Generate full placeholders with proper newlines and correctly formatted closing tags
     const fullPlaceholders = usedPlaceholders
       .map(p => {
         // Add newlines between tags and content for multiline content
