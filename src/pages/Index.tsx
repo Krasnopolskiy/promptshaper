@@ -1,3 +1,4 @@
+
 import {useEffect, useState} from 'react';
 import {Header} from '@/components/Header';
 import {PlaceholderPanel} from '@/components/PlaceholderPanel';
@@ -10,6 +11,7 @@ import {useToast} from '@/hooks/use-toast';
 import {Button} from '@/components/ui/button';
 import {useIsMobile} from '@/hooks/use-mobile';
 import {FileCode, Layers, Sparkles, Wand2} from 'lucide-react';
+import {ResizablePanel, ResizablePanelGroup, ResizableHandle} from '@/components/ui/resizable';
 
 const Index = () => {
   const {placeholders, addPlaceholder, updatePlaceholder, deletePlaceholder, setPlaceholders} =
@@ -31,6 +33,12 @@ const Index = () => {
 
   const [fullPrompt, setFullPrompt] = useState('');
   const [showWelcome, setShowWelcome] = useState(false);
+  // Default panel sizes (in percentages)
+  const [panelSizes, setPanelSizes] = useState({
+    placeholders: 25, // 25% width
+    editor: 50, // 50% width
+    preview: 25, // 25% width
+  });
 
   useEffect(() => {
     setFullPrompt(generateFullPrompt(promptText, placeholders));
@@ -48,6 +56,26 @@ const Index = () => {
       // Don't set localStorage yet - we'll do that when they dismiss the welcome screen
     }
   }, []);
+
+  // Load saved panel sizes from localStorage
+  useEffect(() => {
+    const savedSizes = localStorage.getItem('promptShaper_panelSizes');
+    if (savedSizes && !isMobile) {
+      try {
+        setPanelSizes(JSON.parse(savedSizes));
+      } catch (e) {
+        console.error('Failed to parse saved panel sizes', e);
+      }
+    }
+  }, [isMobile]);
+
+  // Save panel sizes when they change
+  const handlePanelResize = (newSizes: number[]) => {
+    const [placeholders, editor, preview] = newSizes;
+    const newPanelSizes = {placeholders, editor, preview};
+    setPanelSizes(newPanelSizes);
+    localStorage.setItem('promptShaper_panelSizes', JSON.stringify(newPanelSizes));
+  };
 
   const handleCopyFullPrompt = async () => {
     const success = await copyToClipboard(fullPrompt);
@@ -253,9 +281,16 @@ const Index = () => {
         </div>
       ) : (
         <div className="flex-1 overflow-hidden p-4">
-          <div className="flex h-[calc(100vh-120px)] flex-col gap-4 lg:flex-row">
-            <div
-              className="h-full w-full flex-shrink-0 overflow-hidden rounded-lg border border-border/50 bg-white/70 shadow-lg backdrop-blur-sm transition-all duration-300 hover:shadow-xl dark:bg-background/70 lg:w-80">
+          <ResizablePanelGroup
+            direction="horizontal"
+            className="h-[calc(100vh-120px)] rounded-lg shadow-lg"
+            onLayout={handlePanelResize}
+          >
+            <ResizablePanel 
+              defaultSize={panelSizes.placeholders} 
+              minSize={15}
+              className="rounded-l-lg border border-border/50 bg-white/70 backdrop-blur-sm transition-all duration-300 hover:shadow-xl dark:bg-background/70"
+            >
               <PlaceholderPanel
                 placeholders={placeholders}
                 onAddPlaceholder={addPlaceholder}
@@ -264,23 +299,33 @@ const Index = () => {
                 onInsertPlaceholder={handleInsertPlaceholderFromPanel}
                 onPlaceholderNameChange={handlePlaceholderNameChange}
               />
-            </div>
-
-            <div
-              className="h-full w-full overflow-hidden rounded-lg border border-border/50 bg-white/70 shadow-lg backdrop-blur-sm transition-all duration-300 hover:shadow-xl dark:bg-background/70 lg:flex-1">
+            </ResizablePanel>
+            
+            <ResizableHandle withHandle className="transition-colors hover:bg-primary/20" />
+            
+            <ResizablePanel 
+              defaultSize={panelSizes.editor} 
+              minSize={25}
+              className="border-y border-border/50 bg-white/70 backdrop-blur-sm transition-all duration-300 hover:shadow-xl dark:bg-background/70"
+            >
               <EditorPanel
                 promptText={promptText}
                 setPromptText={setPromptText}
                 placeholders={placeholders}
                 onInsertPlaceholder={handleInsertPlaceholderAtPosition}
               />
-            </div>
-
-            <div
-              className="h-full w-full flex-shrink-0 overflow-hidden rounded-lg border border-border/50 bg-white/70 shadow-lg backdrop-blur-sm transition-all duration-300 hover:shadow-xl dark:bg-background/70 lg:w-80">
-              <PreviewPanel content={fullPrompt} onCopy={handleCopyFullPrompt}/>
-            </div>
-          </div>
+            </ResizablePanel>
+            
+            <ResizableHandle withHandle className="transition-colors hover:bg-primary/20" />
+            
+            <ResizablePanel 
+              defaultSize={panelSizes.preview} 
+              minSize={15}
+              className="rounded-r-lg border border-border/50 bg-white/70 backdrop-blur-sm transition-all duration-300 hover:shadow-xl dark:bg-background/70"
+            >
+              <PreviewPanel content={fullPrompt} onCopy={handleCopyFullPrompt} />
+            </ResizablePanel>
+          </ResizablePanelGroup>
         </div>
       )}
     </div>
