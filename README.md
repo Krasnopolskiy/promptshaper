@@ -15,6 +15,7 @@
 - [Project Structure](#-project-structure)
 - [Development](#-development)
 - [Building for Production](#-building-for-production)
+- [Docker Deployment](#-docker-deployment)
 - [Code Formatting](#-code-formatting)
 - [Code Standards](#-code-standards)
 - [Contributing](#-contributing)
@@ -186,6 +187,57 @@ The build artifacts will be stored in the `dist/` directory. You can preview the
 
 ```bash
 npm run preview
+```
+
+## 🐳 Docker Deployment
+
+The application can be easily deployed using Docker and Docker Compose.
+
+### Prerequisites
+
+- Docker installed on your server
+
+### Deployment Steps
+
+1. Clone the repository on your server:
+
+   ```bash
+   git clone https://github.com/yourusername/promptshaper.git
+   cd promptshaper
+   ```
+
+2. Deploy using Docker Compose:
+
+   ```bash
+   docker compose -f deploy/docker-compose.yml up -d
+   ```
+
+   This will:
+   - Build the application using the Dockerfile
+   - Set up an Nginx server to serve the application
+   - Make the application available on port 80
+
+3. To stop the application:
+
+   ```bash
+   docker compose down
+   ```
+
+### Docker Configuration Files
+
+The Docker configuration is stored in the `deploy` directory:
+
+- `deploy/Dockerfile` - Multi-stage Dockerfile that builds the app and sets up Nginx
+- `deploy/nginx.conf` - Nginx configuration optimized for React SPA
+- `deploy/docker-compose.yml` - Docker Compose configuration for orchestration
+
+### Customizing the Deployment
+
+To use a different port, edit the `deploy/docker-compose.yml` file and change the port mapping:
+
+```yaml
+ports:
+  - "8080:80"  # This will make the app available on port 8080
 ```
 
 ## 💅 Code Formatting

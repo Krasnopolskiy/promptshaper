@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  promptshaper:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    container_name: promptshaper
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    environment:
+      - NODE_ENV=production
