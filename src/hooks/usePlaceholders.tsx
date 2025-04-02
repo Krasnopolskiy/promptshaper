@@ -1,3 +1,4 @@
+
 import {useCallback, useEffect, useState} from 'react';
 import {Placeholder} from '@/types';
 
@@ -52,6 +53,7 @@ export function usePlaceholders() {
 
   const clearPlaceholders = useCallback(() => {
     setPlaceholders([]);
+    localStorage.removeItem('promptGenerator_placeholders');
   }, []);
 
   return {

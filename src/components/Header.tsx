@@ -16,12 +16,22 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import {Input} from '@/components/ui/input';
 import {Label} from '@/components/ui/label';
 import {useToast} from '@/hooks/use-toast';
 import {Placeholder, Template} from '@/types';
 import {Link} from 'react-router-dom';
-import {Download, Save} from 'lucide-react';
+import {Download, RefreshCcw, Save} from 'lucide-react';
 import {ThemeToggle} from '@/components/ui/theme-toggle';
 
 /**
@@ -43,6 +53,8 @@ interface HeaderProps {
   setPlaceholders: (placeholders: Placeholder[]) => void;
   /** Function to copy the full prompt with placeholders */
   onCopyFullPrompt: () => void;
+  /** Function to reset the application */
+  onReset?: () => void;
 }
 
 /**
@@ -56,9 +68,11 @@ export function Header({
                          setPrompt,
                          setPlaceholders,
                          onCopyFullPrompt,
+                         onReset,
                        }: HeaderProps) {
   const [isSaveDialogOpen, setIsSaveDialogOpen] = useState(false);
   const [isLoadDialogOpen, setIsLoadDialogOpen] = useState(false);
+  const [isResetDialogOpen, setIsResetDialogOpen] = useState(false);
   const [templateName, setTemplateName] = useState('');
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
   const {toast} = useToast();
@@ -133,6 +147,20 @@ export function Header({
   };
 
   /**
+   * Handles resetting the application
+   */
+  const handleReset = () => {
+    if (onReset) {
+      onReset();
+      setIsResetDialogOpen(false);
+      toast({
+        title: 'Reset successful',
+        description: 'Your application has been reset to default settings.',
+      });
+    }
+  };
+
+  /**
    * Shows a success toast notification
    * @param title - Toast title
    * @param description - Toast description
@@ -177,6 +205,18 @@ export function Header({
 
         <div className="flex items-center gap-2">
           <ThemeToggle/>
+          
+          {onReset && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsResetDialogOpen(true)}
+              className="flex items-center gap-1 border-border/50 text-xs shadow-sm hover:bg-accent/10 sm:text-sm"
+            >
+              <RefreshCcw className="h-3.5 w-3.5"/>
+              <span className="hidden sm:inline">Reset</span>
+            </Button>
+          )}
 
           <Button
             variant="outline"
@@ -215,6 +255,12 @@ export function Header({
         selectedTemplateId={selectedTemplateId}
         onTemplateSelect={setSelectedTemplateId}
         onLoad={handleLoadTemplate}
+      />
+
+      <ResetConfirmationDialog
+        isOpen={isResetDialogOpen}
+        onOpenChange={setIsResetDialogOpen}
+        onConfirmReset={handleReset}
       />
     </header>
   );
@@ -349,5 +395,45 @@ function LoadTemplateDialog({
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  );
+}
+
+/**
+ * Reset Confirmation Dialog component props
+ * @interface ResetConfirmationDialogProps
+ */
+interface ResetConfirmationDialogProps {
+  /** Whether the dialog is open */
+  isOpen: boolean;
+  /** Function to handle open state changes */
+  onOpenChange: (open: boolean) => void;
+  /** Function to handle reset confirmation */
+  onConfirmReset: () => void;
+}
+
+/**
+ * Dialog component for confirming app reset
+ */
+function ResetConfirmationDialog({
+                              isOpen,
+                              onOpenChange,
+                              onConfirmReset,
+                            }: ResetConfirmationDialogProps) {
+  return (
+    <AlertDialog open={isOpen} onOpenChange={onOpenChange}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Reset Application</AlertDialogTitle>
+          <AlertDialogDescription>
+            This will reset the editor, placeholders, and panel layout to default settings. 
+            Your saved templates will not be affected. Are you sure you want to continue?
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction onClick={onConfirmReset}>Reset</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }

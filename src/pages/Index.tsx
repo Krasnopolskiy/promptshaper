@@ -1,4 +1,5 @@
-import {useEffect, useState} from 'react';
+
+import {useEffect, useState, useCallback} from 'react';
 import {Header} from '@/components/Header';
 import {PlaceholderPanel} from '@/components/PlaceholderPanel';
 import {EditorPanel} from '@/components/EditorPanel';
@@ -12,8 +13,15 @@ import {useIsMobile} from '@/hooks/use-mobile';
 import {FileCode, Layers, Sparkles, Wand2} from 'lucide-react';
 import {ResizablePanel, ResizablePanelGroup, ResizableHandle} from '@/components/ui/resizable';
 
+// Default panel sizes
+const DEFAULT_PANEL_SIZES = {
+  placeholders: 25,
+  editor: 50,
+  preview: 25,
+};
+
 const Index = () => {
-  const {placeholders, addPlaceholder, updatePlaceholder, deletePlaceholder, setPlaceholders} =
+  const {placeholders, addPlaceholder, updatePlaceholder, deletePlaceholder, setPlaceholders, clearPlaceholders} =
     usePlaceholders();
   const {
     promptText,
@@ -22,6 +30,7 @@ const Index = () => {
     insertPlaceholderTag,
     updatePlaceholdersInPrompt,
     copyToClipboard,
+    resetPromptText,
   } = usePrompt();
   const {templates, saveTemplate, loadTemplate} = useTemplates();
   const {toast} = useToast();
@@ -32,20 +41,20 @@ const Index = () => {
 
   const [fullPrompt, setFullPrompt] = useState('');
   const [showWelcome, setShowWelcome] = useState(false);
-  const [panelSizes, setPanelSizes] = useState({
-    placeholders: 25,
-    editor: 50,
-    preview: 25,
-  });
+  const [panelSizes, setPanelSizes] = useState(DEFAULT_PANEL_SIZES);
+  const [cursorPosition, setCursorPosition] = useState(0);
 
+  // Update full prompt when dependencies change
   useEffect(() => {
     setFullPrompt(generateFullPrompt(promptText, placeholders));
   }, [promptText, placeholders, generateFullPrompt]);
 
+  // Set active panel based on mobile status
   useEffect(() => {
     setActivePanel(isMobile ? 'editor' : 'placeholders');
   }, [isMobile]);
 
+  // Show welcome dialog if first time
   useEffect(() => {
     const hasSeenWelcome = localStorage.getItem('promptShaper_hasSeenWelcome');
     if (!hasSeenWelcome) {
@@ -53,9 +62,12 @@ const Index = () => {
     }
   }, []);
 
+  // Load saved panel sizes
   useEffect(() => {
+    if (isMobile) return;
+    
     const savedSizes = localStorage.getItem('promptShaper_panelSizes');
-    if (savedSizes && !isMobile) {
+    if (savedSizes) {
       try {
         setPanelSizes(JSON.parse(savedSizes));
       } catch (e) {
@@ -64,12 +76,17 @@ const Index = () => {
     }
   }, [isMobile]);
 
-  const handlePanelResize = (newSizes: number[]) => {
+  // Debounced panel resize handler to improve performance
+  const handlePanelResize = useCallback((newSizes: number[]) => {
     const [placeholders, editor, preview] = newSizes;
     const newPanelSizes = {placeholders, editor, preview};
     setPanelSizes(newPanelSizes);
-    localStorage.setItem('promptShaper_panelSizes', JSON.stringify(newPanelSizes));
-  };
+    
+    // Use requestAnimationFrame to throttle localStorage updates
+    requestAnimationFrame(() => {
+      localStorage.setItem('promptShaper_panelSizes', JSON.stringify(newPanelSizes));
+    });
+  }, []);
 
   const handleCopyFullPrompt = async () => {
     const success = await copyToClipboard(fullPrompt);
@@ -101,8 +118,6 @@ const Index = () => {
       });
     }
   };
-
-  const [cursorPosition, setCursorPosition] = useState(0);
 
   const handleInsertPlaceholderAtPosition = (name: string, position: number) => {
     setCursorPosition(position);
@@ -136,6 +151,23 @@ const Index = () => {
     localStorage.setItem('promptShaper_hasSeenWelcome', 'true');
   };
 
+  // Reset function to clear the application state
+  const handleReset = useCallback(() => {
+    // Clear prompt
+    resetPromptText();
+    
+    // Clear placeholders
+    clearPlaceholders();
+    
+    // Reset panel sizes to default
+    setPanelSizes(DEFAULT_PANEL_SIZES);
+    localStorage.setItem('promptShaper_panelSizes', JSON.stringify(DEFAULT_PANEL_SIZES));
+    
+    // Update the UI state
+    setFullPrompt('');
+    setCursorPosition(0);
+  }, [resetPromptText, clearPlaceholders]);
+
   return (
     <div className="flex min-h-screen flex-col">
       <div className="fixed inset-0 -z-10 bg-background"></div>
@@ -148,6 +180,7 @@ const Index = () => {
         setPrompt={setPromptText}
         setPlaceholders={setPlaceholders}
         onCopyFullPrompt={handleCopyFullPrompt}
+        onReset={handleReset}
       />
 
       {showWelcome && (
@@ -269,11 +302,14 @@ const Index = () => {
             direction="horizontal"
             className="h-[calc(100vh-120px)] rounded-lg shadow-lg"
             onLayout={handlePanelResize}
+            // Add these properties to optimize performance
+            autoSaveId="promptshaper-panels"
+            disableAutoSaveData={true}
           >
             <ResizablePanel 
               defaultSize={panelSizes.placeholders} 
               minSize={15}
-              className="rounded-l-lg border border-border/50 bg-white/70 backdrop-blur-sm transition-all duration-300 dark:bg-background/70"
+              className="rounded-l-lg border border-border/50 bg-white/70 backdrop-blur-sm transition-all dark:bg-background/70"
             >
               <PlaceholderPanel
                 placeholders={placeholders}
@@ -290,7 +326,7 @@ const Index = () => {
             <ResizablePanel 
               defaultSize={panelSizes.editor} 
               minSize={25}
-              className="border-y border-border/50 bg-white/70 backdrop-blur-sm transition-all duration-300 dark:bg-background/70"
+              className="border-y border-border/50 bg-white/70 backdrop-blur-sm transition-all dark:bg-background/70"
             >
               <EditorPanel
                 promptText={promptText}
@@ -305,7 +341,7 @@ const Index = () => {
             <ResizablePanel 
               defaultSize={panelSizes.preview} 
               minSize={15}
-              className="rounded-r-lg border border-border/50 bg-white/70 backdrop-blur-sm transition-all duration-300 dark:bg-background/70"
+              className="rounded-r-lg border border-border/50 bg-white/70 backdrop-blur-sm transition-all dark:bg-background/70"
             >
               <PreviewPanel content={fullPrompt} onCopy={handleCopyFullPrompt} />
             </ResizablePanel>

@@ -1,95 +1,96 @@
 
-import {useCallback, useEffect, useState} from 'react';
+import {useCallback, useState} from 'react';
 import {Placeholder} from '@/types';
 
 export function usePrompt() {
   const [promptText, setPromptText] = useState<string>(() => {
-    const saved = localStorage.getItem('promptGenerator_promptText');
+    const saved = localStorage.getItem('promptGenerator_prompt');
     return saved || '';
   });
 
-  useEffect(() => {
-    localStorage.setItem('promptGenerator_promptText', promptText);
-  }, [promptText]);
-
-  const generateFullPrompt = useCallback((promptText: string, placeholders: Placeholder[]) => {
-    if (placeholders.length === 0) return promptText;
-
-    // Get all unique placeholders used in the prompt text
-    // Updated regex to support multi-word placeholders and non-Latin characters
-    const placeholderRegex = /<([\p{L}0-9\s_-]+)>/gu;
-    const usedPlaceholderNames = new Set<string>();
-    let match;
-
-    while ((match = placeholderRegex.exec(promptText)) !== null) {
-      usedPlaceholderNames.add(match[1]);
-    }
-
-    // Filter placeholders to those that are actually used in the text
-    const usedPlaceholders = placeholders.filter(p => usedPlaceholderNames.has(p.name));
-
-    // Generate full placeholders with proper newlines and correctly formatted closing tags
-    const fullPlaceholders = usedPlaceholders
-      .map(p => {
-        // Add newlines between tags and content for multiline content
-        if (p.content.includes('\n') || p.content.length > 50) {
-          return '<' + p.name + '>\n' + p.content + '\n</' + p.name + '>';
-        }
-        return '<' + p.name + '>' + p.content + '</' + p.name + '>';
-      })
-      .join('\n\n');
-
-    // Return the prompt with placeholders section if we have any
-    return usedPlaceholders.length > 0 ? promptText + '\n\n' + fullPlaceholders : promptText;
+  // Save promptText to localStorage whenever it changes
+  const handleSetPromptText = useCallback((text: string) => {
+    setPromptText(text);
+    localStorage.setItem('promptGenerator_prompt', text);
   }, []);
 
-  const insertPlaceholderTag = useCallback(
-    (name: string, cursorPosition: number) => {
-      // Make sure we're inserting just the tag without any additional characters
-      const tag = '<' + name + '>';
-      const newText =
-        promptText.substring(0, cursorPosition) + tag + promptText.substring(cursorPosition);
+  // Reset the prompt text to empty
+  const resetPromptText = useCallback(() => {
+    setPromptText('');
+    localStorage.removeItem('promptGenerator_prompt');
+  }, []);
 
-      setPromptText(newText);
+  // Function to generate the full prompt by replacing placeholders with their values
+  const generateFullPrompt = useCallback(
+    (text: string, placeholders: Placeholder[]): string => {
+      if (!text) return '';
 
-      // Return the new cursor position (after the inserted tag)
-      return cursorPosition + tag.length;
+      let fullPrompt = text;
+      placeholders.forEach(placeholder => {
+        const regex = new RegExp(`<${placeholder.name}>`, 'g');
+        fullPrompt = fullPrompt.replace(regex, placeholder.content || `<${placeholder.name}>`);
+      });
+
+      return fullPrompt;
     },
-    [promptText]
+    []
   );
 
+  // Function to insert a placeholder tag at a specific position
+  const insertPlaceholderTag = useCallback(
+    (name: string, position: number): number => {
+      if (position < 0) return -1;
+
+      const tag = `<${name}>`;
+      const newPrompt = [
+        promptText.slice(0, position),
+        tag,
+        promptText.slice(position),
+      ].join('');
+
+      handleSetPromptText(newPrompt);
+      return position + tag.length;
+    },
+    [promptText, handleSetPromptText]
+  );
+
+  // Function to update placeholder names in the prompt
   const updatePlaceholdersInPrompt = useCallback(
     (oldName: string, newName: string) => {
-      if (oldName === newName) return;
-
-      // Updated regex to support multi-word placeholders and non-Latin characters
-      const pattern = new RegExp('<' + oldName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '>', 'gu');
-      const closingPattern = new RegExp('</' + oldName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '>', 'gu');
-
-      // Update both opening and closing tags
-      let updatedPrompt = promptText.replace(pattern, '<' + newName + '>');
-      updatedPrompt = updatedPrompt.replace(closingPattern, '</' + newName + '>');
-
-      if (updatedPrompt !== promptText) {
-        setPromptText(updatedPrompt);
-      }
+      // Update all instances of the placeholder in the prompt
+      const regex = new RegExp(`<${oldName}>`, 'g');
+      const updatedPrompt = promptText.replace(regex, `<${newName}>`);
+      handleSetPromptText(updatedPrompt);
     },
-    [promptText]
+    [promptText, handleSetPromptText]
   );
 
-  const copyToClipboard = useCallback(async (text: string) => {
+  // Function to copy text to clipboard
+  const copyToClipboard = useCallback(async (text: string): Promise<boolean> => {
     try {
-      await navigator.clipboard.writeText(text);
+      if (navigator.clipboard) {
+        await navigator.clipboard.writeText(text);
+      } else {
+        // Fallback for older browsers
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+      }
       return true;
     } catch (err) {
-      console.error('Failed to copy text: ', err);
+      console.error('Failed to copy text:', err);
       return false;
     }
   }, []);
 
   return {
     promptText,
-    setPromptText,
+    setPromptText: handleSetPromptText,
+    resetPromptText,
     generateFullPrompt,
     insertPlaceholderTag,
     updatePlaceholdersInPrompt,
