@@ -1,3 +1,4 @@
+
 import * as React from 'react';
 import * as TogglePrimitive from '@radix-ui/react-toggle';
 import {cn} from '@/lib/utils';
@@ -18,4 +19,6 @@ const Toggle = React.forwardRef<React.ElementRef<typeof TogglePrimitive.Root>, T
 
 Toggle.displayName = TogglePrimitive.Root.displayName;
 
-export {Toggle};
+// Export toggleVariants to fix the import error in toggle-group.tsx
+export {Toggle, toggleVariants};
+

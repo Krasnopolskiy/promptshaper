@@ -40,4 +40,4 @@ export interface ButtonProps
   asChild?: boolean;
 }
 
-export { buttonVariants };
+// Removed the duplicate export here
