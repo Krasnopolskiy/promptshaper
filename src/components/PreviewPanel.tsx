@@ -8,7 +8,7 @@ import {Placeholder} from '@/types';
 interface PreviewPanelProps {
   content: string;
   onCopy: () => void;
-  placeholders: Placeholder[]; // Add placeholders prop
+  placeholders: Placeholder[];
 }
 
 export function PreviewPanel({content, onCopy, placeholders}: PreviewPanelProps) {
@@ -23,28 +23,35 @@ export function PreviewPanel({content, onCopy, placeholders}: PreviewPanelProps)
     placeholders.forEach(placeholder => {
       if (placeholder.mode === 'tag' && placeholder.content) {
         const placeholderRegex = new RegExp(`<${placeholder.name}>`, 'g');
+        const closingTagRegex = new RegExp(`</${placeholder.name}>`, 'g');
         
-        formattedText = formattedText.replace(placeholderRegex, (match) => {
+        if (placeholderRegex.test(formattedText)) {
           // Create opening and closing tags with content in between
-          const openingTag = `<span class="text-primary font-mono">&#60;${placeholder.name}&#62;</span>`;
-          const closingTag = `<span class="text-primary font-mono">&#60;/${placeholder.name}&#62;</span>`;
-          
-          // Format multi-line content with proper newlines
-          const formattedContent = placeholder.content
-            .split('\n')
-            .map(line => `<span class="text-foreground">${line}</span>`)
-            .join('<br/>');
+          formattedText = formattedText.replace(placeholderRegex, (match) => {
+            const openingTag = `<span class="text-primary font-mono">&#60;${placeholder.name}&#62;</span>`;
+            const content = `<br/><span class="pl-4 border-l-2 border-primary/20 text-foreground whitespace-pre-wrap">${placeholder.content}</span><br/>`;
+            const closingTag = `<span class="text-primary font-mono">&#60;/${placeholder.name}&#62;</span>`;
             
-          return `${openingTag}<br/>${formattedContent}<br/>${closingTag}`;
-        });
+            return `${openingTag}${content}${closingTag}`;
+          });
+          
+          // Remove any dangling closing tags that might have been in the original text
+          formattedText = formattedText.replace(closingTagRegex, '');
+        }
+      } else if (placeholder.mode === 'replace' && placeholder.content) {
+        // For replace mode, just replace the tag with the content
+        const placeholderRegex = new RegExp(`<${placeholder.name}>`, 'g');
+        formattedText = formattedText.replace(
+          placeholderRegex, 
+          `<span class="bg-primary/10 text-primary px-1 rounded">${placeholder.content}</span>`
+        );
       }
     });
 
-    // Second pass: handle any remaining regular placeholders and highlight tags
-    // This regex highlights any XML-like tags that weren't handled in the first pass
+    // Second pass: handle any remaining placeholder tags that weren't explicitly processed
     formattedText = formattedText.replace(
       /<(\/?[\p{L}0-9\s_-]+)>/gu,
-      '<span class="text-primary font-mono">&#60;$1&#62;</span>'
+      '<span class="text-primary/70 font-mono">&#60;$1&#62;</span>'
     );
 
     return formattedText;

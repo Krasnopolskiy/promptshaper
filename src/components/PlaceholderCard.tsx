@@ -5,7 +5,8 @@ import {Button} from '@/components/ui/button';
 import {Input} from '@/components/ui/input';
 import {Textarea} from '@/components/ui/textarea';
 import {Card, CardContent} from '@/components/ui/card';
-import {Check, ChevronDown, ChevronUp, Copy, Pencil, Plus, Trash, Tag, RefreshCw} from 'lucide-react';
+import {Tooltip, TooltipContent, TooltipProvider, TooltipTrigger} from '@/components/ui/tooltip';
+import {Check, ChevronDown, ChevronUp, Copy, Pencil, Plus, Trash, Tag, RefreshCw, Info} from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,27 +24,35 @@ interface PlaceholderCardProps {
 }
 
 export function PlaceholderCard({
-                                  placeholder,
-                                  onUpdate,
-                                  onDelete,
-                                  onInsert,
-                                  onNameChange,
-                                }: PlaceholderCardProps) {
+  placeholder,
+  onUpdate,
+  onDelete,
+  onInsert,
+  onNameChange,
+}: PlaceholderCardProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [newName, setNewName] = useState(placeholder.name);
   const [newContent, setNewContent] = useState(placeholder.content);
   const [selectedColor, setSelectedColor] = useState(placeholder.color);
   const inputRef = useRef<HTMLInputElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   // Initialize mode if not present
   const mode = placeholder.mode || 'replace';
 
   useEffect(() => {
-    if (isEditing && inputRef.current) {
-      inputRef.current.focus();
+    if (isEditing) {
+      if (inputRef.current) {
+        inputRef.current.focus();
+      }
+      
+      // Auto-expand when editing
+      if (!isExpanded) {
+        setIsExpanded(true);
+      }
     }
-  }, [isEditing]);
+  }, [isEditing, isExpanded]);
 
   const handleSave = () => {
     if (newName.trim() === '') return;
@@ -102,9 +111,15 @@ export function PlaceholderCard({
     borderLeft: `4px solid ${placeholder.color}`,
   };
 
+  const getModeDescription = () => {
+    return mode === 'replace' 
+      ? "Replace Mode: Placeholder will be replaced with its content"
+      : "Tag Mode: Content will be displayed between opening and closing tags";
+  };
+
   return (
     <Card
-      className={`relative overflow-hidden shadow-sm transition-all duration-200 ${
+      className={`relative overflow-hidden shadow-sm transition-all duration-200 hover:shadow-md ${
         isEditing ? 'ring-2 ring-primary/20' : ''
       } ${isExpanded ? 'bg-card/80' : 'bg-card/50'}`}
       style={cardBorderStyle}
@@ -121,15 +136,20 @@ export function PlaceholderCard({
               placeholder="Placeholder name"
             />
           ) : (
-            <div className="flex items-center gap-2" onClick={() => setIsExpanded(!isExpanded)}>
+            <div 
+              className="flex items-center gap-2 cursor-pointer" 
+              onClick={() => setIsExpanded(!isExpanded)}
+            >
               <div
                 className="h-4 w-4 rounded-full"
                 style={{backgroundColor: placeholder.color}}
               />
-              <h3 className="flex-1 cursor-pointer font-medium">
+              <h3 className="flex-1 font-medium group">
                 {placeholder.name}
-                <span className="ml-2 text-xs text-muted-foreground">
-                  {mode === 'tag' ? '(Tag Mode)' : '(Replace Mode)'}
+                <span className={`ml-2 text-xs rounded px-1.5 py-0.5 ${
+                  mode === 'tag' ? 'bg-primary/10 text-primary' : 'bg-muted/50 text-muted-foreground'
+                }`}>
+                  {mode === 'tag' ? 'Tag' : 'Replace'}
                 </span>
               </h3>
             </div>
@@ -147,21 +167,39 @@ export function PlaceholderCard({
               </>
             ) : (
               <>
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  className="h-7 w-7"
-                  onClick={toggleMode}
-                  title={mode === 'replace' ? 'Switch to tag mode' : 'Switch to replace mode'}
-                >
-                  {mode === 'replace' ? (
-                    <RefreshCw className="h-4 w-4 text-muted-foreground"/>
-                  ) : (
-                    <Tag className="h-4 w-4 text-primary"/>
-                  )}
-                </Button>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="h-7 w-7"
+                        onClick={toggleMode}
+                      >
+                        {mode === 'replace' ? (
+                          <RefreshCw className="h-4 w-4 text-muted-foreground"/>
+                        ) : (
+                          <Tag className="h-4 w-4 text-primary"/>
+                        )}
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="top">
+                      <p className="text-xs">{getModeDescription()}</p>
+                      <p className="text-xs text-muted-foreground">Click to toggle mode</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+                
                 {!isExpanded && (
                   <>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="h-7 w-7"
+                      onClick={() => setIsEditing(true)}
+                    >
+                      <Pencil className="h-4 w-4 text-muted-foreground"/>
+                    </Button>
                     <Button
                       size="icon"
                       variant="ghost"
@@ -196,8 +234,30 @@ export function PlaceholderCard({
 
         {isExpanded && (
           <div className="mt-2 space-y-2">
-            <div className="rounded-md border p-2 text-sm">
-              <code className="font-mono text-xs text-muted-foreground">{`<${placeholder.name}>`}</code>
+            <div className="flex justify-between items-start">
+              <div className="rounded-md border p-2 text-sm max-w-[80%]">
+                <code className="font-mono text-xs text-muted-foreground">{`<${placeholder.name}>`}</code>
+              </div>
+              
+              <div className="flex items-center">
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button size="sm" variant="ghost" className="h-7 w-7">
+                        <Info className="h-3.5 w-3.5 text-muted-foreground" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="left" className="max-w-xs">
+                      <p className="text-xs font-medium mb-1">{mode === 'tag' ? 'Tag Mode' : 'Replace Mode'}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {mode === 'tag' 
+                          ? "Content will be displayed between opening and closing tags: <tag>content</tag>" 
+                          : "Placeholder will be directly replaced with its content"}
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
             </div>
 
             <div className="space-y-1">
@@ -216,23 +276,24 @@ export function PlaceholderCard({
               </div>
               {isEditing ? (
                 <Textarea
+                  ref={textareaRef}
                   value={newContent}
                   onChange={e => setNewContent(e.target.value)}
                   onKeyDown={e => {
                     if (e.key === 'Escape') handleCancel();
                   }}
                   className="min-h-[80px] text-sm"
-                  placeholder="Placeholder content"
+                  placeholder={`Enter content for ${placeholder.name}...`}
                 />
               ) : (
                 <div
-                  className="min-h-[40px] rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm"
+                  className="min-h-[40px] rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm cursor-pointer transition-colors hover:bg-muted/20"
                   onClick={() => setIsEditing(true)}
                 >
                   {placeholder.content ? (
                     <span className="whitespace-pre-line">{placeholder.content}</span>
                   ) : (
-                    <span className="italic text-muted-foreground">Empty</span>
+                    <span className="italic text-muted-foreground">Empty (click to edit)</span>
                   )}
                 </div>
               )}
@@ -241,12 +302,12 @@ export function PlaceholderCard({
             {isEditing && (
               <div className="space-y-1">
                 <label className="text-xs text-muted-foreground">Color:</label>
-                <div className="flex flex-wrap gap-1">
+                <div className="flex flex-wrap gap-1 p-1 rounded-md border border-input">
                   {PLACEHOLDER_COLORS.map(color => (
                     <button
                       key={color}
                       type="button"
-                      className={`h-6 w-6 rounded-full ${
+                      className={`h-6 w-6 rounded-full transition-all hover:scale-110 ${
                         selectedColor === color ? 'ring-2 ring-primary ring-offset-2' : ''
                       }`}
                       style={{backgroundColor: color}}

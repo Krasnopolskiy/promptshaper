@@ -53,9 +53,9 @@ export function usePrompt() {
         if (placeholder.mode === 'tag' && placeholder.content) {
           // For tag mode, replace with opening tag, content, and closing tag
           fullPrompt = fullPrompt.replace(regex, `<${placeholder.name}>\n${placeholder.content}\n</${placeholder.name}>`);
-        } else {
+        } else if (placeholder.content) {
           // For replace mode, just replace with content
-          fullPrompt = fullPrompt.replace(regex, placeholder.content || `<${placeholder.name}>`);
+          fullPrompt = fullPrompt.replace(regex, placeholder.content);
         }
       });
 
