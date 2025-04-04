@@ -35,6 +35,7 @@ export function usePlaceholders() {
         content,
         color,
         createdAt: Date.now(),
+        mode: 'replace', // Default mode is 'replace'
       },
     ]);
   }, []);

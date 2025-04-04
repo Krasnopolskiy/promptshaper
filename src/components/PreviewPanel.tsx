@@ -3,21 +3,46 @@ import {useRef, useState} from 'react';
 import {ScrollArea} from '@/components/ui/scroll-area';
 import {Button} from '@/components/ui/button';
 import {CheckCircle2, Copy, Eye} from 'lucide-react';
+import {Placeholder} from '@/types';
 
 interface PreviewPanelProps {
   content: string;
   onCopy: () => void;
+  placeholders: Placeholder[]; // Add placeholders prop
 }
 
-export function PreviewPanel({content, onCopy}: PreviewPanelProps) {
+export function PreviewPanel({content, onCopy, placeholders}: PreviewPanelProps) {
   const previewRef = useRef<HTMLDivElement>(null);
   const [copied, setCopied] = useState(false);
 
-  // Function to highlight XML tags in the preview
+  // Function to format content based on placeholder modes
   const formatContentWithSyntaxHighlighting = (text: string) => {
-    // Replace XML tags with highlighted spans, supporting multi-word placeholders
-    // Updated regex to properly handle multi-word and special characters in placeholders
-    const formattedText = text.replace(
+    let formattedText = text;
+
+    // First pass: process tag-mode placeholders (with opening and closing tags)
+    placeholders.forEach(placeholder => {
+      if (placeholder.mode === 'tag' && placeholder.content) {
+        const placeholderRegex = new RegExp(`<${placeholder.name}>`, 'g');
+        
+        formattedText = formattedText.replace(placeholderRegex, (match) => {
+          // Create opening and closing tags with content in between
+          const openingTag = `<span class="text-primary font-mono">&#60;${placeholder.name}&#62;</span>`;
+          const closingTag = `<span class="text-primary font-mono">&#60;/${placeholder.name}&#62;</span>`;
+          
+          // Format multi-line content with proper newlines
+          const formattedContent = placeholder.content
+            .split('\n')
+            .map(line => `<span class="text-foreground">${line}</span>`)
+            .join('<br/>');
+            
+          return `${openingTag}<br/>${formattedContent}<br/>${closingTag}`;
+        });
+      }
+    });
+
+    // Second pass: handle any remaining regular placeholders and highlight tags
+    // This regex highlights any XML-like tags that weren't handled in the first pass
+    formattedText = formattedText.replace(
       /<(\/?[\p{L}0-9\s_-]+)>/gu,
       '<span class="text-primary font-mono">&#60;$1&#62;</span>'
     );

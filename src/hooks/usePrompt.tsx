@@ -20,15 +20,43 @@ export function usePrompt() {
     localStorage.removeItem('promptGenerator_prompt');
   }, []);
 
-  // Function to generate the full prompt by replacing placeholders with their values
+  // Function to generate the full prompt by replacing placeholders with their values based on mode
   const generateFullPrompt = useCallback(
     (text: string, placeholders: Placeholder[]): string => {
       if (!text) return '';
 
       let fullPrompt = text;
+      
+      // First pass: handle replacements for placeholders in 'replace' mode
+      placeholders.forEach(placeholder => {
+        if (placeholder.mode !== 'tag') {
+          const regex = new RegExp(`<${placeholder.name}>`, 'g');
+          fullPrompt = fullPrompt.replace(regex, placeholder.content || `<${placeholder.name}>`);
+        }
+      });
+
+      return fullPrompt;
+    },
+    []
+  );
+
+  // Generate a copyable version with all placeholders expanded, including tag mode
+  const generateCopyablePrompt = useCallback(
+    (text: string, placeholders: Placeholder[]): string => {
+      if (!text) return '';
+
+      let fullPrompt = text;
+      
       placeholders.forEach(placeholder => {
         const regex = new RegExp(`<${placeholder.name}>`, 'g');
-        fullPrompt = fullPrompt.replace(regex, placeholder.content || `<${placeholder.name}>`);
+        
+        if (placeholder.mode === 'tag' && placeholder.content) {
+          // For tag mode, replace with opening tag, content, and closing tag
+          fullPrompt = fullPrompt.replace(regex, `<${placeholder.name}>\n${placeholder.content}\n</${placeholder.name}>`);
+        } else {
+          // For replace mode, just replace with content
+          fullPrompt = fullPrompt.replace(regex, placeholder.content || `<${placeholder.name}>`);
+        }
       });
 
       return fullPrompt;
@@ -92,6 +120,7 @@ export function usePrompt() {
     setPromptText: handleSetPromptText,
     resetPromptText,
     generateFullPrompt,
+    generateCopyablePrompt,
     insertPlaceholderTag,
     updatePlaceholdersInPrompt,
     copyToClipboard,

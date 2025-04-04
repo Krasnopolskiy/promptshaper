@@ -1,4 +1,3 @@
-
 import {useEffect, useState, useCallback} from 'react';
 import {Header} from '@/components/Header';
 import {PlaceholderPanel} from '@/components/PlaceholderPanel';
@@ -27,6 +26,7 @@ const Index = () => {
     promptText,
     setPromptText,
     generateFullPrompt,
+    generateCopyablePrompt,
     insertPlaceholderTag,
     updatePlaceholdersInPrompt,
     copyToClipboard,
@@ -40,6 +40,7 @@ const Index = () => {
   );
 
   const [fullPrompt, setFullPrompt] = useState('');
+  const [copyablePrompt, setCopyablePrompt] = useState('');
   const [showWelcome, setShowWelcome] = useState(false);
   const [panelSizes, setPanelSizes] = useState(DEFAULT_PANEL_SIZES);
   const [cursorPosition, setCursorPosition] = useState(0);
@@ -47,7 +48,8 @@ const Index = () => {
   // Update full prompt when dependencies change
   useEffect(() => {
     setFullPrompt(generateFullPrompt(promptText, placeholders));
-  }, [promptText, placeholders, generateFullPrompt]);
+    setCopyablePrompt(generateCopyablePrompt(promptText, placeholders));
+  }, [promptText, placeholders, generateFullPrompt, generateCopyablePrompt]);
 
   // Set active panel based on mobile status
   useEffect(() => {
@@ -89,7 +91,7 @@ const Index = () => {
   }, []);
 
   const handleCopyFullPrompt = async () => {
-    const success = await copyToClipboard(fullPrompt);
+    const success = await copyToClipboard(copyablePrompt);
 
     if (success) {
       toast({
@@ -165,6 +167,7 @@ const Index = () => {
     
     // Update the UI state
     setFullPrompt('');
+    setCopyablePrompt('');
     setCursorPosition(0);
   }, [resetPromptText, clearPlaceholders]);
 
@@ -292,7 +295,11 @@ const Index = () => {
             )}
 
             {activePanel === 'preview' && (
-              <PreviewPanel content={fullPrompt} onCopy={handleCopyFullPrompt}/>
+              <PreviewPanel 
+                content={fullPrompt} 
+                onCopy={handleCopyFullPrompt}
+                placeholders={placeholders}
+              />
             )}
           </div>
         </div>
@@ -302,9 +309,7 @@ const Index = () => {
             direction="horizontal"
             className="h-[calc(100vh-120px)] rounded-lg shadow-lg"
             onLayout={handlePanelResize}
-            // Add these properties to optimize performance
             autoSaveId="promptshaper-panels"
-            disableAutoSaveData={true}
           >
             <ResizablePanel 
               defaultSize={panelSizes.placeholders} 
@@ -343,7 +348,11 @@ const Index = () => {
               minSize={15}
               className="rounded-r-lg border border-border/50 bg-white/70 backdrop-blur-sm transition-all dark:bg-background/70"
             >
-              <PreviewPanel content={fullPrompt} onCopy={handleCopyFullPrompt} />
+              <PreviewPanel 
+                content={fullPrompt} 
+                onCopy={handleCopyFullPrompt}
+                placeholders={placeholders} 
+              />
             </ResizablePanel>
           </ResizablePanelGroup>
         </div>

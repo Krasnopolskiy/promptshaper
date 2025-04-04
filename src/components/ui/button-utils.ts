@@ -39,3 +39,5 @@ export interface ButtonProps
     VariantProps<typeof buttonVariants> {
   asChild?: boolean;
 }
+
+export { buttonVariants };
