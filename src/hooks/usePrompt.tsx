@@ -42,7 +42,7 @@ export function usePrompt() {
 
       return fullPrompt;
     },
-    []
+    [escapeRegExp]
   );
 
   // Generate a copyable version with all placeholders expanded, including tag mode
@@ -66,7 +66,7 @@ export function usePrompt() {
 
       return fullPrompt;
     },
-    []
+    [escapeRegExp]
   );
 
   // Function to insert a placeholder tag at a specific position
