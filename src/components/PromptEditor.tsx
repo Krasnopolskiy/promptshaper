@@ -1,4 +1,3 @@
-
 /**
  * PromptEditor Component
  *
@@ -264,8 +263,7 @@ function stylePlaceholderElements(editor: Element, placeholders: Placeholder[]):
   const spans = editor.querySelectorAll('span');
   spans.forEach(span => {
     const text = span.textContent || '';
-    // Updated regex to support multi-word placeholders
-    if (text.match(/<([\p{L}0-9\s_-]+)>/u)) {
+    if (text.match(/<([^<>]+)>/)) {
       const placeholderName = text.replace(/[<>]/g, '');
       const placeholder = placeholders.find(p => p.name === placeholderName);
       if (placeholder) {
@@ -301,8 +299,7 @@ function processPlaceholders(
   placeholders: Placeholder[],
   onInsertPlaceholder?: (name: string, position: number) => number
 ): void {
-  // Updated regex to support multi-word placeholders and non-Latin characters
-  const placeholderRegex = /<([\p{L}0-9\s_-]+)>/gu;
+  const placeholderRegex = /<([^<>]+)>/g;
   const existingPlaceholderNames = new Set(placeholders.map(p => p.name));
 
   let match;

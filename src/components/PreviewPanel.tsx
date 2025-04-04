@@ -22,25 +22,21 @@ export function PreviewPanel({content, onCopy, placeholders}: PreviewPanelProps)
     // First pass: process tag-mode placeholders (with opening and closing tags)
     placeholders.forEach(placeholder => {
       if (placeholder.mode === 'tag' && placeholder.content) {
-        const placeholderRegex = new RegExp(`<${placeholder.name}>`, 'g');
-        const closingTagRegex = new RegExp(`</${placeholder.name}>`, 'g');
+        const placeholderRegex = new RegExp(`<${escapeRegExp(placeholder.name)}>`, 'g');
         
         if (placeholderRegex.test(formattedText)) {
           // Create opening and closing tags with content in between
-          formattedText = formattedText.replace(placeholderRegex, (match) => {
+          formattedText = formattedText.replace(placeholderRegex, () => {
             const openingTag = `<span class="text-primary font-mono">&#60;${placeholder.name}&#62;</span>`;
             const content = `<br/><span class="pl-4 border-l-2 border-primary/20 text-foreground whitespace-pre-wrap">${placeholder.content}</span><br/>`;
             const closingTag = `<span class="text-primary font-mono">&#60;/${placeholder.name}&#62;</span>`;
             
             return `${openingTag}${content}${closingTag}`;
           });
-          
-          // Remove any dangling closing tags that might have been in the original text
-          formattedText = formattedText.replace(closingTagRegex, '');
         }
       } else if (placeholder.mode === 'replace' && placeholder.content) {
         // For replace mode, just replace the tag with the content
-        const placeholderRegex = new RegExp(`<${placeholder.name}>`, 'g');
+        const placeholderRegex = new RegExp(`<${escapeRegExp(placeholder.name)}>`, 'g');
         formattedText = formattedText.replace(
           placeholderRegex, 
           `<span class="bg-primary/10 text-primary px-1 rounded">${placeholder.content}</span>`
@@ -49,12 +45,18 @@ export function PreviewPanel({content, onCopy, placeholders}: PreviewPanelProps)
     });
 
     // Second pass: handle any remaining placeholder tags that weren't explicitly processed
+    // Safely process any remaining tags without breaking HTML
     formattedText = formattedText.replace(
-      /<(\/?[\p{L}0-9\s_-]+)>/gu,
+      /<([^<>]+)>/g,
       '<span class="text-primary/70 font-mono">&#60;$1&#62;</span>'
     );
 
     return formattedText;
+  };
+
+  // Helper function to escape special characters in regex
+  const escapeRegExp = (string: string) => {
+    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   };
 
   const handleCopy = () => {

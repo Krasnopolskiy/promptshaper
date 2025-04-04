@@ -20,6 +20,11 @@ export function usePrompt() {
     localStorage.removeItem('promptGenerator_prompt');
   }, []);
 
+  // Helper function to escape special characters in regex
+  const escapeRegExp = useCallback((string: string) => {
+    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  }, []);
+
   // Function to generate the full prompt by replacing placeholders with their values based on mode
   const generateFullPrompt = useCallback(
     (text: string, placeholders: Placeholder[]): string => {
@@ -30,7 +35,7 @@ export function usePrompt() {
       // First pass: handle replacements for placeholders in 'replace' mode
       placeholders.forEach(placeholder => {
         if (placeholder.mode !== 'tag') {
-          const regex = new RegExp(`<${placeholder.name}>`, 'g');
+          const regex = new RegExp(`<${escapeRegExp(placeholder.name)}>`, 'g');
           fullPrompt = fullPrompt.replace(regex, placeholder.content || `<${placeholder.name}>`);
         }
       });
@@ -48,7 +53,7 @@ export function usePrompt() {
       let fullPrompt = text;
       
       placeholders.forEach(placeholder => {
-        const regex = new RegExp(`<${placeholder.name}>`, 'g');
+        const regex = new RegExp(`<${escapeRegExp(placeholder.name)}>`, 'g');
         
         if (placeholder.mode === 'tag' && placeholder.content) {
           // For tag mode, replace with opening tag, content, and closing tag
@@ -86,11 +91,11 @@ export function usePrompt() {
   const updatePlaceholdersInPrompt = useCallback(
     (oldName: string, newName: string) => {
       // Update all instances of the placeholder in the prompt
-      const regex = new RegExp(`<${oldName}>`, 'g');
+      const regex = new RegExp(`<${escapeRegExp(oldName)}>`, 'g');
       const updatedPrompt = promptText.replace(regex, `<${newName}>`);
       handleSetPromptText(updatedPrompt);
     },
-    [promptText, handleSetPromptText]
+    [promptText, handleSetPromptText, escapeRegExp]
   );
 
   // Function to copy text to clipboard
