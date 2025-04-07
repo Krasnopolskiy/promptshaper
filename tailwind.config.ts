@@ -11,7 +11,7 @@ import {animationConfig} from './src/config/tailwind/animations';
 /**
  * Plugin to enable CSS animations in Tailwind
  */
-const animatePlugin = require('tailwindcss-animate');
+import animatePlugin from 'tailwindcss-animate';
 
 /**
  * Tailwind configuration

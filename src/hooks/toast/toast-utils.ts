@@ -5,7 +5,7 @@
  *
  * @module hooks/toast/toast-utils
  */
-import {Action} from './toast-types';
+import {Action, actionTypes} from './toast-types';
 
 export const TOAST_REMOVE_DELAY = 1000000;
 
@@ -15,22 +15,32 @@ export const TOAST_REMOVE_DELAY = 1000000;
 export const toastTimeouts = new Map<string, ReturnType<typeof setTimeout>>();
 
 /**
- * Adds a toast to the removal queue
- * @param toastId - ID of the toast to remove
- * @param dispatch - Dispatch function to trigger removal
+ * Creates a removal timeout for a toast
+ * @param {string} toastId - ID of the toast to remove
+ * @param {(action: Action) => void} dispatch - Dispatch function
+ * @returns {ReturnType<typeof setTimeout>} The timeout handle
  */
-export function addToRemoveQueue(toastId: string, dispatch: (action: Action) => void) {
+function createToastRemovalTimeout(toastId: string, dispatch: (action: Action) => void): ReturnType<typeof setTimeout> {
+  return setTimeout(() => {
+    toastTimeouts.delete(toastId);
+    dispatch({
+      type: actionTypes.REMOVE_TOAST,
+      toastId: toastId,
+    });
+  }, TOAST_REMOVE_DELAY);
+}
+
+/**
+ * Adds a toast to the removal queue
+ * @param {string} toastId - ID of the toast to remove
+ * @param {(action: Action) => void} dispatch - Dispatch function to trigger removal
+ * @returns {void}
+ */
+export function addToRemoveQueue(toastId: string, dispatch: (action: Action) => void): void {
   if (toastTimeouts.has(toastId)) {
     return;
   }
 
-  const timeout = setTimeout(() => {
-    toastTimeouts.delete(toastId);
-    dispatch({
-      type: 'REMOVE_TOAST',
-      toastId: toastId,
-    });
-  }, TOAST_REMOVE_DELAY);
-
+  const timeout = createToastRemovalTimeout(toastId, dispatch);
   toastTimeouts.set(toastId, timeout);
 }

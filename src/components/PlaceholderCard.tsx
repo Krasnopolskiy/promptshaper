@@ -1,4 +1,3 @@
-
 import React, {useState, useRef, useEffect} from 'react';
 import {Placeholder} from '@/types';
 import {Button} from '@/components/ui/button';
@@ -46,7 +45,7 @@ export function PlaceholderCard({
       if (inputRef.current) {
         inputRef.current.focus();
       }
-      
+
       // Auto-expand when editing
       if (!isExpanded) {
         setIsExpanded(true);
@@ -87,8 +86,12 @@ export function PlaceholderCard({
     }
   };
 
-  const handleCopyToClipboard = () => {
-    navigator.clipboard.writeText(`<${placeholder.name}>`);
+  const handleCopyToClipboard = async (): Promise<void> => {
+    try {
+      await navigator.clipboard.writeText(`<${placeholder.name}>`);
+    } catch (error) {
+      console.error('Failed to copy to clipboard:', error);
+    }
   };
 
   const handleDelete = () => {
@@ -112,7 +115,7 @@ export function PlaceholderCard({
   };
 
   const getModeDescription = () => {
-    return mode === 'replace' 
+    return mode === 'replace'
       ? "Replace Mode: Placeholder will be replaced with its content"
       : "Tag Mode: Content will be displayed between opening and closing tags";
   };
@@ -136,8 +139,8 @@ export function PlaceholderCard({
               placeholder="Placeholder name"
             />
           ) : (
-            <div 
-              className="flex items-center gap-2 cursor-pointer" 
+            <div
+              className="flex items-center gap-2 cursor-pointer"
               onClick={() => setIsExpanded(!isExpanded)}
             >
               <div
@@ -189,7 +192,7 @@ export function PlaceholderCard({
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
-                
+
                 {!isExpanded && (
                   <>
                     <Button
@@ -238,7 +241,7 @@ export function PlaceholderCard({
               <div className="rounded-md border p-2 text-sm max-w-[80%]">
                 <code className="font-mono text-xs text-muted-foreground">{`<${placeholder.name}>`}</code>
               </div>
-              
+
               <div className="flex items-center">
                 <TooltipProvider>
                   <Tooltip>
@@ -250,8 +253,8 @@ export function PlaceholderCard({
                     <TooltipContent side="left" className="max-w-xs">
                       <p className="text-xs font-medium mb-1">{mode === 'tag' ? 'Tag Mode' : 'Replace Mode'}</p>
                       <p className="text-xs text-muted-foreground">
-                        {mode === 'tag' 
-                          ? "Content will be displayed between opening and closing tags: <tag>content</tag>" 
+                        {mode === 'tag'
+                          ? "Content will be displayed between opening and closing tags: <tag>content</tag>"
                           : "Placeholder will be directly replaced with its content"}
                       </p>
                     </TooltipContent>

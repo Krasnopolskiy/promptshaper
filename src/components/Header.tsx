@@ -28,7 +28,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import {Input} from '@/components/ui/input';
 import {Label} from '@/components/ui/label';
-import {useToast} from '@/hooks/use-toast';
+import {useToast} from '@/hooks/useToast';
 import {Placeholder, Template} from '@/types';
 import {Link} from 'react-router-dom';
 import {Download, RefreshCcw, Save} from 'lucide-react';
@@ -40,19 +40,19 @@ import {ThemeToggle} from '@/components/ui/theme-toggle';
  */
 interface HeaderProps {
   /** Function to save a template */
-  onSaveTemplate: (name: string, prompt: string, placeholders: Placeholder[]) => Template;
+  onSaveTemplate: (name: string, prompt: string, placeholders: Placeholder[]) => void;
   /** List of available templates */
   templates: Template[];
   /** Function to load a template */
-  onLoadTemplate: (id: string) => Template | undefined;
+  onLoadTemplate: (id: string) => Template | null;
   /** Current prompt text */
   currentPrompt: string;
   /** Function to set prompt text */
-  setPrompt: (text: string) => void;
+  setPrompt: (prompt: string) => void;
   /** Function to set placeholders */
   setPlaceholders: (placeholders: Placeholder[]) => void;
-  /** Function to copy the full prompt with placeholders */
-  onCopyFullPrompt: () => void;
+  /** Function to copy the full prompt to clipboard */
+  onCopyFullPrompt?: () => void;
   /** Function to reset the application */
   onReset?: () => void;
 }
@@ -100,8 +100,8 @@ export function Header({
   const getCurrentPlaceholders = (): Placeholder[] => {
     try {
       return JSON.parse(localStorage.getItem('promptGenerator_placeholders') || '[]');
-    } catch (error) {
-      console.error('Error parsing placeholders:', error);
+    } catch {
+      // Return empty array if parsing fails
       return [];
     }
   };
@@ -118,7 +118,7 @@ export function Header({
       showSuccessToast('Template saved', `"${templateName}" has been saved successfully.`);
       setIsSaveDialogOpen(false);
       setTemplateName('');
-    } catch (error) {
+    } catch {
       showErrorToast('Error saving template', 'There was a problem saving your template.');
     }
   };
@@ -205,7 +205,7 @@ export function Header({
 
         <div className="flex items-center gap-2">
           <ThemeToggle/>
-          
+
           {onReset && (
             <Button
               variant="outline"
@@ -415,17 +415,17 @@ interface ResetConfirmationDialogProps {
  * Dialog component for confirming app reset
  */
 function ResetConfirmationDialog({
-                              isOpen,
-                              onOpenChange,
-                              onConfirmReset,
-                            }: ResetConfirmationDialogProps) {
+                                   isOpen,
+                                   onOpenChange,
+                                   onConfirmReset,
+                                 }: ResetConfirmationDialogProps) {
   return (
     <AlertDialog open={isOpen} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Reset Application</AlertDialogTitle>
           <AlertDialogDescription>
-            This will reset the editor, placeholders, and panel layout to default settings. 
+            This will reset the editor, placeholders, and panel layout to default settings.
             Your saved templates will not be affected. Are you sure you want to continue?
           </AlertDialogDescription>
         </AlertDialogHeader>

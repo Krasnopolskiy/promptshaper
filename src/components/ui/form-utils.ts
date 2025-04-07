@@ -4,12 +4,12 @@ import {FieldPath, FieldValues} from 'react-hook-form';
 /**
  * Form field context value type
  */
-export type FormFieldContextValue<
+export interface FormFieldContextValue<
   TFieldValues extends FieldValues = FieldValues,
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
-> = {
+> {
   name: TName;
-};
+}
 
 /**
  * Form field context
@@ -21,9 +21,9 @@ export const FormFieldContext = React.createContext<FormFieldContextValue>(
 /**
  * Form item context value type
  */
-export type FormItemContextValue = {
+export interface FormItemContextValue {
   id: string;
-};
+}
 
 /**
  * Form item context

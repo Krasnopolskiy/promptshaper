@@ -213,9 +213,9 @@ The application can be easily deployed using Docker and Docker Compose.
    ```
 
    This will:
-   - Build the application using the Dockerfile
-   - Set up an Nginx server to serve the application
-   - Make the application available on port 80
+  - Build the application using the Dockerfile
+  - Set up an Nginx server to serve the application
+  - Make the application available on port 80
 
 3. To stop the application:
 

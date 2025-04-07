@@ -1,10 +1,12 @@
 import {useContext} from 'react';
-import {ThemeContext} from './theme-types';
+import {ThemeContext, ThemeContextType} from './themeTypes';
 
 /**
  * Hook for accessing the theme context
+ *
+ * @returns Theme context value with theme state and control functions
  */
-export function useTheme() {
+export function useTheme(): ThemeContextType {
   const context = useContext(ThemeContext);
 
   if (context === undefined) {

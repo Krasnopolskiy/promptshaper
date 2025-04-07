@@ -10,22 +10,43 @@ import {ThemeProvider} from '@/hooks';
 
 const queryClient = new QueryClient();
 
-const App = () => (
+/**
+ * Application routes component
+ * @returns Routes for the application
+ */
+const AppRoutes = (): JSX.Element => (
+  <BrowserRouter>
+    <Routes>
+      <Route path="/" element={<Landing/>}/>
+      <Route path="/app" element={<Index/>}/>
+      {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+      <Route path="*" element={<NotFound/>}/>
+    </Routes>
+  </BrowserRouter>
+);
+
+/**
+ * Application providers component
+ * @returns The providers setup for the application
+ */
+const AppProviders = (): JSX.Element => (
+  <QueryClientProvider client={queryClient}>
+    <TooltipProvider>
+      <Toaster/>
+      <Sonner/>
+      <AppRoutes />
+    </TooltipProvider>
+  </QueryClientProvider>
+);
+
+/**
+ * Main application component
+ * @description Sets up providers and routing for the application
+ * @returns The main application component with all providers and routes
+ */
+const App = (): JSX.Element => (
   <ThemeProvider>
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster/>
-        <Sonner/>
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Landing/>}/>
-            <Route path="/app" element={<Index/>}/>
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound/>}/>
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
-    </QueryClientProvider>
+    <AppProviders />
   </ThemeProvider>
 );
 
