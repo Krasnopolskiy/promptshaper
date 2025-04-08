@@ -1,364 +1,327 @@
-import React, {useState, useRef, useEffect} from 'react';
-import {Placeholder} from '@/types';
-import {Button} from '@/components/ui/button';
-import {Input} from '@/components/ui/input';
-import {Textarea} from '@/components/ui/textarea';
-import {Card, CardContent} from '@/components/ui/card';
-import {Tooltip, TooltipContent, TooltipProvider, TooltipTrigger} from '@/components/ui/tooltip';
-import {Check, ChevronDown, ChevronUp, Copy, Pencil, Plus, Trash, Tag, RefreshCw, Info} from 'lucide-react';
+/**
+ * Placeholder Card Component
+ *
+ * Card component to display and edit placeholders
+ *
+ * @module components/PlaceholderCard
+ */
+import React from 'react';
+import { Placeholder } from '@/types';
+import { Card, CardContent } from '@/components/ui/card';
+import { usePlaceholderCard } from './placeholder/hooks/usePlaceholderCard';
+import { PlaceholderCardHeader } from './placeholder/PlaceholderCardHeader';
+import { PlaceholderCardContent } from './placeholder/PlaceholderCardContent';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import {PLACEHOLDER_COLORS} from '@/hooks/usePlaceholders';
+  PlaceholderCardProps,
+  BasicStateProps,
+  NameProps,
+  KeyboardAndSaveProps,
+  ActionProps,
+  ContentProps,
+  HeaderSpecificProps,
+  CardHeaderProps,
+  CardContentProps
+} from './placeholder/types';
 
-interface PlaceholderCardProps {
-  placeholder: Placeholder;
-  onUpdate: (id: string, updates: Partial<Placeholder>) => void;
-  onDelete: (id: string) => void;
-  onInsert?: (name: string) => void;
-  onNameChange?: (oldName: string, newName: string) => void;
+/**
+ * Creates the class name for the card based on its state.
+ * @description Generates a class name string based on the card's editing and expanded states.
+ * The class name includes styles for transitions, shadows, and background colors.
+ * @param {boolean} isEditing - Whether the card is in edit mode
+ * @param {boolean} isExpanded - Whether the card is expanded
+ * @returns {string} The class name string containing all necessary styles for the card
+ */
+function getCardClassName(isEditing: boolean, isExpanded: boolean): string {
+  return `relative overflow-hidden shadow-sm transition-all duration-200 hover:shadow-md ${
+    isEditing ? 'ring-2 ring-primary/20' : ''
+  } ${isExpanded ? 'bg-card/80' : 'bg-card/50'}`;
 }
 
-export function PlaceholderCard({
-  placeholder,
-  onUpdate,
-  onDelete,
-  onInsert,
-  onNameChange,
-}: PlaceholderCardProps) {
-  const [isEditing, setIsEditing] = useState(false);
-  const [isExpanded, setIsExpanded] = useState(false);
-  const [newName, setNewName] = useState(placeholder.name);
-  const [newContent, setNewContent] = useState(placeholder.content);
-  const [selectedColor, setSelectedColor] = useState(placeholder.color);
-  const inputRef = useRef<HTMLInputElement>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+/**
+ * Extracts basic state props from card props.
+ * @description Extracts the editing and expanded states from the card props.
+ * These states are used to determine the card's appearance and behavior.
+ * @param {ReturnType<typeof usePlaceholderCard>} cardProps - The card props from the hook
+ * @returns {BasicStateProps} An object containing the isEditing and isExpanded flags
+ */
+function extractBasicStateProps(cardProps: ReturnType<typeof usePlaceholderCard>): BasicStateProps {
+  const { isEditing, isExpanded } = cardProps;
+  return { isEditing, isExpanded };
+}
 
-  // Initialize mode if not present
-  const mode = placeholder.mode || 'replace';
+/**
+ * Extracts name-related props from card props
+ * @param {ReturnType<typeof usePlaceholderCard>} cardProps - The card props from the hook
+ * @returns {NameProps} The extracted name-related props
+ */
+function extractNameProps(cardProps: ReturnType<typeof usePlaceholderCard>): NameProps {
+  const { newName, inputRef, setNewName } = cardProps;
+  return { newName, inputRef, setNewName };
+}
 
-  useEffect(() => {
-    if (isEditing) {
-      if (inputRef.current) {
-        inputRef.current.focus();
-      }
+/**
+ * Extracts keyboard and save-related props from card props
+ * @param {ReturnType<typeof usePlaceholderCard>} cardProps - The card props from the hook
+ * @returns {KeyboardAndSaveProps} The extracted keyboard and save-related props
+ */
+function extractKeyboardAndSaveProps(cardProps: ReturnType<typeof usePlaceholderCard>): KeyboardAndSaveProps {
+  const { handleKeyDown, handleSave, handleCancel } = cardProps;
+  return { handleKeyDown, handleSave, handleCancel };
+}
 
-      // Auto-expand when editing
-      if (!isExpanded) {
-        setIsExpanded(true);
-      }
-    }
-  }, [isEditing, isExpanded]);
-
-  const handleSave = () => {
-    if (newName.trim() === '') return;
-
-    // If the name has changed, we need to update all instances in the prompt
-    if (newName !== placeholder.name && onNameChange) {
-      onNameChange(placeholder.name, newName);
-    }
-
-    onUpdate(placeholder.id, {
-      name: newName,
-      content: newContent,
-      color: selectedColor,
-    });
-
-    setIsEditing(false);
+/**
+ * Extracts action-related props from card props
+ * @param {ReturnType<typeof usePlaceholderCard>} cardProps - The card props from the hook
+ * @returns {ActionProps} The extracted action-related props
+ */
+function extractActionProps(cardProps: ReturnType<typeof usePlaceholderCard>): ActionProps {
+  const { handleCopyToClipboard, handleDelete, toggleMode, modeDescription } = cardProps;
+  return {
+    handleCopyToClipboard,
+    handleDelete,
+    toggleMode,
+    /**
+     * Gets the current mode description text
+     * @description Returns the current mode description from the card props
+     * @returns {string} The current mode description text
+     */
+    getModeDescription: () => modeDescription
   };
+}
 
-  const handleCancel = () => {
-    setNewName(placeholder.name);
-    setNewContent(placeholder.content);
-    setSelectedColor(placeholder.color);
-    setIsEditing(false);
+/**
+ * Creates a function to handle expanded state changes
+ * @param {() => void} toggleExpanded - Function to toggle expanded state
+ * @returns {(expanded: boolean) => void} Function to handle expanded state changes
+ */
+function createSetIsExpanded(toggleExpanded: () => void): (expanded: boolean) => void {
+  return (expanded: boolean): void => {
+    if (expanded) toggleExpanded();
   };
+}
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSave();
-    } else if (e.key === 'Escape') {
-      handleCancel();
-    }
+/**
+ * Extracts header-specific props from card props
+ * @param {ReturnType<typeof usePlaceholderCard>} cardProps - The card props from the hook
+ * @returns {HeaderSpecificProps} The header-specific props
+ */
+function extractHeaderSpecificProps(cardProps: ReturnType<typeof usePlaceholderCard>): HeaderSpecificProps {
+  const { setIsEditing, toggleExpanded } = cardProps;
+  return {
+    setIsExpanded: createSetIsExpanded(toggleExpanded),
+    setIsEditing
   };
+}
 
-  const handleCopyToClipboard = async (): Promise<void> => {
-    try {
-      await navigator.clipboard.writeText(`<${placeholder.name}>`);
-    } catch (error) {
-      console.error('Failed to copy to clipboard:', error);
-    }
+/**
+ * Combines basic and name props for the header
+ * @param {ReturnType<typeof usePlaceholderCard>} cardProps - The card props from the hook
+ * @returns {BasicStateProps & NameProps} The combined basic and name props
+ */
+function combineBasicAndNameProps(
+  cardProps: ReturnType<typeof usePlaceholderCard>
+): BasicStateProps & NameProps {
+  return {
+    ...extractBasicStateProps(cardProps),
+    ...extractNameProps(cardProps)
   };
+}
 
-  const handleDelete = () => {
-    onDelete(placeholder.id);
+/**
+ * Combines keyboard and action props for the header
+ * @param {ReturnType<typeof usePlaceholderCard>} cardProps - The card props from the hook
+ * @returns {KeyboardAndSaveProps & ActionProps} The combined keyboard and action props
+ */
+function combineKeyboardAndActionProps(
+  cardProps: ReturnType<typeof usePlaceholderCard>
+): KeyboardAndSaveProps & ActionProps {
+  return {
+    ...extractKeyboardAndSaveProps(cardProps),
+    ...extractActionProps(cardProps)
   };
+}
 
-  const handleInsert = () => {
-    if (onInsert) {
-      onInsert(placeholder.name);
-    }
+/**
+ * Combines all header-related props except placeholder
+ * @param {ReturnType<typeof usePlaceholderCard>} cardProps - The card props from the hook
+ * @returns {Omit<CardHeaderProps, 'placeholder'>} The combined header props
+ */
+function combineHeaderProps(
+  cardProps: ReturnType<typeof usePlaceholderCard>
+): Omit<CardHeaderProps, 'placeholder'> {
+  return {
+    ...combineBasicAndNameProps(cardProps),
+    ...combineKeyboardAndActionProps(cardProps),
+    ...extractHeaderSpecificProps(cardProps)
   };
+}
 
-  const toggleMode = () => {
-    // Toggle between 'replace' and 'tag' modes
-    const newMode = mode === 'replace' ? 'tag' : 'replace';
-    onUpdate(placeholder.id, { mode: newMode });
+/**
+ * Creates the header props for the card
+ * @param {ReturnType<typeof usePlaceholderCard>} cardProps - The card props from the hook
+ * @param {Placeholder} placeholder - The placeholder data
+ * @returns {CardHeaderProps} The header props
+ */
+function createCardHeaderProps(
+  cardProps: ReturnType<typeof usePlaceholderCard>,
+  placeholder: Placeholder
+): CardHeaderProps {
+  return {
+    placeholder,
+    ...combineHeaderProps(cardProps)
   };
+}
 
-  const cardBorderStyle = {
-    borderLeft: `4px solid ${placeholder.color}`,
+/**
+ * Extracts content-related props from card props
+ * @param {ReturnType<typeof usePlaceholderCard>} cardProps - The card props from the hook
+ * @returns {ContentProps} The extracted content-related props
+ */
+function extractContentProps(cardProps: ReturnType<typeof usePlaceholderCard>): ContentProps {
+  const { newContent, selectedColor, textareaRef, setNewContent, setSelectedColor, handleKeyDown, handleInsert } = cardProps;
+  return { newContent, selectedColor, textareaRef, setNewContent, setSelectedColor, handleKeyDown, handleInsert };
+}
+
+/**
+ * Combines all content-related props except placeholder
+ * @param {ReturnType<typeof usePlaceholderCard>} cardProps - The card props from the hook
+ * @returns {Omit<CardContentProps, 'placeholder'>} The combined content props
+ */
+function combineContentProps(
+  cardProps: ReturnType<typeof usePlaceholderCard>
+): Omit<CardContentProps, 'placeholder'> {
+  return {
+    ...extractBasicStateProps(cardProps),
+    ...extractContentProps(cardProps)
   };
+}
 
-  const getModeDescription = () => {
-    return mode === 'replace'
-      ? "Replace Mode: Placeholder will be replaced with its content"
-      : "Tag Mode: Content will be displayed between opening and closing tags";
+/**
+ * Creates the content props for the card
+ * @param {ReturnType<typeof usePlaceholderCard>} cardProps - The card props from the hook
+ * @param {Placeholder} placeholder - The placeholder data
+ * @returns {CardContentProps} The content props
+ */
+function createCardContentProps(
+  cardProps: ReturnType<typeof usePlaceholderCard>,
+  placeholder: Placeholder
+): CardContentProps {
+  return {
+    placeholder,
+    ...combineContentProps(cardProps)
   };
+}
 
+/**
+ * Creates the card header element
+ * @param {ReturnType<typeof usePlaceholderCard>} cardProps - The card props from the hook
+ * @param {Placeholder} placeholder - The placeholder data
+ * @returns {JSX.Element} The rendered card header
+ */
+function createCardHeader(
+  cardProps: ReturnType<typeof usePlaceholderCard>,
+  placeholder: Placeholder
+): JSX.Element {
+  return <PlaceholderCardHeader {...createCardHeaderProps(cardProps, placeholder)} />;
+}
+
+/**
+ * Creates the card content element
+ * @param {ReturnType<typeof usePlaceholderCard>} cardProps - The card props from the hook
+ * @param {Placeholder} placeholder - The placeholder data
+ * @returns {JSX.Element} The rendered card content
+ */
+function createCardContentElement(
+  cardProps: ReturnType<typeof usePlaceholderCard>,
+  placeholder: Placeholder
+): JSX.Element {
+  return <PlaceholderCardContent {...createCardContentProps(cardProps, placeholder)} />;
+}
+
+/**
+ * Creates a container for the card content elements
+ * @description Wraps the header and content elements in a fragment
+ * @param {JSX.Element} header - The card header element
+ * @param {JSX.Element} content - The card content element
+ * @returns {JSX.Element} The rendered card content elements container
+ */
+function createCardContentContainer(header: JSX.Element, content: JSX.Element): JSX.Element {
   return (
-    <Card
-      className={`relative overflow-hidden shadow-sm transition-all duration-200 hover:shadow-md ${
-        isEditing ? 'ring-2 ring-primary/20' : ''
-      } ${isExpanded ? 'bg-card/80' : 'bg-card/50'}`}
-      style={cardBorderStyle}
-    >
-      <CardContent className="p-3">
-        <div className="flex items-center justify-between gap-2">
-          {isEditing ? (
-            <Input
-              ref={inputRef}
-              value={newName}
-              onChange={e => setNewName(e.target.value)}
-              onKeyDown={handleKeyDown}
-              className="h-8 flex-1 text-sm"
-              placeholder="Placeholder name"
-            />
-          ) : (
-            <div
-              className="flex items-center gap-2 cursor-pointer"
-              onClick={() => setIsExpanded(!isExpanded)}
-            >
-              <div
-                className="h-4 w-4 rounded-full"
-                style={{backgroundColor: placeholder.color}}
-              />
-              <h3 className="flex-1 font-medium group">
-                {placeholder.name}
-                <span className={`ml-2 text-xs rounded px-1.5 py-0.5 ${
-                  mode === 'tag' ? 'bg-primary/10 text-primary' : 'bg-muted/50 text-muted-foreground'
-                }`}>
-                  {mode === 'tag' ? 'Tag' : 'Replace'}
-                </span>
-              </h3>
-            </div>
-          )}
-
-          <div className="flex items-center gap-1">
-            {isEditing ? (
-              <>
-                <Button size="icon" variant="ghost" className="h-7 w-7" onClick={handleSave}>
-                  <Check className="h-4 w-4 text-green-500"/>
-                </Button>
-                <Button size="icon" variant="ghost" className="h-7 w-7" onClick={handleCancel}>
-                  <Trash className="h-4 w-4 text-destructive"/>
-                </Button>
-              </>
-            ) : (
-              <>
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        className="h-7 w-7"
-                        onClick={toggleMode}
-                      >
-                        {mode === 'replace' ? (
-                          <RefreshCw className="h-4 w-4 text-muted-foreground"/>
-                        ) : (
-                          <Tag className="h-4 w-4 text-primary"/>
-                        )}
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent side="top">
-                      <p className="text-xs">{getModeDescription()}</p>
-                      <p className="text-xs text-muted-foreground">Click to toggle mode</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-
-                {!isExpanded && (
-                  <>
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      className="h-7 w-7"
-                      onClick={() => setIsEditing(true)}
-                    >
-                      <Pencil className="h-4 w-4 text-muted-foreground"/>
-                    </Button>
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      className="h-7 w-7"
-                      onClick={handleCopyToClipboard}
-                    >
-                      <Copy className="h-4 w-4 text-muted-foreground"/>
-                    </Button>
-                    {onInsert && (
-                      <Button size="icon" variant="ghost" className="h-7 w-7" onClick={handleInsert}>
-                        <Plus className="h-4 w-4 text-muted-foreground"/>
-                      </Button>
-                    )}
-                  </>
-                )}
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  className="h-7 w-7"
-                  onClick={() => setIsExpanded(!isExpanded)}
-                >
-                  {isExpanded ? (
-                    <ChevronUp className="h-4 w-4 text-muted-foreground"/>
-                  ) : (
-                    <ChevronDown className="h-4 w-4 text-muted-foreground"/>
-                  )}
-                </Button>
-              </>
-            )}
-          </div>
-        </div>
-
-        {isExpanded && (
-          <div className="mt-2 space-y-2">
-            <div className="flex justify-between items-start">
-              <div className="rounded-md border p-2 text-sm max-w-[80%]">
-                <code className="font-mono text-xs text-muted-foreground">{`<${placeholder.name}>`}</code>
-              </div>
-
-              <div className="flex items-center">
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button size="sm" variant="ghost" className="h-7 w-7">
-                        <Info className="h-3.5 w-3.5 text-muted-foreground" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent side="left" className="max-w-xs">
-                      <p className="text-xs font-medium mb-1">{mode === 'tag' ? 'Tag Mode' : 'Replace Mode'}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {mode === 'tag'
-                          ? "Content will be displayed between opening and closing tags: <tag>content</tag>"
-                          : "Placeholder will be directly replaced with its content"}
-                      </p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </div>
-            </div>
-
-            <div className="space-y-1">
-              <div className="flex items-center justify-between">
-                <label className="text-xs text-muted-foreground">Content:</label>
-                {!isEditing && (
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    className="h-6 w-6"
-                    onClick={() => setIsEditing(true)}
-                  >
-                    <Pencil className="h-3 w-3 text-muted-foreground"/>
-                  </Button>
-                )}
-              </div>
-              {isEditing ? (
-                <Textarea
-                  ref={textareaRef}
-                  value={newContent}
-                  onChange={e => setNewContent(e.target.value)}
-                  onKeyDown={e => {
-                    if (e.key === 'Escape') handleCancel();
-                  }}
-                  className="min-h-[80px] text-sm"
-                  placeholder={`Enter content for ${placeholder.name}...`}
-                />
-              ) : (
-                <div
-                  className="min-h-[40px] rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm cursor-pointer transition-colors hover:bg-muted/20"
-                  onClick={() => setIsEditing(true)}
-                >
-                  {placeholder.content ? (
-                    <span className="whitespace-pre-line">{placeholder.content}</span>
-                  ) : (
-                    <span className="italic text-muted-foreground">Empty (click to edit)</span>
-                  )}
-                </div>
-              )}
-            </div>
-
-            {isEditing && (
-              <div className="space-y-1">
-                <label className="text-xs text-muted-foreground">Color:</label>
-                <div className="flex flex-wrap gap-1 p-1 rounded-md border border-input">
-                  {PLACEHOLDER_COLORS.map(color => (
-                    <button
-                      key={color}
-                      type="button"
-                      className={`h-6 w-6 rounded-full transition-all hover:scale-110 ${
-                        selectedColor === color ? 'ring-2 ring-primary ring-offset-2' : ''
-                      }`}
-                      style={{backgroundColor: color}}
-                      onClick={() => setSelectedColor(color)}
-                    />
-                  ))}
-                </div>
-              </div>
-            )}
-
-            <div className="mt-3 flex items-center justify-between">
-              <Button
-                size="sm"
-                variant="outline"
-                className="h-7 text-xs"
-                onClick={handleCopyToClipboard}
-              >
-                <Copy className="mr-1 h-3 w-3"/>
-                Copy Tag
-              </Button>
-              {onInsert && (
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="h-7 text-xs"
-                  onClick={handleInsert}
-                >
-                  <Plus className="mr-1 h-3 w-3"/>
-                  Insert
-                </Button>
-              )}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button size="sm" variant="destructive" className="h-7 text-xs">
-                    <Trash className="mr-1 h-3 w-3"/>
-                    Delete
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                  <DropdownMenuItem onClick={handleDelete} className="text-destructive">
-                    Confirm Delete
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          </div>
-        )}
-      </CardContent>
-    </Card>
+    <>
+      {header}
+      {content}
+    </>
   );
+}
+
+/**
+ * Creates the card content elements
+ * @param {ReturnType<typeof usePlaceholderCard>} cardProps - The card props from the hook
+ * @param {Placeholder} placeholder - The placeholder data
+ * @returns {JSX.Element} The rendered card content elements
+ */
+function createCardContentElements(
+  cardProps: ReturnType<typeof usePlaceholderCard>,
+  placeholder: Placeholder
+): JSX.Element {
+  const header = createCardHeader(cardProps, placeholder);
+  const content = createCardContentElement(cardProps, placeholder);
+  return createCardContentContainer(header, content);
+}
+
+/**
+ * Creates the card content wrapper
+ * @param {ReturnType<typeof usePlaceholderCard>} cardProps - The card props from the hook
+ * @param {Placeholder} placeholder - The placeholder data
+ * @returns {JSX.Element} The rendered card content wrapper
+ */
+function createCardContent(
+  cardProps: ReturnType<typeof usePlaceholderCard>,
+  placeholder: Placeholder
+): JSX.Element {
+  return (
+    <CardContent className="p-3">
+      {createCardContentElements(cardProps, placeholder)}
+    </CardContent>
+  );
+}
+
+/**
+ * Creates the card element with its styles
+ * @param {ReturnType<typeof usePlaceholderCard>} cardProps - The card props from the hook
+ * @returns {Object} The card element styles and className
+ */
+function createCardStyles(
+  cardProps: ReturnType<typeof usePlaceholderCard>
+): { className: string; style: React.CSSProperties } {
+  const { isEditing, isExpanded, cardBorderStyle } = cardProps;
+  return {
+    className: getCardClassName(isEditing, isExpanded),
+    style: cardBorderStyle
+  };
+}
+
+/**
+ * Creates the card element with its content
+ * @param {ReturnType<typeof usePlaceholderCard>} cardProps - The card props from the hook
+ * @param {Placeholder} placeholder - The placeholder data
+ * @returns {JSX.Element} The rendered card element
+ */
+function createCardElement(
+  cardProps: ReturnType<typeof usePlaceholderCard>,
+  placeholder: Placeholder
+): JSX.Element {
+  const styles = createCardStyles(cardProps);
+  const content = createCardContent(cardProps, placeholder);
+  return <Card {...styles}>{content}</Card>;
+}
+
+/**
+ * Component for displaying and editing a placeholder
+ * @param {PlaceholderCardProps} props - Component props
+ * @returns {JSX.Element} The rendered placeholder card
+ */
+export function PlaceholderCard({ placeholder, ...props }: PlaceholderCardProps): JSX.Element {
+  const cardProps = usePlaceholderCard({ placeholder, ...props });
+  return createCardElement(cardProps, placeholder);
 }

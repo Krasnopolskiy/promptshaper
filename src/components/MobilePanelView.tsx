@@ -6,15 +6,14 @@
  * @module components/MobilePanelView
  */
 import { Placeholder } from '@/types';
-import { PlaceholderPanel } from '@/components/PlaceholderPanel';
-import { EditorPanel } from '@/components/EditorPanel';
-import { PreviewPanel } from '@/components/PreviewPanel';
+import { TabNavigation } from './mobile/TabNavigation';
+import { ActivePanel, MobilePanelContentProps } from './mobile/TabPanels';
 
 /**
  * MobilePanelView component props
  * @interface MobilePanelViewProps
  */
-interface MobilePanelViewProps {
+export interface MobilePanelViewProps {
   /** Currently active panel */
   activePanel: 'placeholders' | 'editor' | 'preview';
   /** Function to set the active panel */
@@ -44,89 +43,38 @@ interface MobilePanelViewProps {
 }
 
 /**
- * Mobile view with tabbed navigation between panels
- * @param {MobilePanelViewProps} props Component props
- * @returns The rendered mobile panel view
+ * Renders the tab navigation component
+ * @param {MobilePanelViewProps} props - Component props
+ * @returns {JSX.Element} Tab navigation component
  */
-export function MobilePanelView({
-  activePanel,
-  setActivePanel,
-  placeholders,
-  onAddPlaceholder,
-  onUpdatePlaceholder,
-  onDeletePlaceholder,
-  onInsertPlaceholderFromPanel,
-  onInsertPlaceholderAtPosition,
-  onPlaceholderNameChange,
-  promptText,
-  setPromptText,
-  fullPrompt,
-  onCopyPrompt
-}: MobilePanelViewProps): JSX.Element {
+function renderTabNavigation(props: MobilePanelViewProps): JSX.Element {
   return (
-    <div className="flex max-w-full flex-1 flex-col overflow-hidden p-4">
-      <div className="flex overflow-hidden rounded-t-lg border-b border-border bg-white/70 shadow-sm backdrop-blur-sm dark:bg-background/70">
-        <button
-          className={`flex-1 py-3 text-xs font-medium transition-colors ${
-            activePanel === 'placeholders'
-              ? 'border-b-2 border-primary bg-primary/10 text-primary'
-              : 'text-muted-foreground hover:bg-accent/5'
-          }`}
-          onClick={() => setActivePanel('placeholders')}
-        >
-          Placeholders
-        </button>
-        <button
-          className={`flex-1 py-3 text-xs font-medium transition-colors ${
-            activePanel === 'editor'
-              ? 'border-b-2 border-primary bg-primary/10 text-primary'
-              : 'text-muted-foreground hover:bg-accent/5'
-          }`}
-          onClick={() => setActivePanel('editor')}
-        >
-          Editor
-        </button>
-        <button
-          className={`flex-1 py-3 text-xs font-medium transition-colors ${
-            activePanel === 'preview'
-              ? 'border-b-2 border-primary bg-primary/10 text-primary'
-              : 'text-muted-foreground hover:bg-accent/5'
-          }`}
-          onClick={() => setActivePanel('preview')}
-        >
-          Preview
-        </button>
-      </div>
+    <TabNavigation
+      activePanel={props.activePanel}
+      setActivePanel={props.setActivePanel}
+    />
+  );
+}
 
-      <div className="flex-1 overflow-hidden rounded-b-lg shadow-lg">
-        {activePanel === 'placeholders' && (
-          <PlaceholderPanel
-            placeholders={placeholders}
-            onAddPlaceholder={onAddPlaceholder}
-            onUpdatePlaceholder={onUpdatePlaceholder}
-            onDeletePlaceholder={onDeletePlaceholder}
-            onInsertPlaceholder={onInsertPlaceholderFromPanel}
-            onPlaceholderNameChange={onPlaceholderNameChange}
-          />
-        )}
+/**
+ * Renders the active panel content
+ * @param {MobilePanelViewProps} props - Component props
+ * @returns {JSX.Element} Active panel content
+ */
+function renderActivePanel(props: MobilePanelViewProps): JSX.Element {
+  return <ActivePanel {...props as MobilePanelContentProps} />;
+}
 
-        {activePanel === 'editor' && (
-          <EditorPanel
-            promptText={promptText}
-            setPromptText={setPromptText}
-            placeholders={placeholders}
-            onInsertPlaceholder={onInsertPlaceholderAtPosition}
-          />
-        )}
-
-        {activePanel === 'preview' && (
-          <PreviewPanel
-            content={fullPrompt}
-            onCopy={onCopyPrompt}
-            placeholders={placeholders}
-          />
-        )}
-      </div>
+/**
+ * Renders a mobile-optimized view with tabs for different panels
+ * @param {MobilePanelViewProps} props - Component props
+ * @returns {JSX.Element} Mobile panel view component
+ */
+export function MobilePanelView(props: MobilePanelViewProps): JSX.Element {
+  return (
+    <div className="flex h-[calc(100vh-5rem)] flex-col overflow-hidden">
+      {renderTabNavigation(props)}
+      {renderActivePanel(props)}
     </div>
   );
 }

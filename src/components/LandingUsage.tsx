@@ -42,8 +42,9 @@ function getUsageSteps(): UsageStep[] {
 
 /**
  * Renders a single usage step
- * @param props The step data and index
- * @returns The rendered step
+ * @param {Object} props - The step data and index
+ * @param {UsageStep} props.step - The usage step data to render
+ * @returns {JSX.Element} The rendered step
  */
 function UsageStepItem({ step }: { step: UsageStep }): JSX.Element {
   return (

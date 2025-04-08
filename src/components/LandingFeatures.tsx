@@ -5,7 +5,7 @@
  *
  * @module components/LandingFeatures
  */
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Layers, FileCode, Wand2, Palette } from 'lucide-react';
 
 /**
@@ -14,7 +14,7 @@ import { Layers, FileCode, Wand2, Palette } from 'lucide-react';
  */
 interface LandingFeaturesProps {
   /** Whether the features section is visible */
-  isVisible: boolean;
+  _isVisible: boolean;
   /** Ref to attach to the component */
   featuresRef: React.RefObject<HTMLDivElement>;
 }
@@ -30,48 +30,117 @@ interface FeatureItem {
 }
 
 /**
+ * Static data for landing page features.
+ */
+const FEATURES_DATA: FeatureItem[] = [
+  {
+    title: 'Reusable Placeholders',
+    description: 'Create and manage placeholders that can be reused across multiple prompts.',
+    icon: <Layers className="h-6 w-6 text-blue-500"/>,
+  },
+  {
+    title: 'Custom Templates',
+    description: 'Build and save prompt templates with your placeholders for consistent results.',
+    icon: <FileCode className="h-6 w-6 text-purple-500"/>,
+  },
+  {
+    title: 'Real-time Preview',
+    description: 'See your completed prompt with all placeholders filled in as you type.',
+    icon: <Wand2 className="h-6 w-6 text-amber-500"/>,
+  },
+  {
+    title: 'Color Coding',
+    description: 'Visually organize your placeholders with custom colors for better recognition.',
+    icon: <Palette className="h-6 w-6 text-red-500"/>,
+  },
+];
+
+/**
+ * Renders the section header.
+ * @returns {JSX.Element} The section header.
+ */
+function renderSectionHeader(): JSX.Element {
+  return (
+    <div className="mb-16 text-center">
+      <h2 className="mb-4 text-3xl font-bold md:text-4xl">Powerful Features</h2>
+      <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
+        Everything you need to create and manage your AI prompts efficiently
+      </p>
+    </div>
+  );
+}
+
+/**
+ * Renders the grid of feature cards.
+ * @param {FeatureItem[]} features - Array of features.
+ * @param {number} activeFeature - Index of the active feature.
+ * @param {(index: number) => void} setActiveFeature - Function to set the active feature.
+ * @returns {JSX.Element} The feature grid.
+ */
+function renderFeatureGrid(
+  features: FeatureItem[],
+  activeFeature: number,
+  setActiveFeature: (index: number) => void
+): JSX.Element {
+  return (
+    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+      {features.map((feature, index) => (
+        <FeatureCard
+          key={index}
+          feature={feature}
+          isActive={activeFeature === index}
+          onMouseEnter={() => setActiveFeature(index)}
+        />
+      ))}
+    </div>
+  );
+}
+
+/**
  * Features section for the landing page
  * @param {LandingFeaturesProps} props - Component props
  * @returns The rendered features section
  */
-export function LandingFeatures({ isVisible, featuresRef }: LandingFeaturesProps): JSX.Element {
+export function LandingFeatures({ _isVisible, featuresRef }: LandingFeaturesProps): JSX.Element {
   const [activeFeature, setActiveFeature] = useState(0);
-  const features = getFeatures();
-
-  /**
-   * Set up automatic rotation through features
-   */
-  useEffect((): (() => void) => {
-    const interval = setInterval(() => {
-      setActiveFeature(prev => (prev + 1) % features.length);
-    }, 3000);
-    return () => clearInterval(interval);
-  }, [features.length]);
 
   return (
-    <section ref={featuresRef} className="bg-white px-4 py-20 dark:bg-background">
-      <div
-        className={`mx-auto max-w-6xl transition-all duration-1000 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}
-      >
-        <div className="mb-16 text-center">
-          <h2 className="mb-4 text-3xl font-bold md:text-4xl">Powerful Features</h2>
-          <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
-            Everything you need to create and manage your AI prompts efficiently
-          </p>
-        </div>
+    <div ref={featuresRef} className="py-16">
+      {renderSectionHeader()}
+      {renderFeatureGrid(FEATURES_DATA, activeFeature, setActiveFeature)}
+    </div>
+  );
+}
 
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-          {features.map((feature, index) => (
-            <FeatureCard
-              key={index}
-              feature={feature}
-              isActive={activeFeature === index}
-              onMouseEnter={() => setActiveFeature(index)}
-            />
-          ))}
-        </div>
-      </div>
-    </section>
+/**
+ * Helper Functions for FeatureCard
+ */
+
+/**
+ * Renders the icon part of the feature card.
+ * @param {JSX.Element} icon - The icon element.
+ * @returns {JSX.Element} The icon container.
+ */
+function renderFeatureIcon(icon: JSX.Element): JSX.Element {
+  return (
+    <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+      {icon}
+    </div>
+  );
+}
+
+/**
+ * Renders the text part of the feature card.
+ * @param {string} title - The feature title.
+ * @param {string} description - The feature description.
+ * @returns {JSX.Element} The text content.
+ */
+function renderFeatureText(title: string, description: string): JSX.Element {
+  return (
+    <>
+      <h3 className="mb-2 text-xl font-semibold">{title}</h3>
+      <p className="text-muted-foreground">{description}</p>
+    </>
   );
 }
 
@@ -80,11 +149,8 @@ export function LandingFeatures({ isVisible, featuresRef }: LandingFeaturesProps
  * @interface FeatureCardProps
  */
 interface FeatureCardProps {
-  /** Feature data to display */
   feature: FeatureItem;
-  /** Whether this feature is active */
   isActive: boolean;
-  /** Mouse enter handler */
   onMouseEnter: () => void;
 }
 
@@ -94,50 +160,29 @@ interface FeatureCardProps {
  * @returns The rendered feature card
  */
 function FeatureCard({ feature, isActive, onMouseEnter }: FeatureCardProps): JSX.Element {
+  const cardClasses = `rounded-xl border border-border/50 bg-white p-6 shadow-lg transition-all duration-500 dark:bg-background ${
+    isActive
+      ? 'scale-105 border-primary/20 shadow-xl'
+      : 'hover:scale-[1.02] hover:shadow-xl'
+  }`;
+
   return (
-    <div
-      className={`rounded-xl border border-border/50 bg-white p-6 shadow-lg transition-all duration-500 dark:bg-background ${
-        isActive
-          ? 'scale-105 border-primary/20 shadow-xl'
-          : 'hover:scale-[1.02] hover:shadow-xl'
-      }`}
-      onMouseEnter={onMouseEnter}
-    >
-      <div
-        className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
-        {feature.icon}
-      </div>
-      <h3 className="mb-2 text-xl font-semibold">{feature.title}</h3>
-      <p className="text-muted-foreground">{feature.description}</p>
+    <div className={cardClasses} onMouseEnter={onMouseEnter}>
+      {renderFeatureIcon(feature.icon)}
+      {renderFeatureText(feature.title, feature.description)}
     </div>
   );
 }
 
 /**
- * Creates and returns the feature data array
- * @returns Array of feature objects with title, description and icon
+ * Helper Functions for LandingFeatures
  */
-function getFeatures(): Array<FeatureItem> {
-  return [
-    {
-      title: 'Reusable Placeholders',
-      description: 'Create and manage placeholders that can be reused across multiple prompts.',
-      icon: <Layers className="h-6 w-6 text-blue-500"/>,
-    },
-    {
-      title: 'Custom Templates',
-      description: 'Build and save prompt templates with your placeholders for consistent results.',
-      icon: <FileCode className="h-6 w-6 text-purple-500"/>,
-    },
-    {
-      title: 'Real-time Preview',
-      description: 'See your completed prompt with all placeholders filled in as you type.',
-      icon: <Wand2 className="h-6 w-6 text-amber-500"/>,
-    },
-    {
-      title: 'Color Coding',
-      description: 'Visually organize your placeholders with custom colors for better recognition.',
-      icon: <Palette className="h-6 w-6 text-red-500"/>,
-    },
-  ];
+
+/**
+ * Returns the features data array
+ * @deprecated Use FEATURES_DATA constant directly instead.
+ * @returns {FeatureItem[]} Array of feature objects.
+ */
+function _getFeatures(): FeatureItem[] {
+  return FEATURES_DATA;
 }

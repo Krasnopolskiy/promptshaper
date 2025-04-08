@@ -5,10 +5,10 @@
  *
  * @module components/AppLayout
  */
-import { Header } from '@/components/Header';
 import { WelcomeDialog } from '@/components/WelcomeDialog';
-import { MobilePanelView } from '@/components/MobilePanelView';
-import { DesktopPanelView } from '@/components/DesktopPanelView';
+import { AppHeader } from '@/components/layout/AppHeader';
+import { MobileView } from '@/components/layout/MobileView';
+import { DesktopView } from '@/components/layout/DesktopView';
 import { Template, Placeholder } from '@/types';
 
 /**
@@ -64,152 +64,54 @@ interface AppLayoutProps {
 }
 
 /**
- * Mobile UI section of the application
- * @param props Component props
- * @returns Mobile panel component
+ * Renders the main content based on device type
+ * @param {AppLayoutProps} props - The props for the layout component
+ * @returns {JSX.Element} The rendered content
  */
-function MobileUI({
-  activePanel,
-  setActivePanel,
-  placeholders,
-  addPlaceholder,
-  updatePlaceholder,
-  deletePlaceholder,
-  handleInsertPlaceholderFromPanel,
-  handleInsertPlaceholderAtPosition,
-  handlePlaceholderNameChange,
-  promptText,
-  setPromptText,
-  fullPrompt,
-  handleCopyFullPrompt
-}: Pick<
-  AppLayoutProps,
-  | 'activePanel'
-  | 'setActivePanel'
-  | 'placeholders'
-  | 'addPlaceholder'
-  | 'updatePlaceholder'
-  | 'deletePlaceholder'
-  | 'handleInsertPlaceholderFromPanel'
-  | 'handleInsertPlaceholderAtPosition'
-  | 'handlePlaceholderNameChange'
-  | 'promptText'
-  | 'setPromptText'
-  | 'fullPrompt'
-  | 'handleCopyFullPrompt'
->): JSX.Element {
-  return (
-    <MobilePanelView
-      activePanel={activePanel}
-      setActivePanel={setActivePanel}
-      placeholders={placeholders}
-      onAddPlaceholder={addPlaceholder}
-      onUpdatePlaceholder={updatePlaceholder}
-      onDeletePlaceholder={deletePlaceholder}
-      onInsertPlaceholderFromPanel={handleInsertPlaceholderFromPanel}
-      onInsertPlaceholderAtPosition={handleInsertPlaceholderAtPosition}
-      onPlaceholderNameChange={handlePlaceholderNameChange}
-      promptText={promptText}
-      setPromptText={setPromptText}
-      fullPrompt={fullPrompt}
-      onCopyPrompt={handleCopyFullPrompt}
-    />
-  );
+function MainContent(props: AppLayoutProps): JSX.Element {
+  const { isMobile } = props;
+  return isMobile ? <MobileView {...props} /> : <DesktopView {...props} />;
 }
 
 /**
- * Desktop UI section of the application
- * @param props Component props
- * @returns Desktop panel component
+ * Renders the background element
+ * @returns {JSX.Element} The rendered background
  */
-function DesktopUI({
-  panelSizes,
-  handlePanelResize,
-  placeholders,
-  addPlaceholder,
-  updatePlaceholder,
-  deletePlaceholder,
-  handleInsertPlaceholderFromPanel,
-  handleInsertPlaceholderAtPosition,
-  handlePlaceholderNameChange,
-  promptText,
-  setPromptText,
-  fullPrompt,
-  handleCopyFullPrompt
-}: Pick<
-  AppLayoutProps,
-  | 'panelSizes'
-  | 'handlePanelResize'
-  | 'placeholders'
-  | 'addPlaceholder'
-  | 'updatePlaceholder'
-  | 'deletePlaceholder'
-  | 'handleInsertPlaceholderFromPanel'
-  | 'handleInsertPlaceholderAtPosition'
-  | 'handlePlaceholderNameChange'
-  | 'promptText'
-  | 'setPromptText'
-  | 'fullPrompt'
-  | 'handleCopyFullPrompt'
->): JSX.Element {
-  return (
-    <DesktopPanelView
-      panelSizes={panelSizes}
-      onPanelResize={handlePanelResize}
-      placeholders={placeholders}
-      onAddPlaceholder={addPlaceholder}
-      onUpdatePlaceholder={updatePlaceholder}
-      onDeletePlaceholder={deletePlaceholder}
-      onInsertPlaceholderFromPanel={handleInsertPlaceholderFromPanel}
-      onInsertPlaceholderAtPosition={handleInsertPlaceholderAtPosition}
-      onPlaceholderNameChange={handlePlaceholderNameChange}
-      promptText={promptText}
-      setPromptText={setPromptText}
-      fullPrompt={fullPrompt}
-      onCopyPrompt={handleCopyFullPrompt}
-    />
-  );
+function Background(): JSX.Element {
+  return <div className="fixed inset-0 -z-10 bg-background"></div>;
 }
 
 /**
- * UI layout component that handles rendering
- * @param props Component props
- * @returns The rendered layout
+ * Renders the welcome dialog if needed
+ * @param {boolean} showWelcome - Whether to show the welcome dialog
+ * @param {() => void} handleSkipWelcome - Function to handle skipping the welcome dialog
+ * @returns {JSX.Element | null} The rendered welcome dialog or null
  */
-export function AppLayout(props: AppLayoutProps): JSX.Element {
-  const {
-    templates,
-    saveTemplate,
-    loadTemplate,
-    promptText,
-    setPromptText,
-    placeholders,
-    setPlaceholders,
-    handleCopyFullPrompt,
-    handleReset,
-    showWelcome,
-    handleSkipWelcome,
-    isMobile
-  } = props;
+function WelcomeSection({ showWelcome, handleSkipWelcome }: { showWelcome: boolean; handleSkipWelcome: () => void }): JSX.Element | null {
+  return showWelcome ? <WelcomeDialog onSkip={handleSkipWelcome} /> : null;
+}
 
+/**
+ * Renders the root layout structure
+ * @param {AppLayoutProps} props - The props for the layout component
+ * @returns {JSX.Element} The rendered root layout
+ */
+function RootLayout(props: AppLayoutProps): JSX.Element {
   return (
     <div className="flex min-h-screen flex-col">
-      <div className="fixed inset-0 -z-10 bg-background"></div>
-
-      <Header
-        onSaveTemplate={saveTemplate}
-        templates={templates}
-        onLoadTemplate={loadTemplate}
-        currentPrompt={promptText}
-        setPrompt={setPromptText}
-        setPlaceholders={setPlaceholders}
-        onCopyFullPrompt={handleCopyFullPrompt}
-        onReset={handleReset}
-      />
-
-      {showWelcome && <WelcomeDialog onSkip={handleSkipWelcome} />}
-
-      {isMobile ? <MobileUI {...props} /> : <DesktopUI {...props} />}
+      <Background />
+      <AppHeader {...props} />
+      <WelcomeSection showWelcome={props.showWelcome} handleSkipWelcome={props.handleSkipWelcome} />
+      <MainContent {...props} />
     </div>
   );
+}
+
+/**
+ * Main application layout component that manages desktop and mobile views
+ * @param {AppLayoutProps} props - Component properties
+ * @returns {JSX.Element} The rendered AppLayout component
+ */
+export function AppLayout(props: AppLayoutProps): JSX.Element {
+  return <RootLayout {...props} />;
 }

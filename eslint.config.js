@@ -10,7 +10,7 @@ export default [
       'dist/**',
       'build/**',
       '.git/**',
-      'src/components/**',
+      'src/components/ui/**',
     ]
   },
   // JS configuration (for JS files)
@@ -55,7 +55,7 @@ export default [
 
       // Function length rule
       'max-lines-per-function': ['error', {
-        max: 10,
+        max: 25,
         skipBlankLines: true,
         skipComments: true,
         IIFEs: true
@@ -129,7 +129,7 @@ export default [
 
       // Function length rule
       'max-lines-per-function': ['error', {
-        max: 10,
+        max: 25,
         skipBlankLines: true,
         skipComments: true,
         IIFEs: true

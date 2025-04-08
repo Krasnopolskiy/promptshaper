@@ -1,0 +1,116 @@
+/**
+ * Module for placeholder utility handlers
+ * @module components/placeholder/handlers/utilHandlers
+ */
+import { Placeholder } from '@/types';
+
+/**
+ * Creates copy to clipboard handler
+ * @param {string} name - Placeholder name
+ * @returns {Function} Copy handler function
+ */
+export function createCopyHandler(name: string): () => Promise<void> {
+  return async (): Promise<void> => {
+    try {
+      await navigator.clipboard.writeText(`<${name}>`);
+    } catch (error) {
+      console.error('Failed to copy to clipboard:', error);
+    }
+  };
+}
+
+/**
+ * Creates delete handler function
+ * @param {string} id - Placeholder ID
+ * @param {Function|undefined} deleteFn - Delete callback function
+ * @returns {Function} Delete handler function
+ */
+export function createDeleteHandler(
+  id: string,
+  deleteFn?: (id: string) => void
+): () => void {
+  return (): void => {
+    if (deleteFn) {
+      deleteFn(id);
+    }
+  };
+}
+
+/**
+ * Creates insert handler function
+ * @param {string} name - Placeholder name
+ * @param {Function|undefined} insertFn - Insert callback function
+ * @returns {Function} Insert handler function
+ */
+export function createInsertHandler(
+  name: string,
+  insertFn?: (name: string) => void
+): () => void {
+  return (): void => {
+    if (insertFn) {
+      insertFn(name);
+    }
+  };
+}
+
+/**
+ * Gets the opposite mode value
+ * @param {string} currentMode - Current mode value
+ * @returns {string} Opposite mode value
+ */
+export function getOppositeMode(currentMode: string): string {
+  return currentMode === 'replace' ? 'tag' : 'replace';
+}
+
+/**
+ * Creates mode toggle handler function
+ * @param {string} id - Placeholder ID
+ * @param {string|undefined} currentMode - Current mode value
+ * @param {Function|undefined} updateFn - Update callback function
+ * @returns {Function} Mode toggle handler function
+ */
+export function createModeToggleHandler(
+  id: string,
+  currentMode: string | undefined,
+  updateFn?: (id: string, updates: Partial<Placeholder>) => void
+): () => void {
+  return (): void => {
+    if (updateFn) {
+      const mode = currentMode || 'replace';
+      const newMode = getOppositeMode(mode);
+      updateFn(id, { mode: newMode });
+    }
+  };
+}
+
+/**
+ * Creates mode description for replace mode
+ * @returns {string} Replace mode description
+ */
+export function getReplaceModeDescription(): string {
+  return "Replace Mode: Placeholder will be replaced with its content";
+}
+
+/**
+ * Creates mode description for tag mode
+ * @returns {string} Tag mode description
+ */
+export function getTagModeDescription(): string {
+  return "Tag Mode: Content will be displayed between opening and closing tags";
+}
+
+/**
+ * Creates mode description getter function
+ * @param {string|undefined} mode - Current mode value
+ * @returns {Function} Mode description getter function
+ */
+export function createModeDescriptionGetter(
+  mode: string | undefined
+): () => string {
+  return (): string => {
+    const currentMode = mode || 'replace';
+    return currentMode === 'replace'
+      ? getReplaceModeDescription()
+      : getTagModeDescription();
+  };
+}
