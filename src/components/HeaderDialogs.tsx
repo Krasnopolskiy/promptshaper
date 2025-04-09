@@ -37,15 +37,8 @@ interface ResetDialogProps extends Pick<HeaderDialogsProps, 'isResetDialogOpen' 
  * @returns {JSX.Element} Save template dialog
  */
 function SaveDialog(props: SaveDialogProps): JSX.Element {
-  return (
-    <SaveTemplateDialog
-      isOpen={props.isSaveDialogOpen}
-      onClose={() => props.setIsSaveDialogOpen(false)}
-      onSave={props.handleSaveTemplate}
-      templateName={props.templateName}
-      setTemplateName={props.setTemplateName}
-    />
-  );
+  return <SaveTemplateDialog isOpen={props.isSaveDialogOpen} onClose={() => props.setIsSaveDialogOpen(false)}
+    onSave={props.handleSaveTemplate} templateName={props.templateName} setTemplateName={props.setTemplateName} />;
 }
 
 /**
@@ -54,16 +47,9 @@ function SaveDialog(props: SaveDialogProps): JSX.Element {
  * @returns {JSX.Element} Load template dialog
  */
 function LoadDialog(props: LoadDialogProps): JSX.Element {
-  return (
-    <LoadTemplateDialog
-      isOpen={props.isLoadDialogOpen}
-      onClose={() => props.setIsLoadDialogOpen(false)}
-      onLoad={props.handleLoadTemplate}
-      templates={props.templates}
-      selectedTemplateId={props.selectedTemplateId}
-      setSelectedTemplateId={props.setSelectedTemplateId}
-    />
-  );
+  return <LoadTemplateDialog isOpen={props.isLoadDialogOpen} onClose={() => props.setIsLoadDialogOpen(false)}
+    onLoad={props.handleLoadTemplate} templates={props.templates} selectedTemplateId={props.selectedTemplateId}
+    setSelectedTemplateId={props.setSelectedTemplateId} />;
 }
 
 /**
@@ -72,13 +58,8 @@ function LoadDialog(props: LoadDialogProps): JSX.Element {
  * @returns {JSX.Element} Reset confirmation dialog
  */
 function ResetDialog(props: ResetDialogProps): JSX.Element {
-  return (
-    <ResetConfirmationDialog
-      isOpen={props.isResetDialogOpen}
-      onClose={() => props.setIsResetDialogOpen(false)}
-      onConfirm={props.handleReset}
-    />
-  );
+  return <ResetConfirmationDialog isOpen={props.isResetDialogOpen} onClose={() => props.setIsResetDialogOpen(false)}
+    onConfirm={props.handleReset} />;
 }
 
 /**
@@ -87,11 +68,5 @@ function ResetDialog(props: ResetDialogProps): JSX.Element {
  * @returns {JSX.Element} Header dialogs component
  */
 export function HeaderDialogs(props: HeaderDialogsProps): JSX.Element {
-  return (
-    <>
-      <SaveDialog {...props} />
-      <LoadDialog {...props} />
-      <ResetDialog {...props} />
-    </>
-  );
+  return <><SaveDialog {...props} /><LoadDialog {...props} /><ResetDialog {...props} /></>;
 }

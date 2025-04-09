@@ -52,11 +52,8 @@ export function createStyleParams(
   isEditing: boolean,
   isExpanded: boolean
 ): CardStyleParams {
-  return {
-    color: placeholder.color,
-    isEditing,
-    isExpanded
-  };
+  const { color } = placeholder;
+  return { color, isEditing, isExpanded };
 }
 
 /**
@@ -72,9 +69,7 @@ export function createCardStyle(
   isExpanded: boolean
 ): { className: string; style: React.CSSProperties } {
   const params = createStyleParams(placeholder, isEditing, isExpanded);
-
-  return {
-    className: createClassName(params),
-    style: createStyleObject(params)
-  };
+  const className = createClassName(params);
+  const style = createStyleObject(params);
+  return { className, style };
 }

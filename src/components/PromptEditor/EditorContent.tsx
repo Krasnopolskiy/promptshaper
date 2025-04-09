@@ -47,19 +47,8 @@ function CodeEditorComponent({
   editorRef,
   colorMode
 }: CodeEditorComponentProps): JSX.Element {
-  return (
-    <CodeEditor
-      value={value}
-      language="text"
-      placeholder="Write your prompt here..."
-      onChange={(e) => handleEditorChange(e, onChange)}
-      onKeyDown={onKeyDown}
-      ref={editorRef}
-      style={editorStyle}
-      className="w-full"
-      data-color-mode={colorMode}
-    />
-  );
+  return <CodeEditor value={value} language="text" placeholder="Write your prompt here..." onChange={(e) => handleEditorChange(e, onChange)}
+    onKeyDown={onKeyDown} ref={editorRef} style={editorStyle} className="w-full" data-color-mode={colorMode} />;
 }
 
 interface EditorContentProps {
@@ -91,28 +80,11 @@ function createKeyDownHandler(
  * @param {EditorContentProps} props - Component props
  * @returns {JSX.Element} The rendered editor content
  */
-export function EditorContent({
-  value,
-  onChange,
-  editorRef,
-  handleUndo,
-  handleRedo,
-  theme
-}: EditorContentProps): JSX.Element {
+export function EditorContent({ value, onChange, editorRef, handleUndo, handleRedo, theme }: EditorContentProps): JSX.Element {
   const onKeyDown = createKeyDownHandler(handleUndo, handleRedo);
-  const colorMode: ColorMode = theme === 'dark' ? 'dark' : 'light';
-
-  return (
-    <ScrollArea className="flex-1">
-      <div className="p-4">
-        <CodeEditorComponent
-          value={value}
-          onChange={onChange}
-          onKeyDown={onKeyDown}
-          editorRef={editorRef}
-          colorMode={colorMode}
-        />
-      </div>
-    </ScrollArea>
-  );
+  return <ScrollArea className="flex-1">
+    <div className="p-4">
+      <CodeEditorComponent value={value} onChange={onChange} onKeyDown={onKeyDown} editorRef={editorRef} colorMode={theme === 'dark' ? 'dark' : 'light'} />
+    </div>
+  </ScrollArea>;
 }

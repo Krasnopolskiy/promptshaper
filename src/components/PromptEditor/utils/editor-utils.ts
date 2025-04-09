@@ -31,37 +31,46 @@ export interface PlaceholderProcessingConfig {
 }
 
 /**
+ * Creates the new text value with inserted placeholder
+ * @param {string} value - Original text value
+ * @param {string} placeholder - Placeholder text to insert
+ * @param {number} selectionStart - Start position of cursor
+ * @param {number} selectionEnd - End position of cursor
+ * @returns {string} New text with placeholder inserted
+ */
+function createNewTextValue(value: string, placeholder: string, selectionStart: number, selectionEnd: number): string {
+  return value.substring(0, selectionStart) + placeholder + value.substring(selectionEnd);
+}
+
+/**
+ * Sets focus and cursor position after insertion
+ * @param {HTMLTextAreaElement} textareaRef - Reference to textarea
+ * @param {number} selectionStart - Original cursor position
+ * @param {number} placeholderLength - Length of inserted placeholder
+ */
+function setFocusAfterInsertion(textareaRef: HTMLTextAreaElement, selectionStart: number, placeholderLength: number): void {
+  setTimeout(() => {
+    textareaRef.focus();
+    const newCursorPos = selectionStart + placeholderLength;
+    textareaRef.setSelectionRange(newCursorPos, newCursorPos);
+  }, 0);
+}
+
+/**
  * Insert a placeholder at the current cursor position
  * @param {PlaceholderInsertionConfig} config - Configuration for the insertion
  */
 export function insertPlaceholderAtCursor(config: PlaceholderInsertionConfig): void {
   const { name, textareaRef, value, onChange, onInsertPlaceholder } = config;
-
   if (!textareaRef) return;
 
   const placeholder = `<${name}>`;
   const { selectionStart, selectionEnd } = textareaRef;
-
-  // Insert the placeholder at the cursor position
-  const newValue = value.substring(0, selectionStart) +
-    placeholder +
-    value.substring(selectionEnd);
+  const newValue = createNewTextValue(value, placeholder, selectionStart, selectionEnd);
 
   onChange(newValue);
-
-  // Call the callback if provided
-  if (onInsertPlaceholder) {
-    onInsertPlaceholder(name, selectionStart);
-  }
-
-  // Set focus back to the editor after a small delay
-  setTimeout(() => {
-    if (textareaRef) {
-      textareaRef.focus();
-      const newCursorPos = selectionStart + placeholder.length;
-      textareaRef.setSelectionRange(newCursorPos, newCursorPos);
-    }
-  }, 0);
+  if (onInsertPlaceholder) onInsertPlaceholder(name, selectionStart);
+  setFocusAfterInsertion(textareaRef, selectionStart, placeholder.length);
 }
 
 /**
@@ -74,24 +83,26 @@ export function processPlaceholders(_config: PlaceholderProcessingConfig): void 
 }
 
 /**
- * Sets up a mutation observer to apply styling to placeholder elements
- * @param {Placeholder[]} _placeholders - Array of placeholders (unused for now)
- * @returns {MutationObserver} The created observer
+ * Creates a mutation handler for placeholder styling
+ * @returns {MutationCallback} Mutation callback function
  */
-export function setupPlaceholderStylingObserver(_placeholders: Placeholder[]): MutationObserver {
-  const observer = new MutationObserver(mutations => {
+function createMutationHandler(): MutationCallback {
+  return (mutations: MutationRecord[]): void => {
     mutations.forEach(mutation => {
       if (mutation.type === 'childList') {
         // Handle DOM changes that might affect placeholders
       }
     });
-  });
+  };
+}
 
-  // Start observing the document
-  observer.observe(document.body, {
-    childList: true,
-    subtree: true
-  });
-
+/**
+ * Sets up a mutation observer to apply styling to placeholder elements
+ * @param {Placeholder[]} _placeholders - Array of placeholders (unused for now)
+ * @returns {MutationObserver} The created observer
+ */
+export function setupPlaceholderStylingObserver(_placeholders: Placeholder[]): MutationObserver {
+  const observer = new MutationObserver(createMutationHandler());
+  observer.observe(document.body, { childList: true, subtree: true });
   return observer;
 }

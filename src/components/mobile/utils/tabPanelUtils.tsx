@@ -15,21 +15,29 @@ import {
 } from '../TabPanels';
 
 /**
+ * Creates props for placeholders panel
+ * @param {MobilePanelContentProps} props - Panel props
+ * @returns {Object} Placeholders panel props
+ */
+function createPlaceholderPanelProps(props: MobilePanelContentProps): Omit<React.ComponentProps<typeof PlaceholdersTabPanel>, 'ref'> {
+  return {
+    placeholders: props.placeholders,
+    onAddPlaceholder: props.onAddPlaceholder,
+    onUpdatePlaceholder: props.onUpdatePlaceholder,
+    onDeletePlaceholder: props.onDeletePlaceholder,
+    onInsertPlaceholderFromPanel: props.onInsertPlaceholderFromPanel,
+    onPlaceholderNameChange: props.onPlaceholderNameChange
+  };
+}
+
+/**
  * Renders the Placeholders panel
  * @param {MobilePanelContentProps} props - Panel props
  * @returns {JSX.Element} Placeholders panel
  */
 function renderPlaceholdersPanel(props: MobilePanelContentProps): JSX.Element {
-  return (
-    <PlaceholdersTabPanel
-      placeholders={props.placeholders}
-      onAddPlaceholder={props.onAddPlaceholder}
-      onUpdatePlaceholder={props.onUpdatePlaceholder}
-      onDeletePlaceholder={props.onDeletePlaceholder}
-      onInsertPlaceholderFromPanel={props.onInsertPlaceholderFromPanel}
-      onPlaceholderNameChange={props.onPlaceholderNameChange}
-    />
-  );
+  const panelProps = createPlaceholderPanelProps(props);
+  return <PlaceholdersTabPanel {...panelProps} />;
 }
 
 /**
@@ -64,6 +72,48 @@ function renderPreviewPanel(props: MobilePanelContentProps): JSX.Element {
 }
 
 /**
+ * Handles placeholders panel rendering
+ * @param {MobilePanelContentProps} props - Panel content props
+ * @returns {JSX.Element} Placeholders panel
+ */
+function handlePlaceholdersPanel(props: MobilePanelContentProps): JSX.Element {
+  return renderPlaceholdersPanel(props);
+}
+
+/**
+ * Handles editor panel rendering
+ * @param {MobilePanelContentProps} props - Panel content props
+ * @returns {JSX.Element} Editor panel
+ */
+function handleEditorPanel(props: MobilePanelContentProps): JSX.Element {
+  return renderEditorPanel(props);
+}
+
+/**
+ * Handles preview panel rendering
+ * @param {MobilePanelContentProps} props - Panel content props
+ * @returns {JSX.Element} Preview panel
+ */
+function handlePreviewPanel(props: MobilePanelContentProps): JSX.Element {
+  return renderPreviewPanel(props);
+}
+
+/**
+ * Maps panel type to panel handler function
+ * @param {PanelType} panelType - Panel type
+ * @returns {(props: MobilePanelContentProps) => JSX.Element} Panel handler function
+ */
+function getPanelHandler(panelType: PanelType): (props: MobilePanelContentProps) => JSX.Element {
+  const handlers = {
+    placeholders: handlePlaceholdersPanel,
+    editor: handleEditorPanel,
+    preview: handlePreviewPanel
+  };
+
+  return handlers[panelType] || handleEditorPanel;
+}
+
+/**
  * Returns the active panel component based on panel type
  *
  * @param {PanelType} activePanel - Currently active panel type
@@ -74,14 +124,6 @@ export function getActivePanel(
   activePanel: PanelType,
   props: MobilePanelContentProps
 ): JSX.Element {
-  switch (activePanel) {
-    case 'placeholders':
-      return renderPlaceholdersPanel(props);
-    case 'editor':
-      return renderEditorPanel(props);
-    case 'preview':
-      return renderPreviewPanel(props);
-    default:
-      return renderEditorPanel(props);
-  }
+  const handler = getPanelHandler(activePanel);
+  return handler(props);
 }

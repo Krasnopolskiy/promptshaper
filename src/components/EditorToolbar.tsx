@@ -31,184 +31,104 @@ interface EditorToolbarProps {
 }
 
 /**
- * PlaceholderButton component for individual placeholder items
+ * Renders a button for a single placeholder
  * @param {Object} props - Component props
  * @param {Placeholder} props.placeholder - The placeholder data
- * @param {(name: string) => void} props.onInsert - Placeholder insertion handler
- * @returns {JSX.Element} The rendered placeholder button
+ * @param {(name: string) => void} props.onInsert - Insertion handler
+ * @returns {JSX.Element} Rendered button
  */
 function PlaceholderButton({placeholder, onInsert}: {placeholder: Placeholder; onInsert: (name: string) => void}): JSX.Element {
-  return (
-    <Button
-      variant="ghost"
-      size="sm"
-      className="justify-start font-normal"
-      onClick={() => onInsert(placeholder.name)}
-    >
-      <span
-        className="mr-2 h-2 w-2 rounded-full"
-        style={{backgroundColor: placeholder.color}}
-      />
-      {placeholder.name}
-    </Button>
-  );
+  const buttonStyle = { backgroundColor: placeholder.color };
+  return <Button variant="ghost" size="sm" className="justify-start font-normal" onClick={() => onInsert(placeholder.name)}>
+    <span className="mr-2 h-2 w-2 rounded-full" style={buttonStyle} />{placeholder.name}
+  </Button>;
 }
 
 /**
- * EmptyPlaceholderList component for when no placeholders are available
- * @returns {JSX.Element} The rendered empty state
+ * Renders empty state when no placeholders exist
+ * @returns {JSX.Element} Empty state message
  */
 function EmptyPlaceholderList(): JSX.Element {
-  return (
-    <div className="py-2 text-center text-sm text-muted-foreground">
-      No placeholders available
-    </div>
-  );
+  return <div className="py-2 text-center text-sm text-muted-foreground">No placeholders available</div>;
 }
 
 /**
- * PlaceholderList component for displaying available placeholders
+ * Renders a list of available placeholders
  * @param {Object} props - Component props
  * @param {Placeholder[]} props.placeholders - List of placeholders
- * @param {(name: string) => void} props.onInsert - Placeholder insertion handler
- * @returns {JSX.Element} The rendered placeholder list
+ * @param {(name: string) => void} props.onInsert - Insertion handler
+ * @returns {JSX.Element} Rendered list
  */
 function PlaceholderList({placeholders, onInsert}: {placeholders: Placeholder[]; onInsert: (name: string) => void}): JSX.Element {
-  if (placeholders.length === 0) {
-    return <EmptyPlaceholderList />;
-  }
-
-  return (
-    <div className="grid gap-1">
-      {placeholders.map(placeholder => (
-        <PlaceholderButton
-          key={placeholder.id}
-          placeholder={placeholder}
-          onInsert={onInsert}
-        />
-      ))}
-    </div>
-  );
+  if (placeholders.length === 0) return <EmptyPlaceholderList />;
+  return <div className="grid gap-1">
+    {placeholders.map(p => <PlaceholderButton key={p.id} placeholder={p} onInsert={onInsert} />)}
+  </div>;
 }
 
 /**
- * UndoButton component for undo control
+ * Renders undo button
  * @param {Object} props - Component props
  * @param {() => void} props.handleUndo - Undo handler
- * @param {boolean} props.disabled - Whether undo is disabled
- * @returns {JSX.Element} The rendered undo button
+ * @param {boolean} props.disabled - Whether disabled
+ * @returns {JSX.Element} Rendered button
  */
 function UndoButton({handleUndo, disabled}: {handleUndo: () => void; disabled: boolean}): JSX.Element {
-  return (
-    <Button
-      size="sm"
-      variant="ghost"
-      onClick={handleUndo}
-      disabled={disabled}
-      className="gap-1.5 text-sm"
-    >
-      <Undo size={14}/>
-      Undo
-    </Button>
-  );
+  return <Button size="sm" variant="ghost" onClick={handleUndo} disabled={disabled} className="gap-1.5 text-sm">
+    <Undo size={14}/>Undo
+  </Button>;
 }
 
 /**
- * RedoButton component for redo control
+ * Renders redo button
  * @param {Object} props - Component props
  * @param {() => void} props.handleRedo - Redo handler
- * @param {boolean} props.disabled - Whether redo is disabled
- * @returns {JSX.Element} The rendered redo button
+ * @param {boolean} props.disabled - Whether disabled
+ * @returns {JSX.Element} Rendered button
  */
 function RedoButton({handleRedo, disabled}: {handleRedo: () => void; disabled: boolean}): JSX.Element {
-  return (
-    <Button
-      size="sm"
-      variant="ghost"
-      onClick={handleRedo}
-      disabled={disabled}
-      className="gap-1.5 text-sm"
-    >
-      <Redo size={14}/>
-      Redo
-    </Button>
-  );
+  return <Button size="sm" variant="ghost" onClick={handleRedo} disabled={disabled} className="gap-1.5 text-sm">
+    <Redo size={14}/>Redo
+  </Button>;
 }
 
 /**
- * UndoRedoButtons component for undo/redo controls
+ * Renders undo/redo button group
  * @param {Object} props - Component props
  * @param {() => void} props.handleUndo - Undo handler
  * @param {() => void} props.handleRedo - Redo handler
- * @param {boolean} props.undoDisabled - Whether undo is disabled
- * @param {boolean} props.redoDisabled - Whether redo is disabled
- * @returns {JSX.Element} The rendered undo/redo buttons
+ * @param {boolean} props.undoDisabled - Whether undo disabled
+ * @param {boolean} props.redoDisabled - Whether redo disabled
+ * @returns {JSX.Element} Rendered button group
  */
 function UndoRedoButtons({handleUndo, handleRedo, undoDisabled, redoDisabled}: {
-  handleUndo: () => void;
-  handleRedo: () => void;
-  undoDisabled: boolean;
-  redoDisabled: boolean;
+  handleUndo: () => void; handleRedo: () => void; undoDisabled: boolean; redoDisabled: boolean;
 }): JSX.Element {
-  return (
-    <>
-      <UndoButton handleUndo={handleUndo} disabled={undoDisabled} />
-      <RedoButton handleRedo={handleRedo} disabled={redoDisabled} />
-    </>
-  );
+  return <><UndoButton handleUndo={handleUndo} disabled={undoDisabled} /><RedoButton handleRedo={handleRedo} disabled={redoDisabled} /></>;
 }
 
 /**
- * InsertButton component for placeholder insertion
+ * Renders insert placeholder button with popover
  * @param {Object} props - Component props
- * @param {Placeholder[]} props.placeholders - List of placeholders
- * @param {(name: string) => void} props.handleInsertPlaceholder - Placeholder insertion handler
- * @returns {JSX.Element} The rendered insert button with popover
+ * @param {Placeholder[]} props.placeholders - Available placeholders
+ * @param {(name: string) => void} props.handleInsertPlaceholder - Insert handler
+ * @returns {JSX.Element} Rendered button with popover
  */
-function InsertButton({placeholders, handleInsertPlaceholder}: {
-  placeholders: Placeholder[];
-  handleInsertPlaceholder: (name: string) => void;
-}): JSX.Element {
-  return (
-    <Popover>
-      <PopoverTrigger asChild>
-        <Button size="sm" variant="outline" className="gap-1.5 text-sm hover:bg-background">
-          <PlusCircle size={14}/>
-          Insert
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-56 p-2" align="end">
-        <PlaceholderList placeholders={placeholders} onInsert={handleInsertPlaceholder} />
-      </PopoverContent>
-    </Popover>
-  );
+function InsertButton({placeholders, handleInsertPlaceholder}: {placeholders: Placeholder[]; handleInsertPlaceholder: (name: string) => void;}): JSX.Element {
+  return <Popover>
+    <PopoverTrigger asChild><Button size="sm" variant="outline" className="gap-1.5 text-sm hover:bg-background"><PlusCircle size={14}/>Insert</Button></PopoverTrigger>
+    <PopoverContent className="w-56 p-2" align="end"><PlaceholderList placeholders={placeholders} onInsert={handleInsertPlaceholder} /></PopoverContent>
+  </Popover>;
 }
 
 /**
- * EditorToolbar component for the prompt editor
+ * Renders the editor toolbar with undo/redo and insert controls
  * @param {EditorToolbarProps} props - Component props
- * @returns {JSX.Element} The rendered toolbar
+ * @returns {JSX.Element} Rendered toolbar
  */
-export function EditorToolbar({
-  placeholders,
-  handleUndo,
-  handleRedo,
-  handleInsertPlaceholder,
-  undoDisabled,
-  redoDisabled,
-}: EditorToolbarProps): JSX.Element {
-  return (
-    <div className="flex items-center gap-2 border-b border-border/50 p-2">
-      <UndoRedoButtons
-        handleUndo={handleUndo}
-        handleRedo={handleRedo}
-        undoDisabled={undoDisabled}
-        redoDisabled={redoDisabled}
-      />
-      <InsertButton
-        placeholders={placeholders}
-        handleInsertPlaceholder={handleInsertPlaceholder}
-      />
-    </div>
-  );
+export function EditorToolbar({placeholders, handleUndo, handleRedo, handleInsertPlaceholder, undoDisabled, redoDisabled}: EditorToolbarProps): JSX.Element {
+  return <div className="flex items-center gap-2 border-b border-border/50 p-2">
+    <UndoRedoButtons handleUndo={handleUndo} handleRedo={handleRedo} undoDisabled={undoDisabled} redoDisabled={redoDisabled} />
+    <InsertButton placeholders={placeholders} handleInsertPlaceholder={handleInsertPlaceholder} />
+  </div>;
 }

@@ -98,56 +98,87 @@ interface ButtonSectionProps {
 }
 
 /**
+ * Creates the input-related props for content section
+ * @param {HeaderContentProps} props - Component props
+ * @returns Required content section props with input properties
+ */
+function createInputProps(props: HeaderContentProps): Pick<ContentSectionProps, 'newName' | 'inputRef' | 'handleKeyDown' | 'setNewName'> {
+  return {
+    newName: props.newName,
+    inputRef: props.inputRef,
+    handleKeyDown: props.handleKeyDown,
+    setNewName: props.setNewName
+  };
+}
+
+/**
  * Creates props for the content section
- * Creates and returns props object for the content section component
  * @param {HeaderContentProps} props - Component props
  * @param {() => void} toggleExpand - Toggle expand function
- * @returns {ContentSectionProps} Content section props object containing all necessary props for the content section
+ * @returns {ContentSectionProps} Content section props
  */
 function createContentProps(props: HeaderContentProps, toggleExpand: () => void): ContentSectionProps {
   return {
     isEditing: props.isEditing,
     placeholder: props.placeholder,
-    newName: props.newName,
-    inputRef: props.inputRef,
-    handleKeyDown: props.handleKeyDown,
-    setNewName: props.setNewName,
-    toggleExpand
+    toggleExpand,
+    ...createInputProps(props)
   };
 }
 
 /**
- * Creates props for the button section
- * Creates and returns props object for the button section component
+ * Creates event handler props for button section
  * @param {HeaderContentProps} props - Component props
- * @param {() => void} toggleExpand - Toggle expand function
- * @param {string} mode - Current mode
- * @returns {ButtonSectionProps} Button section props object containing all necessary props for the button section
+ * @returns Button section props with event handlers
  */
-function createButtonProps(props: HeaderContentProps, toggleExpand: () => void, mode: string): ButtonSectionProps {
+function createButtonHandlers(props: HeaderContentProps): Pick<ButtonSectionProps, 'handleSave' | 'handleCancel' | 'setIsEditing' | 'handleCopyToClipboard' | 'handleInsert'> {
   return {
-    isEditing: props.isEditing,
-    isExpanded: props.isExpanded,
-    mode,
     handleSave: props.handleSave,
     handleCancel: props.handleCancel,
-    toggleExpand,
     setIsEditing: props.setIsEditing,
     handleCopyToClipboard: props.handleCopyToClipboard,
-    handleInsert: props.handleInsert,
+    handleInsert: props.handleInsert
+  };
+}
+
+/**
+ * Creates mode-related props for button section
+ * @param {HeaderContentProps} props - Component props
+ * @param {string} mode - Current mode
+ * @returns Button section props with mode properties
+ */
+function createModeProps(props: HeaderContentProps, mode: string): Pick<ButtonSectionProps, 'mode' | 'toggleMode' | 'getModeDescription'> {
+  return {
+    mode,
     toggleMode: props.toggleMode,
     getModeDescription: props.getModeDescription
   };
 }
 
 /**
+ * Creates props for the button section
+ * @param {HeaderContentProps} props - Component props
+ * @param {() => void} toggleExpand - Toggle expand function
+ * @param {string} mode - Current mode
+ * @returns {ButtonSectionProps} Button section props
+ */
+function createButtonProps(props: HeaderContentProps, toggleExpand: () => void, mode: string): ButtonSectionProps {
+  return {
+    isEditing: props.isEditing,
+    isExpanded: props.isExpanded,
+    toggleExpand,
+    ...createButtonHandlers(props),
+    ...createModeProps(props, mode)
+  };
+}
+
+/**
  * Creates a toggle expand function
- * Creates and returns a function that toggles the expanded state
  * @param {(expanded: boolean) => void} setIsExpanded - Function to set expanded state
  * @returns {() => void} Function that toggles the expanded state
  */
-function createToggleExpand(setIsExpanded: (expanded: boolean) => void): () => void {
-  return () => setIsExpanded((prev: boolean) => !prev);
+function createToggleExpand(setIsExpanded: React.Dispatch<React.SetStateAction<boolean>>): () => void {
+  return () => setIsExpanded((prev) => !prev);
 }
 
 /**

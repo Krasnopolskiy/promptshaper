@@ -4,6 +4,9 @@
  */
 import { Placeholder } from '@/types';
 
+/** Valid placeholder modes */
+type PlaceholderMode = 'replace' | 'tag';
+
 /**
  * Creates copy to clipboard handler
  * @param {string} name - Placeholder name
@@ -55,32 +58,27 @@ export function createInsertHandler(
 
 /**
  * Gets the opposite mode value
- * @param {string} currentMode - Current mode value
- * @returns {string} Opposite mode value
+ * @param {PlaceholderMode} currentMode - Current mode value
+ * @returns {PlaceholderMode} Opposite mode value
  */
-export function getOppositeMode(currentMode: string): string {
+export function getOppositeMode(currentMode: PlaceholderMode): PlaceholderMode {
   return currentMode === 'replace' ? 'tag' : 'replace';
 }
 
 /**
  * Creates mode toggle handler function
  * @param {string} id - Placeholder ID
- * @param {string|undefined} currentMode - Current mode value
+ * @param {PlaceholderMode|undefined} currentMode - Current mode value
  * @param {Function|undefined} updateFn - Update callback function
  * @returns {Function} Mode toggle handler function
  */
 export function createModeToggleHandler(
   id: string,
-  currentMode: string | undefined,
+  currentMode: PlaceholderMode | undefined,
   updateFn?: (id: string, updates: Partial<Placeholder>) => void
 ): () => void {
-  return (): void => {
-    if (updateFn) {
-      const mode = currentMode || 'replace';
-      const newMode = getOppositeMode(mode);
-      updateFn(id, { mode: newMode });
-    }
-  };
+  const mode = currentMode || 'replace';
+  return (): void => updateFn?.(id, { mode: getOppositeMode(mode) });
 }
 
 /**

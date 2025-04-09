@@ -39,32 +39,46 @@ interface ButtonSectionProps {
 }
 
 /**
+ * Creates props for action buttons
+ * @param {ButtonSectionProps} props - Component props
+ * @returns {Object} Action buttons props
+ */
+function createActionButtonsProps(props: ButtonSectionProps): Pick<ButtonSectionProps, 'isExpanded' | 'mode' | 'setIsEditing' | 'handleCopyToClipboard' | 'handleInsert' | 'toggleMode' | 'getModeDescription'> {
+  const { isExpanded, mode, setIsEditing, handleCopyToClipboard, handleInsert, toggleMode, getModeDescription } = props;
+  return { isExpanded, mode, setIsEditing, handleCopyToClipboard, handleInsert, toggleMode, getModeDescription };
+}
+
+/**
+ * Renders action buttons
+ * @param {ButtonSectionProps} props - Component props
+ * @returns {JSX.Element} Action buttons
+ */
+function ActionButtonsSection(props: ButtonSectionProps): JSX.Element {
+  return <ActionButtons {...createActionButtonsProps(props)} />;
+}
+
+/**
+ * Renders action buttons and expand toggle
+ * @param {ButtonSectionProps} props - Component props
+ * @returns {JSX.Element} Action buttons and expand toggle
+ */
+function NonEditingButtons(props: ButtonSectionProps): JSX.Element {
+  return (
+    <>
+      <ActionButtonsSection {...props} />
+      <ToggleExpandButton isExpanded={props.isExpanded} onToggleExpand={props.toggleExpand} />
+    </>
+  );
+}
+
+/**
  * ButtonSection component
  * @param {ButtonSectionProps} props - Component props
  * @returns {JSX.Element} The rendered button section
  */
 export function ButtonSection(props: ButtonSectionProps): JSX.Element {
-  return (
-    <div className="flex items-center gap-1">
-      {props.isEditing ? (
-        <EditorButtons handleSave={props.handleSave} handleCancel={props.handleCancel} />
-      ) : (
-        <>
-          <ActionButtons
-            isExpanded={props.isExpanded}
-            mode={props.mode}
-            setIsEditing={props.setIsEditing}
-            handleCopyToClipboard={props.handleCopyToClipboard}
-            handleInsert={props.handleInsert}
-            toggleMode={props.toggleMode}
-            getModeDescription={props.getModeDescription}
-          />
-          <ToggleExpandButton
-            isExpanded={props.isExpanded}
-            onToggleExpand={props.toggleExpand}
-          />
-        </>
-      )}
-    </div>
-  );
+  const buttons = props.isEditing
+    ? <EditorButtons handleSave={props.handleSave} handleCancel={props.handleCancel} />
+    : <NonEditingButtons {...props} />;
+  return <div className="flex items-center gap-1">{buttons}</div>;
 }

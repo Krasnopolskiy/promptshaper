@@ -2,6 +2,32 @@ import { Placeholder } from '@/types';
 import { PlaceholderState, HandlerProps } from '../types';
 
 /**
+ * Creates expanded state toggle handler
+ * @param {PlaceholderState} state - Placeholder state
+ * @returns {() => void} Toggle expanded handler
+ */
+function createExpandedToggle(state: PlaceholderState): () => void {
+  const { isExpanded, setIsExpanded } = state;
+  return (): void => setIsExpanded(!isExpanded);
+}
+
+/**
+ * Creates mode toggle handler
+ * @param {PlaceholderState} state - Placeholder state
+ * @param {Placeholder} placeholder - Placeholder data
+ * @param {HandlerProps['onUpdate']} onUpdate - Update function
+ * @returns {() => void} Toggle mode handler
+ */
+function createModeToggle(
+  state: PlaceholderState,
+  placeholder: Placeholder,
+  onUpdate: HandlerProps['onUpdate']
+): () => void {
+  const { mode } = state;
+  return (): void => onUpdate(placeholder.id, { mode: mode === 'replace' ? 'tag' : 'replace' });
+}
+
+/**
  * Creates toggle handlers for expanded state and mode
  * @param {PlaceholderState} state - Placeholder state
  * @param {Placeholder} placeholder - Placeholder data
@@ -13,24 +39,8 @@ export function createToggleHandlers(
   placeholder: Placeholder,
   onUpdate: HandlerProps['onUpdate']
 ): { toggleExpanded: () => void; toggleMode: () => void } {
-  const { isExpanded, setIsExpanded, mode } = state;
-
   return {
-    /**
-     * Toggles the expanded state of the placeholder card
-     * @returns {void}
-     */
-    toggleExpanded: (): void => {
-      setIsExpanded(!isExpanded);
-    },
-
-    /**
-     * Toggles between replace and tag modes
-     * @returns {void}
-     */
-    toggleMode: (): void => {
-      const newMode = mode === 'replace' ? 'tag' : 'replace';
-      onUpdate(placeholder.id, { mode: newMode });
-    }
+    toggleExpanded: createExpandedToggle(state),
+    toggleMode: createModeToggle(state, placeholder, onUpdate)
   };
 }

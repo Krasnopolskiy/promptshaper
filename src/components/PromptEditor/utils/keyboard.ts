@@ -19,6 +19,23 @@ export function isRedoCommand(e: KeyboardEvent<HTMLTextAreaElement>): boolean {
 }
 
 /**
+ * Executes the appropriate handler based on keyboard command
+ * @param {KeyboardEvent<HTMLTextAreaElement>} e - Keyboard event
+ * @param {Object} handlers - Object containing handler functions
+ * @param {() => void} handlers.undo - Undo function
+ * @param {() => void} handlers.redo - Redo function
+ * @returns {boolean} Whether a command was handled
+ */
+function executeCommandIfDetected(
+  e: KeyboardEvent<HTMLTextAreaElement>,
+  handlers: { undo: () => void; redo: () => void }
+): boolean {
+  if (isUndoCommand(e)) { e.preventDefault(); handlers.undo(); return true; }
+  if (isRedoCommand(e)) { e.preventDefault(); handlers.redo(); return true; }
+  return false;
+}
+
+/**
  * Handles editor keyboard shortcuts
  * @param {KeyboardEvent<HTMLTextAreaElement>} e - Keyboard event
  * @param {Function} handleUndo - Undo function
@@ -29,11 +46,5 @@ export function handleEditorKeyDown(
   handleUndo: () => void,
   handleRedo: () => void
 ): void {
-  if (isUndoCommand(e)) {
-    e.preventDefault();
-    handleUndo();
-  } else if (isRedoCommand(e)) {
-    e.preventDefault();
-    handleRedo();
-  }
+  executeCommandIfDetected(e, { undo: handleUndo, redo: handleRedo });
 }

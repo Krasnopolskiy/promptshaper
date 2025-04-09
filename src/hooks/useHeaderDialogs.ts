@@ -43,28 +43,46 @@ interface TemplateActions {
 
 interface UseHeaderDialogsReturn extends DialogState, DialogActions, TemplateActions {}
 
+type DialogVisibilityState = Pick<DialogState, 'isSaveDialogOpen' | 'isLoadDialogOpen' | 'isResetDialogOpen'>;
+type DialogVisibilityActions = Pick<DialogActions, 'setIsSaveDialogOpen' | 'setIsLoadDialogOpen' | 'setIsResetDialogOpen'>;
+type DialogVisibilityReturn = DialogVisibilityState & DialogVisibilityActions;
+
 /**
- * Hook for managing header dialogs state
- * @returns {DialogState & DialogActions} Dialog state and actions
+ * Hook for managing dialog visibility state
+ * @returns {DialogVisibilityReturn} Dialog visibility state and actions
  */
-function useDialogState(): DialogState & DialogActions {
-  const [isSaveDialogOpen, setIsSaveDialogOpen] = useState(false);
-  const [isLoadDialogOpen, setIsLoadDialogOpen] = useState(false);
-  const [isResetDialogOpen, setIsResetDialogOpen] = useState(false);
+function useDialogVisibility(): DialogVisibilityReturn {
+  const [isSaveDialogOpen, setIsSaveDialogOpen] = useState(false), [isLoadDialogOpen, setIsLoadDialogOpen] = useState(false), [isResetDialogOpen, setIsResetDialogOpen] = useState(false);
+  return { isSaveDialogOpen, isLoadDialogOpen, isResetDialogOpen, setIsSaveDialogOpen, setIsLoadDialogOpen, setIsResetDialogOpen };
+}
+
+/**
+ * Hook for managing template selection state
+ * @returns {Pick<DialogState, 'templateName' | 'selectedTemplateId'> & Pick<DialogActions, 'setTemplateName' | 'setSelectedTemplateId'>} Template selection state and actions
+ */
+function useTemplateSelection(): Pick<DialogState, 'templateName' | 'selectedTemplateId'> & Pick<DialogActions, 'setTemplateName' | 'setSelectedTemplateId'> {
   const [templateName, setTemplateName] = useState('');
   const [selectedTemplateId, setSelectedTemplateId] = useState('');
 
   return {
-    isSaveDialogOpen,
-    isLoadDialogOpen,
-    isResetDialogOpen,
     templateName,
     selectedTemplateId,
-    setIsSaveDialogOpen,
-    setIsLoadDialogOpen,
-    setIsResetDialogOpen,
     setTemplateName,
-    setSelectedTemplateId,
+    setSelectedTemplateId
+  };
+}
+
+/**
+ * Hook for managing dialog state
+ * @returns {DialogState & DialogActions} Dialog state and actions
+ */
+function useDialogState(): DialogState & DialogActions {
+  const visibility = useDialogVisibility();
+  const selection = useTemplateSelection();
+
+  return {
+    ...visibility,
+    ...selection
   };
 }
 
@@ -74,17 +92,7 @@ function useDialogState(): DialogState & DialogActions {
  * @returns {TemplateActions} Template management functions
  */
 function useTemplateActions(props: UseHeaderDialogsProps): TemplateActions {
-  const {
-    handleSaveTemplate,
-    handleLoadTemplate,
-    handleReset,
-  } = useTemplateManagement(props);
-
-  return {
-    handleSaveTemplate,
-    handleLoadTemplate,
-    handleReset,
-  };
+  return useTemplateManagement(props);
 }
 
 /**
@@ -98,6 +106,6 @@ export function useHeaderDialogs(props: UseHeaderDialogsProps): UseHeaderDialogs
 
   return {
     ...dialogState,
-    ...templateActions,
+    ...templateActions
   };
 }

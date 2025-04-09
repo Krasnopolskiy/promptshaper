@@ -23,35 +23,32 @@ interface InsertButtonProps {
 }
 
 /**
- * InsertButtonTrigger component
- * @returns {JSX.Element} The rendered button trigger
+ * Renders the trigger button for the popover
+ * @returns {JSX.Element} The trigger button component
  */
-function InsertButtonTrigger(): JSX.Element {
-  return (
-    <Button size="sm" variant="outline" className="gap-1.5 text-sm hover:bg-background">
-      <PlusCircle size={14}/>
-      Insert
-    </Button>
-  );
+function TriggerButton(): JSX.Element {
+  return <Button size="sm" variant="outline" className="gap-1.5 text-sm hover:bg-background">
+    <PlusCircle size={14}/>Insert
+  </Button>;
 }
 
 /**
- * InsertButton component
+ * Renders the popover content with placeholder list
  * @param {InsertButtonProps} props - Component props
- * @returns {JSX.Element} The rendered button
+ * @returns {JSX.Element} The popover content component
  */
-export function InsertButton({ placeholders, handleInsertPlaceholder }: InsertButtonProps): JSX.Element {
-  return (
-    <Popover>
-      <PopoverTrigger asChild>
-        <InsertButtonTrigger />
-      </PopoverTrigger>
-      <PopoverContent className="w-56 p-2" align="end">
-        <PlaceholderList
-          placeholders={placeholders}
-          handleInsertPlaceholder={handleInsertPlaceholder}
-        />
-      </PopoverContent>
-    </Popover>
-  );
+function Content({ placeholders, handleInsertPlaceholder }: InsertButtonProps): JSX.Element {
+  return <PlaceholderList placeholders={placeholders} handleInsertPlaceholder={handleInsertPlaceholder} />;
+}
+
+/**
+ * Insert button component with placeholder selection popover
+ * @param {InsertButtonProps} props - Component props
+ * @returns {JSX.Element} The insert button component
+ */
+export function InsertButton(props: InsertButtonProps): JSX.Element {
+  return <Popover>
+    <PopoverTrigger asChild><TriggerButton /></PopoverTrigger>
+    <PopoverContent className="w-56 p-2" align="end"><Content {...props} /></PopoverContent>
+  </Popover>;
 }

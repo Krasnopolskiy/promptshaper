@@ -25,16 +25,8 @@ interface ResizablePanelComponentProps {
 /**
  * Renders a single resizable panel
  * @param {ResizablePanelComponentProps} props - Component props
- * @returns {JSX.Element} The rendered panel
+ * @returns {JSX.Element} Rendered panel component
  */
 export function ResizablePanelComponent({ defaultSize, minSize, className, children }: ResizablePanelComponentProps): JSX.Element {
-  return (
-    <ResizablePanel
-      defaultSize={defaultSize}
-      minSize={minSize}
-      className={className}
-    >
-      {children}
-    </ResizablePanel>
-  );
+  return <ResizablePanel defaultSize={defaultSize} minSize={minSize} className={className}>{children}</ResizablePanel>;
 }

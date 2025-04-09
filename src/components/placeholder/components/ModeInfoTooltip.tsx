@@ -74,20 +74,41 @@ function TooltipContents({ mode }: { mode: string }): JSX.Element {
 }
 
 /**
+ * Creates the inner content of the tooltip
+ * @param {string} mode - Current placeholder mode
+ * @returns {JSX.Element} Tooltip inner content
+ */
+function createTooltipInner(mode: string): JSX.Element {
+  return (
+    <div className="flex items-center">
+      <InfoButtonTrigger />
+      <TooltipContents mode={mode} />
+    </div>
+  );
+}
+
+/**
+ * Creates tooltip components
+ * @param {string} mode - Current placeholder mode
+ * @returns {JSX.Element} Tooltip component structure
+ */
+function createTooltipComponents(mode: string): JSX.Element {
+  const inner = createTooltipInner(mode);
+  return (
+    <TooltipProvider>
+      <Tooltip>
+        {inner}
+      </Tooltip>
+    </TooltipProvider>
+  );
+}
+
+/**
  * Renders the mode info tooltip
  * @description Displays information about placeholder modes when hovering over the info button
  * @param {ModeInfoTooltipProps} props - Component props
  * @returns {JSX.Element} Info tooltip
  */
 export function ModeInfoTooltip({ mode }: ModeInfoTooltipProps): JSX.Element {
-  return (
-    <div className="flex items-center">
-      <TooltipProvider>
-        <Tooltip>
-          <InfoButtonTrigger />
-          <TooltipContents mode={mode} />
-        </Tooltip>
-      </TooltipProvider>
-    </div>
-  );
+  return createTooltipComponents(mode);
 }

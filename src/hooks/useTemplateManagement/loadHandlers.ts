@@ -17,45 +17,88 @@ export function showTemplateSelectionError(toast: ToastFunction): void {
 }
 
 /**
- * Processes template loading
- * @param {Object} params - Load operation parameters
- * @param {Template | null} params.template - Template to load
- * @param {Function} params.setPrompt - Function to set prompt text
- * @param {Function} params.setPlaceholders - Function to set placeholders
- * @param {ToastFunction} params.toast - Toast notification function
- * @param {Function} params.setIsLoadDialogOpen - Function to set load dialog state
- * @param {Function} params.setSelectedTemplateId - Function to set selected template ID
+ * Updates editor state with template data
+ * @param {Template} template - Template to load
+ * @param {Function} setPrompt - Function to set prompt text
+ * @param {Function} setPlaceholders - Function to set placeholders
  */
-export function processTemplateLoading(params: {
+export function updateEditorState(
+  template: Template,
+  setPrompt: UseTemplateManagementProps['setPrompt'],
+  setPlaceholders: UseTemplateManagementProps['setPlaceholders']
+): void {
+  setPrompt(template.prompt);
+  setPlaceholders(template.placeholders);
+}
+
+/**
+ * Shows success toast for template loading
+ * @param {ToastFunction} toast - Toast notification function
+ * @param {string} templateName - Name of loaded template
+ */
+export function showLoadSuccessToast(
+  toast: ToastFunction,
+  templateName: string
+): void {
+  showToast(toast, 'Template loaded', `"${templateName}" has been loaded successfully.`);
+}
+
+/**
+ * Resets UI state after template loading
+ * @param {Function} setIsLoadDialogOpen - Function to set load dialog state
+ * @param {Function} setSelectedTemplateId - Function to set selected template ID
+ */
+export function resetUIState(
+  setIsLoadDialogOpen: (isOpen: boolean) => void,
+  setSelectedTemplateId: (id: string | null) => void
+): void {
+  setIsLoadDialogOpen(false);
+  setSelectedTemplateId(null);
+}
+
+/**
+ * Type for template loading parameters
+ */
+interface TemplateLoadingParams {
   template: Template | null;
   setPrompt: UseTemplateManagementProps['setPrompt'];
   setPlaceholders: UseTemplateManagementProps['setPlaceholders'];
   toast: ToastFunction;
   setIsLoadDialogOpen: (isOpen: boolean) => void;
   setSelectedTemplateId: (id: string | null) => void;
-}): void {
-  if (params.template) {
-    params.setPrompt(params.template.prompt);
-    params.setPlaceholders(params.template.placeholders);
-    showToast(params.toast, 'Template loaded', `"${params.template.name}" has been loaded successfully.`);
-    params.setIsLoadDialogOpen(false);
-    params.setSelectedTemplateId(null);
-  }
 }
 
 /**
- * Creates load template handlers
- * @param {Object} params - Parameters for load handlers
- * @param {string | null} params.selectedTemplateId - ID of the selected template
- * @param {Function} params.onLoadTemplate - Function to load the template
- * @param {Function} params.setPrompt - Function to set prompt text
- * @param {Function} params.setPlaceholders - Function to set placeholders
- * @param {ToastFunction} params.toast - Toast notification function
- * @param {Function} params.setIsLoadDialogOpen - Function to set load dialog state
- * @param {Function} params.setSelectedTemplateId - Function to set selected template ID
- * @returns {Object} Load template handlers
+ * Creates template loading parameters
+ * @param {LoadHandlerParams} params - Load handler parameters
+ * @param {Template | null} template - Template to load
+ * @returns {TemplateLoadingParams} Template loading parameters
  */
-export function createLoadHandlers(params: {
+function createLoadingParams(
+  params: LoadHandlerParams,
+  template: Template | null
+): TemplateLoadingParams {
+  const { setPrompt, setPlaceholders, toast, setIsLoadDialogOpen, setSelectedTemplateId } = params;
+  return { template, setPrompt, setPlaceholders, toast, setIsLoadDialogOpen, setSelectedTemplateId };
+}
+
+/**
+ * Processes template loading
+ * @param {Object} params - Load operation parameters
+ */
+export function processTemplateLoading(params: TemplateLoadingParams): void {
+  if (!params.template) return;
+
+  const { template, setPrompt, setPlaceholders, toast, setIsLoadDialogOpen, setSelectedTemplateId } = params;
+  updateEditorState(template, setPrompt, setPlaceholders);
+  showLoadSuccessToast(toast, template.name);
+  resetUIState(setIsLoadDialogOpen, setSelectedTemplateId);
+}
+
+/**
+ * Interface for load handler parameters
+ */
+interface LoadHandlerParams {
   selectedTemplateId: string | null;
   onLoadTemplate: UseTemplateManagementProps['onLoadTemplate'];
   setPrompt: UseTemplateManagementProps['setPrompt'];
@@ -63,26 +106,50 @@ export function createLoadHandlers(params: {
   toast: ToastFunction;
   setIsLoadDialogOpen: (isOpen: boolean) => void;
   setSelectedTemplateId: (id: string | null) => void;
-}): { handleLoadTemplate: () => void } {
+}
+
+/**
+ * Checks if template ID is valid
+ * @param {string | null} id - Template ID to check
+ * @param {ToastFunction} toast - Toast function
+ * @returns {boolean} Whether ID is valid
+ */
+function isValidTemplateId(
+  id: string | null,
+  toast: ToastFunction
+): boolean {
+  if (!id) {
+    showTemplateSelectionError(toast);
+    return false;
+  }
+  return true;
+}
+
+/**
+ * Loads template and processes it
+ * @param {LoadHandlerParams} params - Load handler parameters
+ */
+function loadAndProcessTemplate(params: LoadHandlerParams): void {
+  const template = params.onLoadTemplate(params.selectedTemplateId as string);
+  const loadingParams = createLoadingParams(params, template);
+  processTemplateLoading(loadingParams);
+}
+
+/**
+ * Creates load template handlers
+ * @param {LoadHandlerParams} params - Parameters for load handlers
+ * @returns {Object} Load template handlers
+ */
+export function createLoadHandlers(params: LoadHandlerParams): {
+  handleLoadTemplate: () => void
+} {
   /**
    * Handles loading a template
    * @returns {void}
    */
   const handleLoadTemplate = (): void => {
-    if (!params.selectedTemplateId) {
-      showTemplateSelectionError(params.toast);
-      return;
-    }
-
-    const template = params.onLoadTemplate(params.selectedTemplateId);
-    processTemplateLoading({
-      template,
-      setPrompt: params.setPrompt,
-      setPlaceholders: params.setPlaceholders,
-      toast: params.toast,
-      setIsLoadDialogOpen: params.setIsLoadDialogOpen,
-      setSelectedTemplateId: params.setSelectedTemplateId
-    });
+    if (!isValidTemplateId(params.selectedTemplateId, params.toast)) return;
+    loadAndProcessTemplate(params);
   };
 
   return { handleLoadTemplate };

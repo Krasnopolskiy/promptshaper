@@ -86,21 +86,48 @@ function DialogHead(): JSX.Element {
 }
 
 /**
+ * Creates dialog content component with template input
+ * @param {TemplateNameInputProps} inputProps - Template name input props
+ * @param {DialogButtonsProps} buttonProps - Dialog button props
+ * @returns {JSX.Element} Dialog content
+ */
+function createDialogInnerContent(
+  inputProps: TemplateNameInputProps,
+  buttonProps: DialogButtonsProps
+): JSX.Element[] {
+  return [
+    <DialogHead key="head" />,
+    <TemplateNameInput key="input" {...inputProps} />,
+    <DialogButtons key="buttons" {...buttonProps} />
+  ];
+}
+
+/**
+ * Dialog content wrapper component
+ * @param {SaveTemplateDialogProps} props - Dialog props without isOpen
+ * @returns {JSX.Element} Dialog content wrapper
+ */
+function DialogContentWrapper({ templateName, setTemplateName, onClose, onSave }: Omit<SaveTemplateDialogProps, 'isOpen'>): JSX.Element {
+  const inputProps = { templateName, setTemplateName };
+  const buttonProps = { onClose, onSave };
+
+  return (
+    <DialogContent>
+      {createDialogInnerContent(inputProps, buttonProps)}
+    </DialogContent>
+  );
+}
+
+/**
  * Save template dialog component
  * @param {SaveTemplateDialogProps} props - Component props
  * @returns {JSX.Element} Save template dialog
  */
 export function SaveTemplateDialog(props: SaveTemplateDialogProps): JSX.Element {
+  const { isOpen, onClose, ...contentProps } = props;
   return (
-    <Dialog open={props.isOpen} onOpenChange={props.onClose}>
-      <DialogContent>
-        <DialogHead />
-        <TemplateNameInput
-          templateName={props.templateName}
-          setTemplateName={props.setTemplateName}
-        />
-        <DialogButtons onClose={props.onClose} onSave={props.onSave} />
-      </DialogContent>
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContentWrapper {...contentProps} onClose={onClose} />
     </Dialog>
   );
 }

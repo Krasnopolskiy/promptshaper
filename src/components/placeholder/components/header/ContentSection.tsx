@@ -32,23 +32,28 @@ interface ContentSectionProps {
 }
 
 /**
- * ContentSection component
+ * Renders the input section when editing
  * @param {ContentSectionProps} props - Component props
- * @returns {JSX.Element} The rendered content section
+ * @returns {JSX.Element} Input section
  */
-export function ContentSection(props: ContentSectionProps): JSX.Element {
-  return props.isEditing ? (
+function EditingSection(props: ContentSectionProps): JSX.Element {
+  return (
     <InputSection
       value={props.newName}
       inputRef={props.inputRef}
       onChange={props.setNewName}
       onKeyDown={props.handleKeyDown}
     />
-  ) : (
-    <TitleSection
-      placeholder={props.placeholder}
-      mode={props.placeholder.mode || 'replace'}
-      onToggleExpand={props.toggleExpand}
-    />
   );
+}
+
+/**
+ * ContentSection component
+ * @param {ContentSectionProps} props - Component props
+ * @returns {JSX.Element} The rendered content section
+ */
+export function ContentSection(props: ContentSectionProps): JSX.Element {
+  return props.isEditing
+    ? <EditingSection {...props} />
+    : <TitleSection placeholder={props.placeholder} mode={props.placeholder.mode || 'replace'} onToggleExpand={props.toggleExpand} />;
 }

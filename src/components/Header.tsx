@@ -44,16 +44,10 @@ interface HeaderProps {
 export function Header(props: HeaderProps): JSX.Element {
   const { toast } = useToast();
   const dialogState = useHeaderDialogs({ ...props, toast });
-
-  return (
-    <nav className="sticky top-0 z-50 flex h-20 w-full items-center justify-between border-b border-border/40 bg-background/95 px-4 py-2 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-background/60 md:px-8">
-      {renderBrandLogo()}
-      <HeaderActionButtons
-        onLoadClick={() => dialogState.setIsLoadDialogOpen(true)}
-        onSaveClick={() => dialogState.setIsSaveDialogOpen(true)}
-        onResetClick={() => dialogState.setIsResetDialogOpen(true)}
-      />
-      <HeaderDialogs {...dialogState} templates={props.templates} />
-    </nav>
-  );
+  const navClass = "sticky top-0 z-50 flex h-20 w-full items-center justify-between border-b border-border/40 bg-background/95 px-4 py-2 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-background/60 md:px-8";
+  return <nav className={navClass}>
+    {renderBrandLogo()}
+    <HeaderActionButtons onLoadClick={() => dialogState.setIsLoadDialogOpen(true)} onSaveClick={() => dialogState.setIsSaveDialogOpen(true)} onResetClick={() => dialogState.setIsResetDialogOpen(true)} />
+    <HeaderDialogs {...dialogState} templates={props.templates} />
+  </nav>;
 }

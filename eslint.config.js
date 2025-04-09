@@ -55,7 +55,7 @@ export default [
 
       // Function length rule
       'max-lines-per-function': ['error', {
-        max: 25,
+        max: 10,
         skipBlankLines: true,
         skipComments: true,
         IIFEs: true
@@ -129,7 +129,7 @@ export default [
 
       // Function length rule
       'max-lines-per-function': ['error', {
-        max: 25,
+        max: 10,
         skipBlankLines: true,
         skipComments: true,
         IIFEs: true

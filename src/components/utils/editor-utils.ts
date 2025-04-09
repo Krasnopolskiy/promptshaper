@@ -6,33 +6,39 @@
 import { Placeholder } from '@/types';
 
 /**
+ * Applies styling to placeholder elements when DOM changes
+ * @param {Placeholder[]} placeholders - The placeholder configurations
+ * @returns {void}
+ */
+function applyPlaceholderStyling(placeholders: Placeholder[]): void {
+  const editorElements = document.querySelectorAll('.w-tc-editor-text');
+  editorElements.forEach(editor => {
+    stylePlaceholderElements(editor, placeholders);
+  });
+}
+
+/**
  * Sets up a mutation observer to style placeholder elements
  * @param {Placeholder[]} placeholders - The placeholder configurations
  * @returns {MutationObserver} The configured mutation observer
  */
 export function setupPlaceholderStylingObserver(placeholders: Placeholder[]): MutationObserver {
-  /**
-   * Applies styling to placeholder elements when DOM changes
-   * @returns {void}
-   */
-  const applyPlaceholderStyling = (): void => {
-    const editorElements = document.querySelectorAll('.w-tc-editor-text');
-    editorElements.forEach(editor => {
-      stylePlaceholderElements(editor, placeholders);
-    });
-  };
-
-  const observer = new MutationObserver((): void => {
-    setTimeout(applyPlaceholderStyling, 10);
-  });
-
-  observer.observe(document.body, {
-    childList: true,
-    subtree: true,
-  });
-
-  setTimeout(applyPlaceholderStyling, 100);
+  const observer = new MutationObserver(() => setTimeout(() => applyPlaceholderStyling(placeholders), 10));
+  observer.observe(document.body, { childList: true, subtree: true });
+  setTimeout(() => applyPlaceholderStyling(placeholders), 100);
   return observer;
+}
+
+/**
+ * Applies placeholder style to a span element
+ * @param {HTMLSpanElement} span - The span element
+ * @param {Placeholder} placeholder - The placeholder configuration
+ * @returns {void}
+ */
+function applyPlaceholderStyleToSpan(span: HTMLSpanElement, placeholder: Placeholder): void {
+  if (placeholder) {
+    applyPlaceholderStyle(span, placeholder.color);
+  }
 }
 
 /**
@@ -42,15 +48,11 @@ export function setupPlaceholderStylingObserver(placeholders: Placeholder[]): Mu
  * @returns {void}
  */
 export function stylePlaceholderElements(editor: Element, placeholders: Placeholder[]): void {
-  const spans = editor.querySelectorAll('span');
-  spans.forEach(span => {
-    const text = span.textContent || '';
-    if (text.match(/<([^<>]+)>/)) {
-      const placeholderName = text.replace(/[<>]/g, '');
-      const placeholder = placeholders.find(p => p.name === placeholderName);
-      if (placeholder) {
-        applyPlaceholderStyle(span, placeholder.color);
-      }
+  editor.querySelectorAll('span').forEach(span => {
+    const match = (span.textContent || '').match(/<([^<>]+)>/);
+    if (match) {
+      const placeholder = placeholders.find(p => p.name === match[1]);
+      applyPlaceholderStyleToSpan(span, placeholder);
     }
   });
 }
@@ -101,6 +103,25 @@ function findPlaceholderMatches(text: string): RegExpExecArray[] {
 }
 
 /**
+ * Processes a single placeholder match
+ * @param {RegExpExecArray} match - The regex match
+ * @param {Set<string>} existingNames - Set of existing placeholder names
+ * @param {Set<string>} foundNames - Set of found placeholder names
+ * @param {Function|undefined} onInsertPlaceholder - Insert callback
+ * @returns {void}
+ */
+function processPlaceholderMatch(
+  match: RegExpExecArray,
+  existingNames: Set<string>,
+  foundNames: Set<string>,
+  onInsertPlaceholder?: (name: string, position: number) => number
+): void {
+  const name = match[1];
+  foundNames.add(name);
+  if (!existingNames.has(name) && onInsertPlaceholder) onInsertPlaceholder(name, match.index);
+}
+
+/**
  * Processes new placeholders found in text
  * @param {RegExpExecArray[]} matches - Regex matches
  * @param {Set<string>} existingNames - Set of existing placeholder names
@@ -113,17 +134,25 @@ function processNewPlaceholders(
   onInsertPlaceholder?: (name: string, position: number) => number
 ): Set<string> {
   const foundNames = new Set<string>();
-
-  matches.forEach(match => {
-    const name = match[1];
-    foundNames.add(name);
-
-    if (!existingNames.has(name) && onInsertPlaceholder) {
-      onInsertPlaceholder(name, match.index);
-    }
-  });
-
+  matches.forEach(match => processPlaceholderMatch(match, existingNames, foundNames, onInsertPlaceholder));
   return foundNames;
+}
+
+/**
+ * Gets removed placeholder names
+ * @param {Set<string>} existingNames - Set of existing placeholder names
+ * @param {Set<string>} foundNames - Set of found placeholder names
+ * @param {Placeholder[]} placeholders - List of placeholders
+ * @returns {string[]} Array of removed placeholder names
+ */
+function getRemovedPlaceholderNames(
+  existingNames: Set<string>,
+  foundNames: Set<string>,
+  placeholders: Placeholder[]
+): string[] {
+  return [...existingNames].filter(
+    name => !foundNames.has(name) && placeholders.find(p => p.name === name)?.content === ''
+  );
 }
 
 /**
@@ -140,14 +169,8 @@ function processRemovedPlaceholders(
   onInsertPlaceholder?: (name: string, position: number) => number
 ): void {
   if (!onInsertPlaceholder) return;
-
-  const removedNames = [...existingNames].filter(
-    name => !foundNames.has(name) && placeholders.find(p => p.name === name)?.content === ''
-  );
-
-  removedNames.forEach(name => {
-    onInsertPlaceholder(name, -1);
-  });
+  const removedNames = getRemovedPlaceholderNames(existingNames, foundNames, placeholders);
+  removedNames.forEach(name => onInsertPlaceholder(name, -1));
 }
 
 /**
@@ -186,32 +209,46 @@ export interface PlaceholderInsertionConfig {
 }
 
 /**
+ * Updates textarea selection
+ * @param {HTMLTextAreaElement} textareaRef - The textarea reference
+ * @param {number} position - The new cursor position
+ * @returns {void}
+ */
+function updateTextareaSelection(textareaRef: HTMLTextAreaElement, position: number): void {
+  textareaRef.focus();
+  textareaRef.setSelectionRange(position, position);
+}
+
+/**
+ * Updates textarea value and selection
+ * @param {HTMLTextAreaElement} textareaRef - The textarea reference
+ * @param {string} newValue - The new text value
+ * @param {number} newPosition - The new cursor position
+ * @param {Function} onChange - Change handler
+ * @returns {void}
+ */
+function updateTextareaValue(
+  textareaRef: HTMLTextAreaElement,
+  newValue: string,
+  newPosition: number,
+  onChange: (value: string) => void
+): void {
+  onChange(newValue);
+  requestAnimationFrame(() => updateTextareaSelection(textareaRef, newPosition));
+}
+
+/**
  * Inserts a placeholder at the current cursor position
  * @param {PlaceholderInsertionConfig} config - Configuration for insertion
  * @returns {void}
  */
 export function insertPlaceholderAtCursor(config: PlaceholderInsertionConfig): void {
   const { name, textareaRef, value, onChange, onInsertPlaceholder } = config;
-
   if (!textareaRef) return;
-
   const start = textareaRef.selectionStart;
   const end = textareaRef.selectionEnd;
-  const tag = '<' + name + '>';
-
+  const tag = `<${name}>`;
   const newValue = value.substring(0, start) + tag + value.substring(end);
-  const newPosition = start + tag.length;
-
-  onChange(newValue);
-
-  requestAnimationFrame(() => {
-    if (textareaRef) {
-      textareaRef.focus();
-      textareaRef.setSelectionRange(newPosition, newPosition);
-    }
-  });
-
-  if (onInsertPlaceholder) {
-    onInsertPlaceholder(name, start);
-  }
+  updateTextareaValue(textareaRef, newValue, start + tag.length, onChange);
+  if (onInsertPlaceholder) onInsertPlaceholder(name, start);
 }

@@ -40,6 +40,32 @@ interface PlaceholderCardActionsProps {
 }
 
 /**
+ * Creates a cancel button
+ * @param {Function} onCancel - Cancel handler
+ * @returns {JSX.Element} Cancel button
+ */
+function CancelButton({ onCancel }: { onCancel: () => void }): JSX.Element {
+  return (
+    <Button size="icon" variant="ghost" className="h-7 w-7" onClick={onCancel}>
+      <Trash className="h-4 w-4 text-destructive" />
+    </Button>
+  );
+}
+
+/**
+ * Creates a save button
+ * @param {Function} onSave - Save handler
+ * @returns {JSX.Element} Save button
+ */
+function SaveButton({ onSave }: { onSave: () => void }): JSX.Element {
+  return (
+    <Button size="icon" variant="ghost" className="h-7 w-7" onClick={onSave}>
+      <Check className="h-4 w-4 text-primary" />
+    </Button>
+  );
+}
+
+/**
  * Renders editing mode action buttons
  * @param {Object} props - Component props
  * @param {Function} props.onCancel - Cancel editing handler
@@ -49,13 +75,61 @@ interface PlaceholderCardActionsProps {
 function EditModeActions({ onCancel, onSave }: Pick<PlaceholderCardActionsProps, 'onCancel' | 'onSave'>): JSX.Element {
   return (
     <div className="flex items-center space-x-1">
-      <Button size="icon" variant="ghost" className="h-7 w-7" onClick={onCancel}>
-        <Trash className="h-4 w-4 text-destructive" />
-      </Button>
-      <Button size="icon" variant="ghost" className="h-7 w-7" onClick={onSave}>
-        <Check className="h-4 w-4 text-primary" />
-      </Button>
+      <CancelButton onCancel={onCancel} />
+      <SaveButton onSave={onSave} />
     </div>
+  );
+}
+
+/**
+ * Creates a tag icon with appropriate styling
+ * @param {string} mode - Current mode
+ * @returns {JSX.Element} Styled tag icon
+ */
+function ModeTagIcon({ mode }: { mode: string }): JSX.Element {
+  return <Tag className={`h-4 w-4 ${mode === 'tag' ? 'text-primary' : 'text-muted-foreground'}`} />;
+}
+
+/**
+ * Creates a tooltip content for mode toggle
+ * @param {string} modeDescription - Mode description
+ * @returns {JSX.Element} Tooltip content
+ */
+function ModeTooltipContent({ modeDescription }: { modeDescription: string }): JSX.Element {
+  return (
+    <TooltipContent side="bottom" align="center">
+      <p className="text-xs">{modeDescription}</p>
+      <p className="text-xs font-medium">Click to toggle mode</p>
+    </TooltipContent>
+  );
+}
+
+/**
+ * Creates a mode toggle button
+ * @param {string} mode - Current mode
+ * @param {Function} toggleMode - Toggle mode function
+ * @returns {JSX.Element} Mode toggle button
+ */
+function ToggleButton({ mode, toggleMode }: { mode: string; toggleMode: () => void }): JSX.Element {
+  return (
+    <Button size="icon" variant="ghost" className="h-7 w-7" onClick={toggleMode}>
+      <ModeTagIcon mode={mode} />
+    </Button>
+  );
+}
+
+/**
+ * Creates tooltip for mode toggle
+ * @param {React.ReactNode} trigger - Tooltip trigger element
+ * @param {string} modeDescription - Mode description text
+ * @returns {JSX.Element} Tooltip component
+ */
+function createModeTooltip(trigger: React.ReactNode, modeDescription: string): JSX.Element {
+  return (
+    <Tooltip delayDuration={300}>
+      <TooltipTrigger asChild>{trigger}</TooltipTrigger>
+      <ModeTooltipContent modeDescription={modeDescription} />
+    </Tooltip>
   );
 }
 
@@ -68,21 +142,77 @@ function EditModeActions({ onCancel, onSave }: Pick<PlaceholderCardActionsProps,
  * @returns {JSX.Element} Mode toggle button
  */
 function ModeToggleButton({ mode, modeDescription, toggleMode }: Pick<PlaceholderCardActionsProps, 'mode' | 'modeDescription' | 'toggleMode'>): JSX.Element {
+  const trigger = <ToggleButton mode={mode} toggleMode={toggleMode} />;
+  const tooltip = createModeTooltip(trigger, modeDescription);
+  return <TooltipProvider>{tooltip}</TooltipProvider>;
+}
+
+/**
+ * Creates a copy button
+ * @param {Function} onCopy - Copy handler function
+ * @returns {JSX.Element} Copy button
+ */
+function CopyButton({ onCopy }: { onCopy: () => void }): JSX.Element {
   return (
-    <TooltipProvider>
-      <Tooltip delayDuration={300}>
-        <TooltipTrigger asChild>
-          <Button size="icon" variant="ghost" className="h-7 w-7" onClick={toggleMode}>
-            <Tag className={`h-4 w-4 ${mode === 'tag' ? 'text-primary' : 'text-muted-foreground'}`} />
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent side="bottom" align="center">
-          <p className="text-xs">{modeDescription}</p>
-          <p className="text-xs font-medium">Click to toggle mode</p>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
+    <Button size="icon" variant="ghost" className="h-7 w-7" onClick={onCopy}>
+      <Copy className="h-4 w-4" />
+    </Button>
   );
+}
+
+/**
+ * Creates an edit button
+ * @param {Function} onStartEdit - Edit handler function
+ * @returns {JSX.Element} Edit button
+ */
+function EditButton({ onStartEdit }: { onStartEdit: () => void }): JSX.Element {
+  return (
+    <Button size="icon" variant="ghost" className="h-7 w-7" onClick={onStartEdit}>
+      <Pencil className="h-4 w-4" />
+    </Button>
+  );
+}
+
+/**
+ * Creates a delete button
+ * @param {Function} onDelete - Delete handler function
+ * @returns {JSX.Element} Delete button
+ */
+function DeleteButton({ onDelete }: { onDelete: () => void }): JSX.Element {
+  return (
+    <Button size="icon" variant="ghost" className="h-7 w-7" onClick={onDelete}>
+      <Trash className="h-4 w-4" />
+    </Button>
+  );
+}
+
+/**
+ * Creates an expand/collapse button
+ * @param {boolean} isExpanded - Whether the card is expanded
+ * @param {Function} toggleExpanded - Toggle expanded function
+ * @returns {JSX.Element} Expand/collapse button
+ */
+function ExpandButton({ isExpanded, toggleExpanded }: { isExpanded: boolean; toggleExpanded: () => void }): JSX.Element {
+  return (
+    <Button size="icon" variant="ghost" className="h-7 w-7" onClick={toggleExpanded}>
+      {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+    </Button>
+  );
+}
+
+/**
+ * Creates an array of action buttons
+ * @param {Object} props - Button properties
+ * @returns {JSX.Element[]} Array of button elements
+ */
+function createActionButtonArray(props: Pick<PlaceholderCardActionsProps, 'onCopy' | 'onStartEdit' | 'onDelete' | 'toggleExpanded' | 'isExpanded'>): JSX.Element[] {
+  const { onCopy, onStartEdit, onDelete, toggleExpanded, isExpanded } = props;
+  return [
+    <CopyButton key="copy" onCopy={onCopy} />,
+    <EditButton key="edit" onStartEdit={onStartEdit} />,
+    <DeleteButton key="delete" onDelete={onDelete} />,
+    <ExpandButton key="expand" isExpanded={isExpanded} toggleExpanded={toggleExpanded} />
+  ];
 }
 
 /**
@@ -95,32 +225,9 @@ function ModeToggleButton({ mode, modeDescription, toggleMode }: Pick<Placeholde
  * @param {boolean} props.isExpanded - Whether the card is expanded
  * @returns {JSX.Element} Action buttons
  */
-function ActionButtons({
-  onCopy,
-  onStartEdit,
-  onDelete,
-  toggleExpanded,
-  isExpanded
-}: Pick<PlaceholderCardActionsProps, 'onCopy' | 'onStartEdit' | 'onDelete' | 'toggleExpanded' | 'isExpanded'>): JSX.Element {
-  return (
-    <>
-      <Button size="icon" variant="ghost" className="h-7 w-7" onClick={onCopy}>
-        <Copy className="h-4 w-4" />
-      </Button>
-
-      <Button size="icon" variant="ghost" className="h-7 w-7" onClick={onStartEdit}>
-        <Pencil className="h-4 w-4" />
-      </Button>
-
-      <Button size="icon" variant="ghost" className="h-7 w-7" onClick={onDelete}>
-        <Trash className="h-4 w-4" />
-      </Button>
-
-      <Button size="icon" variant="ghost" className="h-7 w-7" onClick={toggleExpanded}>
-        {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-      </Button>
-    </>
-  );
+function ActionButtons(props: Pick<PlaceholderCardActionsProps, 'onCopy' | 'onStartEdit' | 'onDelete' | 'toggleExpanded' | 'isExpanded'>): JSX.Element {
+  const buttons = createActionButtonArray(props);
+  return <>{buttons}</>;
 }
 
 /**

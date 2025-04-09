@@ -17,6 +17,31 @@ function createClipboardHandler(name: string): () => Promise<void> {
 }
 
 /**
+ * Creates basic handlers for placeholder operations
+ * @param {Placeholder} placeholder - Placeholder data
+ * @param {HandlerProps} handlers - Handler functions
+ * @returns {Object} Basic handlers for delete and insert operations
+ */
+function createBasicHandlers(
+  placeholder: Placeholder,
+  handlers: HandlerProps
+): { handleDelete: () => void; handleInsert: () => void } {
+  const { onDelete, onInsert } = handlers;
+  return {
+    /**
+     * Handles deleting the placeholder
+     * @returns {void} Nothing
+     */
+    handleDelete: () => onDelete(placeholder.id),
+    /**
+     * Handles inserting the placeholder
+     * @returns {void} Nothing
+     */
+    handleInsert: () => onInsert?.(placeholder.name)
+  };
+}
+
+/**
  * Creates action handlers for placeholder operations
  * @param {Placeholder} placeholder - Placeholder data
  * @param {HandlerProps} handlers - Handler functions
@@ -30,19 +55,5 @@ export function createActionHandlers(
   handleDelete: () => void;
   handleInsert: () => void;
 } {
-  const { onDelete, onInsert } = handlers;
-
-  return {
-    handleCopyToClipboard: createClipboardHandler(placeholder.name),
-    /**
-     * Handles deleting the placeholder
-     * @returns {void}
-     */
-    handleDelete: () => onDelete(placeholder.id),
-    /**
-     * Handles inserting the placeholder
-     * @returns {void}
-     */
-    handleInsert: () => onInsert?.(placeholder.name)
-  };
+  return { handleCopyToClipboard: createClipboardHandler(placeholder.name), ...createBasicHandlers(placeholder, handlers) };
 }

@@ -34,6 +34,32 @@ interface DialogButtonsProps {
 }
 
 /**
+ * Creates cancel button element
+ * @param {Function} onClose - Close handler function
+ * @returns {JSX.Element} Cancel button
+ */
+function CancelButton({ onClose }: { onClose: () => void }): JSX.Element {
+  return (
+    <Button variant="outline" onClick={onClose}>
+      Cancel
+    </Button>
+  );
+}
+
+/**
+ * Creates reset button element
+ * @param {Function} onConfirm - Confirm handler function
+ * @returns {JSX.Element} Reset button
+ */
+function ResetButton({ onConfirm }: { onConfirm: () => void }): JSX.Element {
+  return (
+    <Button variant="destructive" onClick={onConfirm}>
+      Reset
+    </Button>
+  );
+}
+
+/**
  * Dialog footer component
  * @param {DialogButtonsProps} props - Component props
  * @returns {JSX.Element} Dialog footer
@@ -41,12 +67,8 @@ interface DialogButtonsProps {
 function DialogButtons({ onClose, onConfirm }: DialogButtonsProps): JSX.Element {
   return (
     <DialogFooter>
-      <Button variant="outline" onClick={onClose}>
-        Cancel
-      </Button>
-      <Button variant="destructive" onClick={onConfirm}>
-        Reset
-      </Button>
+      <CancelButton onClose={onClose} />
+      <ResetButton onConfirm={onConfirm} />
     </DialogFooter>
   );
 }

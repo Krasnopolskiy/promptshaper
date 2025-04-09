@@ -1,27 +1,26 @@
 /**
- * Key handlers configuration
- *
+ * Configuration types for keyboard handlers
  * @module components/placeholder/handlers/keyHandlersConfig
  */
-import { KeyboardEvent } from 'react';
+import React from 'react';
 import { Placeholder } from '@/types';
 
 /**
- * Configuration for enter key handler
+ * Configuration for Enter key handler
  */
 export interface EnterKeyConfig {
   /** Keyboard event */
-  event: KeyboardEvent<HTMLInputElement>;
-  /** Placeholder data */
+  event: React.KeyboardEvent<HTMLInputElement>;
+  /** Placeholder object */
   placeholder: Placeholder;
-  /** Is editing mode active */
+  /** Whether in editing mode */
   isEditing: boolean;
   /** New name value */
   newName: string;
-  /** Save handler */
+  /** Function to handle save */
   handleSave: () => void;
-  /** Cancel handler */
+  /** Function to handle cancel */
   handleCancel: () => void;
-  /** Previous default handler */
+  /** Function to prevent default */
   preventDefault: () => void;
 }

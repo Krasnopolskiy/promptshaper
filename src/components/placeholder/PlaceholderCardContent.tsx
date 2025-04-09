@@ -41,26 +41,61 @@ function ContentSection({ label, children }: ContentSectionProps): JSX.Element {
 }
 
 /**
+ * Creates base editor props
+ * @param {PlaceholderCardContentProps} props - Content props
+ * @returns {Pick<React.ComponentProps<typeof ContentEditor>, 'content' | 'name' | 'isEditing' | 'setIsEditing'>} Base props
+ */
+function createBaseEditorProps(
+  props: PlaceholderCardContentProps
+): Pick<React.ComponentProps<typeof ContentEditor>, 'content' | 'name' | 'isEditing' | 'setIsEditing'> {
+  return {
+    content: props.content,
+    name: props.name,
+    isEditing: props.isEditing,
+    setIsEditing: props.setIsEditing
+  };
+}
+
+/**
+ * Creates content editor props
+ * @param {PlaceholderCardContentProps} props - Content props
+ * @returns {Pick<React.ComponentProps<typeof ContentEditor>, 'newContent' | 'setNewContent' | 'handleKeyDown' | 'handleCancel'>} Content props
+ */
+function createContentEditProps(
+  props: PlaceholderCardContentProps
+): Pick<React.ComponentProps<typeof ContentEditor>, 'newContent' | 'setNewContent' | 'handleKeyDown' | 'handleCancel'> {
+  return {
+    newContent: props.newContent,
+    setNewContent: props.setNewContent,
+    handleKeyDown: props.handleKeyDown,
+    handleCancel: props.handleCancel
+  };
+}
+
+/**
+ * Creates editor props object
+ * @param {PlaceholderCardContentProps} props - Content props
+ * @param {React.RefObject<HTMLTextAreaElement>} textareaRef - Textarea reference
+ * @returns {React.ComponentProps<typeof ContentEditor>} Editor props
+ */
+function createEditorProps(
+  props: PlaceholderCardContentProps,
+  textareaRef: React.RefObject<HTMLTextAreaElement>
+): React.ComponentProps<typeof ContentEditor> {
+  const baseProps = createBaseEditorProps(props);
+  const contentProps = createContentEditProps(props);
+  return { ...baseProps, ...contentProps, textareaRef };
+}
+
+/**
  * Content editor wrapper component
  * @param {PlaceholderCardContentProps} props - Component props
  * @returns {JSX.Element} Content editor wrapper
  */
 function ContentEditorWrapper(props: PlaceholderCardContentProps): JSX.Element {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-
-  return (
-    <ContentEditor
-      content={props.content}
-      name={props.name}
-      isEditing={props.isEditing}
-      setIsEditing={props.setIsEditing}
-      newContent={props.newContent}
-      setNewContent={props.setNewContent}
-      textareaRef={textareaRef}
-      handleKeyDown={props.handleKeyDown}
-      handleCancel={props.handleCancel}
-    />
-  );
+  const editorProps = createEditorProps(props, textareaRef);
+  return <ContentEditor {...editorProps} />;
 }
 
 /**

@@ -30,21 +30,5 @@ interface PanelGroupContentProps {
  * @returns {JSX.Element} The rendered panel group content
  */
 export function PanelGroupContent({ panelSizes, placeholdersPanel, editorPanel, previewPanel }: PanelGroupContentProps): JSX.Element {
-  return (
-    <>
-      <PanelRenderer type="left" size={panelSizes.placeholders}>
-        {placeholdersPanel}
-      </PanelRenderer>
-
-      <PanelHandles />
-
-      <PanelRenderer type="middle" size={panelSizes.editor}>
-        {editorPanel}
-      </PanelRenderer>
-
-      <PanelRenderer type="right" size={panelSizes.preview}>
-        {previewPanel}
-      </PanelRenderer>
-    </>
-  );
+  return <><PanelRenderer type="left" size={panelSizes.placeholders}>{placeholdersPanel}</PanelRenderer><PanelHandles /><PanelRenderer type="middle" size={panelSizes.editor}>{editorPanel}</PanelRenderer><PanelRenderer type="right" size={panelSizes.preview}>{previewPanel}</PanelRenderer></>;
 }

@@ -24,20 +24,14 @@ interface UndoRedoButtonsProps {
 }
 
 /**
- * UndoRedoButtons component
+ * Renders undo and redo buttons for the editor toolbar
  * @param {UndoRedoButtonsProps} props - Component props
  * @returns {JSX.Element} The rendered buttons
  */
 export function UndoRedoButtons({ handleUndo, handleRedo, undoDisabled, redoDisabled }: UndoRedoButtonsProps): JSX.Element {
   const buttonProps = { size: "sm", variant: "ghost", className: "gap-1.5 text-sm" } as const;
-  return (
-    <>
-      <Button {...buttonProps} onClick={handleUndo} disabled={undoDisabled}>
-        <Undo size={14}/> Undo
-      </Button>
-      <Button {...buttonProps} onClick={handleRedo} disabled={redoDisabled}>
-        <Redo size={14}/> Redo
-      </Button>
-    </>
-  );
+  return <>
+    <Button {...buttonProps} onClick={handleUndo} disabled={undoDisabled}><Undo size={14}/>Undo</Button>
+    <Button {...buttonProps} onClick={handleRedo} disabled={redoDisabled}><Redo size={14}/>Redo</Button>
+  </>;
 }

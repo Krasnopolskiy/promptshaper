@@ -44,6 +44,40 @@ export interface ActionHandlers {
 }
 
 /**
+ * Create a save handler for placeholder changes
+ * @param {string} id - Placeholder ID
+ * @param {Function|undefined} onUpdate - Update handler
+ * @returns {() => void} Save handler function
+ */
+function createSaveHandler(
+  id: string,
+  onUpdate?: (id: string, updates: Partial<Placeholder>) => void
+): () => void {
+  return (): void => {
+    if (onUpdate) {
+      onUpdate(id, {});
+    }
+  };
+}
+
+/**
+ * Create a cancel handler for editing operation
+ * @param {string} id - Placeholder ID
+ * @param {Function|undefined} onUpdate - Update handler
+ * @returns {() => void} Cancel handler function
+ */
+function createCancelHandler(
+  id: string,
+  onUpdate?: (id: string, updates: Partial<Placeholder>) => void
+): () => void {
+  return (): void => {
+    if (onUpdate) {
+      onUpdate(id, {});
+    }
+  };
+}
+
+/**
  * Creates update handlers for a placeholder
  * @param {Placeholder} placeholder - The placeholder to handle
  * @param {Function} onUpdate - Update handler
@@ -54,22 +88,8 @@ function createUpdateHandlers(
   onUpdate?: (id: string, updates: Partial<Placeholder>) => void
 ): Pick<ActionHandlers, 'handleSave' | 'handleCancel'> {
   return {
-    /**
-     * Saves the placeholder changes
-     */
-    handleSave: (): void => {
-      if (onUpdate) {
-        onUpdate(placeholder.id, {});
-      }
-    },
-    /**
-     * Cancels the editing operation
-     */
-    handleCancel: (): void => {
-      if (onUpdate) {
-        onUpdate(placeholder.id, {});
-      }
-    }
+    handleSave: createSaveHandler(placeholder.id, onUpdate),
+    handleCancel: createCancelHandler(placeholder.id, onUpdate)
   };
 }
 
@@ -142,32 +162,89 @@ function createToggleModeHandler(
 }
 
 /**
+ * Type for action handler dependencies
+ */
+type ActionDependencies = {
+  onDelete?: (id: string) => void;
+  onInsert?: (name: string) => void;
+  copyToClipboard?: () => Promise<void>;
+  toggleMode?: (id: string) => void;
+};
+
+/**
+ * Creates delete and insert handlers
+ * @param {Placeholder} placeholder - The placeholder to handle
+ * @param {ActionDependencies} handlers - Handler dependencies
+ * @returns {Object} Delete and insert handlers
+ */
+function createDataActionHandlers(
+  placeholder: Placeholder,
+  handlers: ActionDependencies
+): Pick<ActionHandlers, 'handleDelete' | 'handleInsert'> {
+  const { onDelete, onInsert } = handlers;
+
+  return {
+    handleDelete: createDeleteHandler(placeholder, onDelete),
+    handleInsert: createInsertHandler(placeholder, onInsert)
+  };
+}
+
+/**
+ * Creates copy and mode toggle handlers
+ * @param {Placeholder} placeholder - The placeholder to handle
+ * @param {ActionDependencies} handlers - Handler dependencies
+ * @returns {Object} Copy and mode toggle handlers
+ */
+function createUtilityHandlers(
+  placeholder: Placeholder,
+  handlers: ActionDependencies
+): Pick<ActionHandlers, 'handleCopyToClipboard' | 'toggleMode'> {
+  const { copyToClipboard, toggleMode } = handlers;
+
+  return {
+    handleCopyToClipboard: createCopyHandler(placeholder, copyToClipboard),
+    toggleMode: createToggleModeHandler(placeholder, toggleMode)
+  };
+}
+
+/**
+ * Creates handlers from separate handler groups
+ * @param {Object} dataHandlers - Data action handlers
+ * @param {Object} utilityHandlers - Utility handlers
+ * @returns {Object} Combined handlers
+ */
+function combineActionHandlers(
+  dataHandlers: Pick<ActionHandlers, 'handleDelete' | 'handleInsert'>,
+  utilityHandlers: Pick<ActionHandlers, 'handleCopyToClipboard' | 'toggleMode'>
+): Pick<ActionHandlers, 'handleDelete' | 'handleInsert' | 'handleCopyToClipboard' | 'toggleMode'> {
+  return {
+    ...dataHandlers,
+    ...utilityHandlers
+  };
+}
+
+/**
  * Creates action handlers for a placeholder
  * @param {Placeholder} placeholder - The placeholder to handle
- * @param {Object} handlers - Various handler functions
- * @param {Function} handlers.onDelete - Delete handler
- * @param {Function} handlers.onInsert - Insert handler
- * @param {Function} handlers.copyToClipboard - Copy handler
- * @param {Function} handlers.toggleMode - Toggle mode handler
+ * @param {ActionDependencies} handlers - Various handler functions
  * @returns {Object} Action handlers
  */
 function createActionHandlers(
   placeholder: Placeholder,
-  handlers: {
-    onDelete?: (id: string) => void;
-    onInsert?: (name: string) => void;
-    copyToClipboard?: () => Promise<void>;
-    toggleMode?: (id: string) => void;
-  }
+  handlers: ActionDependencies
 ): Pick<ActionHandlers, 'handleDelete' | 'handleInsert' | 'handleCopyToClipboard' | 'toggleMode'> {
-  const { onDelete, onInsert, copyToClipboard, toggleMode } = handlers;
+  const dataHandlers = createDataActionHandlers(placeholder, handlers);
+  const utilityHandlers = createUtilityHandlers(placeholder, handlers);
+  return combineActionHandlers(dataHandlers, utilityHandlers);
+}
 
-  return {
-    handleDelete: createDeleteHandler(placeholder, onDelete),
-    handleInsert: createInsertHandler(placeholder, onInsert),
-    handleCopyToClipboard: createCopyHandler(placeholder, copyToClipboard),
-    toggleMode: createToggleModeHandler(placeholder, toggleMode)
-  };
+/**
+ * Gets the mode description based on the placeholder mode
+ * @param {string} mode - Placeholder mode
+ * @returns {string} Mode description
+ */
+function getModeDescription(mode: string): string {
+  return mode === 'tag' ? 'Tag Mode' : 'Replace Mode';
 }
 
 /**
@@ -180,12 +257,83 @@ function createModeHandlers(
 ): Pick<ActionHandlers, 'getModeDsc'> {
   return {
     /**
-     * Gets the mode description
-     * @returns {string} Mode description
+     * Gets the description for the current placeholder mode
+     * @returns {string} Mode description as a string
      */
-    getModeDsc: (): string => {
-      return placeholder.mode === 'tag' ? 'Tag Mode' : 'Replace Mode';
-    }
+    getModeDsc: (): string => getModeDescription(placeholder.mode)
+  };
+}
+
+/**
+ * Combines multiple handler objects into one
+ * @param {Object[]} handlerObjects - Array of handler objects
+ * @returns {ActionHandlers} Combined handlers object
+ */
+function combineHandlers(
+  ...handlerObjects: Partial<ActionHandlers>[]
+): ActionHandlers {
+  return Object.assign({}, ...handlerObjects) as ActionHandlers;
+}
+
+/**
+ * Builds a complete action handlers object
+ * @param {Object} updateHandlers - Update handlers
+ * @param {Object} actionHandlers - Action handlers
+ * @param {Object} modeHandlers - Mode handlers
+ * @returns {ActionHandlers} Complete action handlers
+ */
+function buildActionHandlers(
+  updateHandlers: Pick<ActionHandlers, 'handleSave' | 'handleCancel'>,
+  actionHandlers: Pick<ActionHandlers, 'handleDelete' | 'handleInsert' | 'handleCopyToClipboard' | 'toggleMode'>,
+  modeHandlers: Pick<ActionHandlers, 'getModeDsc'>
+): ActionHandlers {
+  return combineHandlers(updateHandlers, actionHandlers, modeHandlers);
+}
+
+/**
+ * Type for handler groups
+ */
+interface HandlerGroups {
+  updateHandlers: Pick<ActionHandlers, 'handleSave' | 'handleCancel'>;
+  actionHandlers: Pick<ActionHandlers, 'handleDelete' | 'handleInsert' | 'handleCopyToClipboard' | 'toggleMode'>;
+  modeHandlers: Pick<ActionHandlers, 'getModeDsc'>;
+}
+
+/**
+ * Creates update handlers for the placeholder
+ * @param {CardActionsConfig} config - Configuration options
+ * @returns {Object} Update handlers
+ */
+function createUpdateHandlersFromConfig(
+  config: CardActionsConfig
+): Pick<ActionHandlers, 'handleSave' | 'handleCancel'> {
+  return createUpdateHandlers(config.placeholder, config.onUpdate);
+}
+
+/**
+ * Creates action-related handlers from config
+ * @param {CardActionsConfig} config - Configuration options
+ * @returns {Object} Action handlers
+ */
+function createActionHandlersFromConfig(
+  config: CardActionsConfig
+): Pick<ActionHandlers, 'handleDelete' | 'handleInsert' | 'handleCopyToClipboard' | 'toggleMode'> {
+  const { placeholder, onDelete, onInsert, copyToClipboard, toggleMode } = config;
+  return createActionHandlers(placeholder, {
+    onDelete, onInsert, copyToClipboard, toggleMode
+  });
+}
+
+/**
+ * Creates handlers for different action types
+ * @param {CardActionsConfig} config - Configuration options
+ * @returns {Object} Different handler types
+ */
+function createHandlerGroups(config: CardActionsConfig): HandlerGroups {
+  return {
+    updateHandlers: createUpdateHandlersFromConfig(config),
+    actionHandlers: createActionHandlersFromConfig(config),
+    modeHandlers: createModeHandlers(config.placeholder)
   };
 }
 
@@ -195,15 +343,6 @@ function createModeHandlers(
  * @returns {ActionHandlers} Action handlers object
  */
 export function createActions(config: CardActionsConfig): ActionHandlers {
-  const { placeholder, onUpdate, onDelete, onInsert, copyToClipboard, toggleMode } = config;
-
-  const updateHandlers = createUpdateHandlers(placeholder, onUpdate);
-  const actionHandlers = createActionHandlers(placeholder, { onDelete, onInsert, copyToClipboard, toggleMode });
-  const modeHandlers = createModeHandlers(placeholder);
-
-  return {
-    ...updateHandlers,
-    ...actionHandlers,
-    ...modeHandlers
-  };
+  const { updateHandlers, actionHandlers, modeHandlers } = createHandlerGroups(config);
+  return buildActionHandlers(updateHandlers, actionHandlers, modeHandlers);
 }

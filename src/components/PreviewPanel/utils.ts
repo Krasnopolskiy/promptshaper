@@ -31,19 +31,13 @@ export const escapeHtml = (text: string): string => {
  */
 export const processTagModePlaceholder = (text: string, placeholder: Placeholder): string => {
   if (!placeholder.content) return text;
-
   const placeholderPattern = `<${escapeRegExp(placeholder.name)}>`;
   const placeholderRegex = new RegExp(placeholderPattern, 'g');
-
   if (!placeholderRegex.test(text)) return text;
-
-  return text.replace(placeholderRegex, () => {
-    const openingTag = `<span class="text-primary font-mono">&lt;${escapeHtml(placeholder.name)}&gt;</span>`;
-    const content = `<br/><span class="pl-4 border-l-2 border-primary/20 text-foreground whitespace-pre-wrap">${escapeHtml(placeholder.content)}</span><br/>`;
-    const closingTag = `<span class="text-primary font-mono">&lt;/${escapeHtml(placeholder.name)}&gt;</span>`;
-
-    return `${openingTag}${content}${closingTag}`;
-  });
+  const openingTag = `<span class="text-primary font-mono">&lt;${escapeHtml(placeholder.name)}&gt;</span>`;
+  const content = `<br/><span class="pl-4 border-l-2 border-primary/20 text-foreground whitespace-pre-wrap">${escapeHtml(placeholder.content)}</span><br/>`;
+  const closingTag = `<span class="text-primary font-mono">&lt;/${escapeHtml(placeholder.name)}&gt;</span>`;
+  return text.replace(placeholderRegex, () => `${openingTag}${content}${closingTag}`);
 };
 
 /**
@@ -84,17 +78,10 @@ export const processRemainingTags = (text: string): string => {
  */
 export const formatContentWithSyntaxHighlighting = (text: string, placeholders: Placeholder[]): string => {
   let formattedText = text;
-
-  // First pass: process tag-mode placeholders
   placeholders.forEach(placeholder => {
-    if (placeholder.mode === 'tag') {
-      formattedText = processTagModePlaceholder(formattedText, placeholder);
-    } else {
-      // Default to replace mode
-      formattedText = processReplacePlaceholder(formattedText, placeholder);
-    }
+    formattedText = placeholder.mode === 'tag'
+      ? processTagModePlaceholder(formattedText, placeholder)
+      : processReplacePlaceholder(formattedText, placeholder);
   });
-
-  // Second pass: handle any remaining placeholder tags
   return processRemainingTags(formattedText);
 };

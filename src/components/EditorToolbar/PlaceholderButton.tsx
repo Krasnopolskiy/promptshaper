@@ -20,24 +20,13 @@ interface PlaceholderButtonProps {
 }
 
 /**
- * PlaceholderButton component
+ * Renders a button for a single placeholder
  * @param {PlaceholderButtonProps} props - Component props
- * @returns {JSX.Element} The rendered button
+ * @returns {JSX.Element} The placeholder button component
  */
 export function PlaceholderButton({ placeholder, handleInsertPlaceholder }: PlaceholderButtonProps): JSX.Element {
-  return (
-    <Button
-      key={placeholder.id}
-      variant="ghost"
-      size="sm"
-      className="justify-start font-normal"
-      onClick={() => handleInsertPlaceholder(placeholder.name)}
-    >
-      <span
-        className="mr-2 h-2 w-2 rounded-full"
-        style={{backgroundColor: placeholder.color}}
-      />
-      {placeholder.name}
-    </Button>
-  );
+  return <Button variant="ghost" size="sm" className="justify-start font-normal" onClick={() => handleInsertPlaceholder(placeholder.name)}>
+    <span className="mr-2 h-2 w-2 rounded-full" style={{backgroundColor: placeholder.color}} />
+    {placeholder.name}
+  </Button>;
 }

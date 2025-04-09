@@ -4,29 +4,32 @@ import { createEditorStyles, createPlaceholderStyles } from '../utils/editor-sty
 import { setupPlaceholderStylingObserver } from '../utils/editor-utils';
 
 /**
+ * Sets up styles for the editor and placeholders
+ * @param {Placeholder[]} placeholders - Array of placeholders to create styles for
+ * @returns {() => void} Cleanup function to remove styles
+ */
+function setupEditorStyles(placeholders: Placeholder[]): () => void {
+  const styleElement = document.createElement('style');
+  styleElement.textContent = createEditorStyles() + createPlaceholderStyles(placeholders);
+  document.head.appendChild(styleElement);
+  return () => document.head.removeChild(styleElement);
+}
+
+/**
+ * Sets up the observer for styling placeholder elements
+ * @param {Placeholder[]} placeholders - Array of placeholders to observe
+ * @returns {() => void} Cleanup function to disconnect the observer
+ */
+function setupObserver(placeholders: Placeholder[]): () => void {
+  const observer = setupPlaceholderStylingObserver(placeholders);
+  return () => observer.disconnect();
+}
+
+/**
  * Hook to handle editor styling and placeholder highlighting
  * @param {Placeholder[]} placeholders - Array of placeholders
  */
 export function useEditorStyling(placeholders: Placeholder[]): void {
-  // Add editor and placeholder styles to the document
-  useEffect(() => {
-    const styleElement = document.createElement('style');
-    styleElement.textContent = createEditorStyles();
-    document.head.appendChild(styleElement);
-
-    const placeholderStyles = createPlaceholderStyles(placeholders);
-    styleElement.textContent += placeholderStyles;
-
-    return function cleanup(): void {
-      document.head.removeChild(styleElement);
-    };
-  }, [placeholders]);
-
-  // Apply styling to placeholder elements in the editor
-  useEffect(() => {
-    const observer = setupPlaceholderStylingObserver(placeholders);
-    return function cleanup(): void {
-      observer.disconnect();
-    };
-  }, [placeholders]);
+  useEffect(() => setupEditorStyles(placeholders), [placeholders]);
+  useEffect(() => setupObserver(placeholders), [placeholders]);
 }

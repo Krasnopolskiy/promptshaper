@@ -24,26 +24,7 @@ interface EditorWrapperProps {
  * @param {EditorWrapperProps} props - Component props
  * @returns {JSX.Element} The rendered editor wrapper
  */
-export function EditorWrapper({
-  children,
-  placeholders,
-  onUndo,
-  onRedo,
-  onInsertPlaceholder,
-  undoDisabled,
-  redoDisabled
-}: EditorWrapperProps): JSX.Element {
-  return (
-    <div className="flex h-full flex-col">
-      <EditorToolbar
-        placeholders={placeholders}
-        handleUndo={onUndo}
-        handleRedo={onRedo}
-        handleInsertPlaceholder={onInsertPlaceholder}
-        undoDisabled={undoDisabled}
-        redoDisabled={redoDisabled}
-      />
-      {children}
-    </div>
-  );
+export function EditorWrapper({ children, placeholders, onUndo: handleUndo, onRedo: handleRedo, onInsertPlaceholder: handleInsertPlaceholder, undoDisabled, redoDisabled }: EditorWrapperProps): JSX.Element {
+  const toolbarProps = { placeholders, handleUndo, handleRedo, handleInsertPlaceholder, undoDisabled, redoDisabled };
+  return <div className="flex h-full flex-col"><EditorToolbar {...toolbarProps} />{children}</div>;
 }

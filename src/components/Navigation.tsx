@@ -1,6 +1,19 @@
-import {Link, useLocation} from 'react-router-dom';
-import {Button} from '@/components/ui/button';
-import {Home, Info} from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
+import { Home, Settings, History, HelpCircle } from 'lucide-react';
+
+const navigationItems = [
+  { to: '/', icon: <Home className="h-4 w-4" />, label: 'Home' },
+  { to: '/history', icon: <History className="h-4 w-4" />, label: 'History' },
+  { to: '/settings', icon: <Settings className="h-4 w-4" />, label: 'Settings' },
+  { to: '/help', icon: <HelpCircle className="h-4 w-4" />, label: 'Help' },
+];
+
+interface NavButtonProps {
+  to: string;
+  icon: JSX.Element;
+  label: string;
+  isActive: boolean;
+}
 
 /**
  * Navigation button component
@@ -12,26 +25,10 @@ import {Home, Info} from 'lucide-react';
  * @param {boolean} props.isActive - Whether the button is active
  * @returns {JSX.Element} Navigation button
  */
-const NavButton = ({
-  to,
-  icon,
-  label,
-  isActive
-}: {
-  to: string;
-  icon: React.ReactNode;
-  label: string;
-  isActive: boolean;
-}): JSX.Element => (
-  <Link to={to}>
-    <Button
-      variant={isActive ? 'default' : 'ghost'}
-      size="sm"
-      className="gap-1"
-    >
-      {icon}
-      <span className="hidden sm:inline">{label}</span>
-    </Button>
+const NavButton = ({ to, icon, label, isActive }: NavButtonProps): JSX.Element => (
+  <Link to={to} className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${isActive ? 'bg-primary text-primary-foreground hover:bg-primary/90' : 'hover:bg-accent hover:text-accent-foreground'}`}>
+    {icon}
+    <span className="hidden sm:inline">{label}</span>
   </Link>
 );
 
@@ -42,28 +39,11 @@ const NavButton = ({
  */
 export const Navigation = (): JSX.Element => {
   const location = useLocation();
-
   return (
-    <nav className="fixed left-0 right-0 top-0 z-50 flex items-center justify-between border-b border-border/30 bg-background/80 px-4 py-3 backdrop-blur-md">
-      <Link to="/" className="app-logo">
-        Prompt<span>Gen</span>
-      </Link>
-
-      <div className="flex items-center gap-2">
-        <NavButton
-          to="/"
-          icon={<Home className="h-4 w-4"/>}
-          label="Home"
-          isActive={location.pathname === '/'}
-        />
-
-        <NavButton
-          to="/about"
-          icon={<Info className="h-4 w-4"/>}
-          label="About"
-          isActive={location.pathname === '/about'}
-        />
-      </div>
+    <nav className="flex items-center gap-1">
+      {navigationItems.map(({ to, icon, label }) => (
+        <NavButton key={to} to={to} icon={icon} label={label} isActive={location.pathname === to} />
+      ))}
     </nav>
   );
 };

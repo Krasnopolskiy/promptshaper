@@ -59,13 +59,5 @@ function getPanelMinSize(type: 'left' | 'middle' | 'right'): number {
  * @returns {JSX.Element} The rendered panel
  */
 export function PanelRenderer({ type, size, children }: PanelRendererProps): JSX.Element {
-  return (
-    <Panel
-      defaultSize={size}
-      minSize={getPanelMinSize(type)}
-      className={getPanelStyles(type)}
-    >
-      {children}
-    </Panel>
-  );
+  return <Panel defaultSize={size} minSize={getPanelMinSize(type)} className={getPanelStyles(type)}>{children}</Panel>;
 }

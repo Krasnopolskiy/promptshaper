@@ -77,21 +77,10 @@ function renderSectionHeader(): JSX.Element {
  * @param {(index: number) => void} setActiveFeature - Function to set the active feature.
  * @returns {JSX.Element} The feature grid.
  */
-function renderFeatureGrid(
-  features: FeatureItem[],
-  activeFeature: number,
-  setActiveFeature: (index: number) => void
-): JSX.Element {
+function renderFeatureGrid(features: FeatureItem[], activeFeature: number, setActiveFeature: (index: number) => void): JSX.Element {
   return (
     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-      {features.map((feature, index) => (
-        <FeatureCard
-          key={index}
-          feature={feature}
-          isActive={activeFeature === index}
-          onMouseEnter={() => setActiveFeature(index)}
-        />
-      ))}
+      {features.map((feature, index) => <FeatureCard key={index} feature={feature} isActive={activeFeature === index} onMouseEnter={() => setActiveFeature(index)} />)}
     </div>
   );
 }
@@ -160,16 +149,12 @@ interface FeatureCardProps {
  * @returns The rendered feature card
  */
 function FeatureCard({ feature, isActive, onMouseEnter }: FeatureCardProps): JSX.Element {
-  const cardClasses = `rounded-xl border border-border/50 bg-white p-6 shadow-lg transition-all duration-500 dark:bg-background ${
-    isActive
-      ? 'scale-105 border-primary/20 shadow-xl'
-      : 'hover:scale-[1.02] hover:shadow-xl'
-  }`;
-
   return (
-    <div className={cardClasses} onMouseEnter={onMouseEnter}>
-      {renderFeatureIcon(feature.icon)}
-      {renderFeatureText(feature.title, feature.description)}
+    <div className={`relative overflow-hidden rounded-lg border p-2 transition-all hover:border-foreground/50 ${isActive ? 'border-foreground/50 shadow-lg' : 'border-border'}`} onMouseEnter={onMouseEnter}>
+      <div className="flex h-full flex-col justify-between space-y-2">
+        {renderFeatureIcon(feature.icon)}
+        {renderFeatureText(feature.title, feature.description)}
+      </div>
     </div>
   );
 }

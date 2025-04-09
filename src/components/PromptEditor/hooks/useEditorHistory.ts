@@ -27,17 +27,8 @@ interface HistoryActions {
  * @param {string} params.value - Current editor value
  * @returns {string[]} Updated history stack
  */
-function updateHistoryStack({
-  historyStack,
-  historyIndex,
-  value
-}: {
-  historyStack: string[];
-  historyIndex: number;
-  value: string;
-}): string[] {
-  const newStack = historyStack.slice(0, historyStack.length - historyIndex);
-  return [...newStack, value];
+function updateHistoryStack({ historyStack, historyIndex, value }: { historyStack: string[]; historyIndex: number; value: string }): string[] {
+  return [...historyStack.slice(0, historyStack.length - historyIndex), value];
 }
 
 /**
@@ -46,18 +37,13 @@ function updateHistoryStack({
  * @param {HistoryActions} actions - Actions to update history
  * @returns {Function} Undo handler function
  */
-function createUndoHandler(
-  state: HistoryState,
-  actions: HistoryActions
-): () => string | null {
+function createUndoHandler(state: HistoryState, actions: HistoryActions): () => string | null {
   return () => {
-    if (state.historyIndex < state.historyStack.length - 1) {
-      actions.setIsUndoRedo(true);
-      const newIndex = state.historyIndex + 1;
-      actions.setHistoryIndex(newIndex);
-      return state.historyStack[state.historyStack.length - 1 - newIndex];
-    }
-    return null;
+    if (state.historyIndex >= state.historyStack.length - 1) return null;
+    actions.setIsUndoRedo(true);
+    const newIndex = state.historyIndex + 1;
+    actions.setHistoryIndex(newIndex);
+    return state.historyStack[state.historyStack.length - 1 - newIndex];
   };
 }
 
@@ -67,18 +53,44 @@ function createUndoHandler(
  * @param {HistoryActions} actions - Actions to update history
  * @returns {Function} Redo handler function
  */
-function createRedoHandler(
-  state: HistoryState,
-  actions: HistoryActions
-): () => string | null {
+function createRedoHandler(state: HistoryState, actions: HistoryActions): () => string | null {
   return () => {
-    if (state.historyIndex > 0) {
-      actions.setIsUndoRedo(true);
-      const newIndex = state.historyIndex - 1;
-      actions.setHistoryIndex(newIndex);
-      return state.historyStack[state.historyStack.length - 1 - newIndex];
-    }
-    return null;
+    if (state.historyIndex <= 0) return null;
+    actions.setIsUndoRedo(true);
+    const newIndex = state.historyIndex - 1;
+    actions.setHistoryIndex(newIndex);
+    return state.historyStack[state.historyStack.length - 1 - newIndex];
+  };
+}
+
+/**
+ * Updates history when value changes
+ * @param {Object} params - Parameters for the update
+ * @param {string} params.value - Current value
+ * @param {HistoryState} params.state - Current state
+ * @param {HistoryActions} params.actions - State update actions
+ */
+function handleValueChange({ value, state, actions }: { value: string; state: HistoryState; actions: HistoryActions }): void {
+  if (!state.isUndoRedo && value !== state.historyStack[state.historyStack.length - 1 - state.historyIndex]) {
+    const newStack = updateHistoryStack({ historyStack: state.historyStack, historyIndex: state.historyIndex, value });
+    actions.setHistoryStack(newStack);
+    actions.setHistoryIndex(0);
+  }
+  actions.setIsUndoRedo(false);
+}
+
+/**
+ * Creates history result object for the hook
+ * @param {HistoryState} state - Current history state
+ * @param {HistoryActions} actions - State update actions
+ * @returns {EditorHistoryResult} The history result
+ */
+function createHistoryResult(state: HistoryState, actions: HistoryActions): EditorHistoryResult {
+  return {
+    handleUndo: createUndoHandler(state, actions),
+    handleRedo: createRedoHandler(state, actions),
+    undoDisabled: state.historyIndex >= state.historyStack.length - 1,
+    redoDisabled: state.historyIndex <= 0
   };
 }
 
@@ -88,29 +100,15 @@ function createRedoHandler(
  * @returns {EditorHistoryResult} History state and handlers
  */
 export function useEditorHistory(value: string): EditorHistoryResult {
-  const [historyStack, setHistoryStack] = useState<string[]>([]);
-  const [historyIndex, setHistoryIndex] = useState<number>(-1);
-  const [isUndoRedo, setIsUndoRedo] = useState<boolean>(false);
+  const [stack, setStack] = useState<string[]>([]);
+  const [index, setIndex] = useState<number>(-1);
+  const [isUndo, setIsUndo] = useState<boolean>(false);
 
-  /**
-   * Update history stack when value changes
-   */
-  useEffect(() => {
-    if (!isUndoRedo && value !== historyStack[historyStack.length - 1 - historyIndex]) {
-      const newStack = updateHistoryStack({ historyStack, historyIndex, value });
-      setHistoryStack(newStack);
-      setHistoryIndex(0);
-    }
-    setIsUndoRedo(false);
-  }, [value, historyStack, historyIndex, isUndoRedo]);
+  const state = { historyStack: stack, historyIndex: index, isUndoRedo: isUndo };
+  const actions = { setHistoryStack: setStack, setHistoryIndex: setIndex, setIsUndoRedo: setIsUndo };
 
-  const state: HistoryState = { historyStack, historyIndex, isUndoRedo };
-  const actions: HistoryActions = { setHistoryStack, setHistoryIndex, setIsUndoRedo };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { handleValueChange({ value, state, actions }); }, [value, stack, index, isUndo]);
 
-  return {
-    handleUndo: createUndoHandler(state, actions),
-    handleRedo: createRedoHandler(state, actions),
-    undoDisabled: historyIndex >= historyStack.length - 1,
-    redoDisabled: historyIndex <= 0
-  };
+  return createHistoryResult(state, actions);
 }

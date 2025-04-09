@@ -4,8 +4,26 @@
  */
 import React from 'react';
 import { Placeholder } from '@/types';
-import { createUpdatePayload, updatePlaceholder } from './saveHandlers';
 import { EnterKeyConfig } from './keyHandlersConfig';
+import {
+  createEnterKeyConfig,
+  createSaveHandler,
+  extractParamsData
+} from './keyHandlerUtils';
+
+/**
+ * Executes the appropriate action based on editing state
+ * @param {boolean} isEditing - Whether in editing mode
+ * @param {() => void} handleSave - Save handler function
+ * @param {() => void} handleCancel - Cancel handler function
+ */
+function executeEnterAction(
+  isEditing: boolean,
+  handleSave: () => void,
+  handleCancel: () => void
+): void {
+  isEditing ? handleSave() : handleCancel();
+}
 
 /**
  * Handles Enter key press event
@@ -17,11 +35,7 @@ export function handleEnterKey(config: EnterKeyConfig): boolean {
 
   if (event.key === 'Enter' && !event.shiftKey) {
     preventDefault();
-    if (isEditing) {
-      handleSave();
-    } else {
-      handleCancel();
-    }
+    executeEnterAction(isEditing, handleSave, handleCancel);
     return true;
   }
   return false;
@@ -65,6 +79,88 @@ export interface KeyHandlerParams {
 }
 
 /**
+ * Processes keydown event for placeholder editing
+ * @param {React.KeyboardEvent} e - Keyboard event
+ * @param {EnterKeyConfig} config - Enter key configuration
+ * @param {Function|undefined} resetFn - Reset function
+ */
+function processKeyEvent(
+  e: React.KeyboardEvent,
+  config: EnterKeyConfig,
+  resetFn?: () => void
+): void {
+  if (!handleEnterKey(config)) {
+    handleEscapeKey(e, resetFn);
+  }
+}
+
+/**
+ * Creates a save handler from parameter objects
+ * @param {string} id - Placeholder ID
+ * @param {KeyHandlerParams} params - All parameters
+ * @returns {() => void} Save handler function
+ */
+function createSaveHandlerFromParams(
+  id: string,
+  params: KeyHandlerParams
+): () => void {
+  const { newName, newContent, selectedColor, updateFn, setEditingFn } = params;
+  const updateParams = { newName, newContent, selectedColor };
+
+  return createSaveHandler(
+    id, updateParams, updateFn, setEditingFn
+  );
+}
+
+/**
+ * Extract placeholder from handler parameters
+ * @param {KeyHandlerParams} params - Handler parameters
+ * @returns {Placeholder} The placeholder
+ */
+function extractPlaceholder(params: KeyHandlerParams): Placeholder {
+  const [placeholder] = extractParamsData(params);
+  return placeholder;
+}
+
+/**
+ * Type for config inputs
+ */
+type ConfigInputType = Parameters<typeof createEnterKeyConfig>[0];
+
+/**
+ * Creates a config params object with required properties
+ * @param {KeyHandlerParams} params - Handler parameters
+ * @param {React.KeyboardEvent} event - Keyboard event
+ * @param {() => void} handleSave - Save handler function
+ * @returns {Object} Config parameters
+ */
+function createConfigInputs(
+  params: KeyHandlerParams,
+  event: React.KeyboardEvent,
+  handleSave: () => void
+): ConfigInputType {
+  return {
+    event, placeholder: extractPlaceholder(params),
+    newName: params.newName, handleSave, resetFn: params.resetFn
+  };
+}
+
+/**
+ * Creates save handler and config for keyboard event
+ * @param {KeyHandlerParams} params - Key handler parameters
+ * @param {React.KeyboardEvent} event - Keyboard event
+ * @returns {EnterKeyConfig} Enter key configuration
+ */
+function prepareKeyHandling(
+  params: KeyHandlerParams,
+  event: React.KeyboardEvent
+): EnterKeyConfig {
+  const handleSave = createSaveHandlerFromParams(params.id, params);
+  const configInputs = createConfigInputs(params, event, handleSave);
+  return createEnterKeyConfig(configInputs);
+}
+
+/**
  * Creates keyboard event handler for placeholder editing
  * @param {KeyHandlerParams} params - Key handler parameters
  * @returns {Function} Keyboard event handler
@@ -72,40 +168,8 @@ export interface KeyHandlerParams {
 export function createKeyDownHandler(
   params: KeyHandlerParams
 ): (e: React.KeyboardEvent) => void {
-  const { id, newName, newContent, selectedColor, updateFn, setEditingFn, resetFn } = params;
-
   return (e: React.KeyboardEvent): void => {
-    // Create a placeholder object with the ID
-    const placeholder = { id } as Placeholder;
-
-    // Create the enter key config
-    const enterKeyConfig: EnterKeyConfig = {
-      event: e as unknown as React.KeyboardEvent<HTMLInputElement>,
-      placeholder,
-      isEditing: true,
-      newName,
-      /**
-       * Handles saving the placeholder changes
-       * @returns {void}
-       */
-      handleSave: (): void => {
-        const updates = createUpdatePayload(newName, newContent, selectedColor);
-        updatePlaceholder(id, updates, updateFn, setEditingFn);
-      },
-      /**
-       * Handles cancelling the editing operation
-       * @returns {void}
-       */
-      handleCancel: (): void => resetFn?.(),
-      /**
-       * Prevents the default event behavior
-       * @returns {void}
-       */
-      preventDefault: (): void => e.preventDefault()
-    };
-
-    if (!handleEnterKey(enterKeyConfig)) {
-      handleEscapeKey(e, resetFn);
-    }
+    const config = prepareKeyHandling(params, e);
+    processKeyEvent(e, config, params.resetFn);
   };
 }

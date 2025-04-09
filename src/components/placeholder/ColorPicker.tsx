@@ -25,20 +25,38 @@ interface ColorPickerContentProps {
 }
 
 /**
+ * Create button style based on color
+ * @param {string} color - Color value
+ * @returns {React.CSSProperties} Button style
+ */
+function createButtonStyle(color: string): React.CSSProperties {
+  return { backgroundColor: color };
+}
+
+/**
+ * Create button props based on color and click handler
+ * @param {string} color - Color value
+ * @param {Function} onClick - Click handler function
+ * @returns {Object} Button props
+ */
+function createButtonProps(color: string, onClick: () => void): React.ComponentProps<typeof Button> {
+  return {
+    variant: "outline",
+    size: "icon",
+    onClick,
+    style: createButtonStyle(color),
+    className: "h-8 w-8 rounded-full border-2"
+  };
+}
+
+/**
  * Color button component
  * @param {ColorButtonProps} props - Component props
  * @returns {JSX.Element} Color button
  */
 function ColorButton({ color, onClick }: ColorButtonProps): JSX.Element {
-  return (
-    <Button
-      variant="outline"
-      size="icon"
-      onClick={onClick}
-      style={{ backgroundColor: color }}
-      className="h-8 w-8 rounded-full border-2"
-    />
-  );
+  const buttonProps = createButtonProps(color, onClick);
+  return <Button {...buttonProps} />;
 }
 
 /**

@@ -32,6 +32,15 @@ export function createColorUpdate(selectedColor: string): Partial<Placeholder> {
 }
 
 /**
+ * Creates combined payload object
+ * @param {Partial<Placeholder>[]} updates - Array of partial updates
+ * @returns {Partial<Placeholder>} Combined update payload
+ */
+export function combineUpdates(...updates: Partial<Placeholder>[]): Partial<Placeholder> {
+  return Object.assign({}, ...updates);
+}
+
+/**
  * Creates update payload for the placeholder
  * @param {string} newName - Updated name
  * @param {string} newContent - Updated content
@@ -43,11 +52,11 @@ export function createUpdatePayload(
   newContent: string,
   selectedColor: string
 ): Partial<Placeholder> {
-  return {
-    ...createNameUpdate(newName),
-    ...createContentUpdate(newContent),
-    ...createColorUpdate(selectedColor)
-  };
+  const nameUpdate = createNameUpdate(newName);
+  const contentUpdate = createContentUpdate(newContent);
+  const colorUpdate = createColorUpdate(selectedColor);
+
+  return combineUpdates(nameUpdate, contentUpdate, colorUpdate);
 }
 
 /**

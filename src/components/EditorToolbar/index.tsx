@@ -29,39 +29,22 @@ interface EditorToolbarProps {
 }
 
 /**
- * ToolbarContent component
+ * Renders the toolbar content with undo/redo and insert functionality
  * @param {EditorToolbarProps} props - Component props
- * @returns {JSX.Element} The rendered toolbar content
+ * @returns {JSX.Element} The toolbar content component
  */
-function ToolbarContent({
-  handleUndo,
-  handleRedo,
-  undoDisabled,
-  redoDisabled,
-  placeholders,
-  handleInsertPlaceholder
-}: EditorToolbarProps): JSX.Element {
-  return (
-    <div className="flex items-center gap-2">
-      <UndoRedoButtons
-        handleUndo={handleUndo}
-        handleRedo={handleRedo}
-        undoDisabled={undoDisabled}
-        redoDisabled={redoDisabled}
-      />
-      <InsertButton
-        placeholders={placeholders}
-        handleInsertPlaceholder={handleInsertPlaceholder}
-      />
-    </div>
-  );
+function ToolbarContent(props: EditorToolbarProps): JSX.Element {
+  return <div className="flex items-center gap-2">
+    <UndoRedoButtons {...props} />
+    <InsertButton placeholders={props.placeholders} handleInsertPlaceholder={props.handleInsertPlaceholder} />
+  </div>;
 }
 
 /**
- * EditorToolbar component
+ * Editor toolbar component
  * @param {EditorToolbarProps} props - Component props
- * @returns {JSX.Element} The rendered toolbar
+ * @returns {JSX.Element} The editor toolbar component
  */
 export function EditorToolbar(props: EditorToolbarProps): JSX.Element {
-  return <ToolbarContent {...props} />;
+  return <div className="border-b p-2"><ToolbarContent {...props} /></div>;
 }

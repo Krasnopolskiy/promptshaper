@@ -54,7 +54,7 @@ function createInitialState(placeholder: Placeholder): PlaceholderState {
 /**
  * Interface for state handler functions
  */
-interface StateHandlers {
+export interface StateHandlers {
   setIsEditing: (isEditing: boolean) => void;
   setIsExpanded: (isExpanded: boolean) => void;
   setNewName: (name: string) => void;

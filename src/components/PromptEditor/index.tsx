@@ -6,56 +6,32 @@
  *
  * @module components/PromptEditor
  */
-import { useRef } from 'react';
-import { Placeholder } from '@/types';
-import { useTheme } from '@/hooks';
 import { EditorContent } from './EditorContent';
 import { EditorWrapper } from './components/EditorWrapper';
-import { useEditor } from './hooks/useEditor';
+import { useEditorBasics, createEditorProps, type Props } from './props';
+import type { EditorContentProps } from './types';
 
 /**
- * PromptEditor component props
- * @interface PromptEditorProps
+ * Maps content parameters to editor content component
+ * @param {EditorContentProps} params - Content parameters
+ * @returns {JSX.Element} Editor content component
  */
-interface PromptEditorProps {
-  /** Current prompt text value */
-  value: string;
-  /** Callback for when the prompt text changes */
-  onChange: (value: string) => void;
-  /** List of available placeholders */
-  placeholders: Placeholder[];
-  /** Callback for when a placeholder is inserted */
-  onInsertPlaceholder?: (name: string, position: number) => number;
+function mapToEditorContent(params: EditorContentProps): JSX.Element {
+  return <EditorContent {...params} />;
 }
 
 /**
- * PromptEditor component for editing and formatting prompts with placeholders
- * @param {PromptEditorProps} props - Component props
- * @returns {JSX.Element} The rendered prompt editor
+ * PromptEditor Component
+ * @param {Props} props - Component props
+ * @returns {JSX.Element} Editor component
  */
-export function PromptEditor({ value, onChange, placeholders, onInsertPlaceholder }: PromptEditorProps): JSX.Element {
-  const editorRef = useRef<HTMLTextAreaElement>(null);
-  const { theme } = useTheme();
-  const { handleEditorChange, handleUndo, handleRedo, handlePlaceholderInsertion, undoDisabled, redoDisabled } =
-    useEditor({ value, onChange, placeholders, onInsertPlaceholder });
+export function PromptEditor(props: Props): JSX.Element {
+  const basics = useEditorBasics(props);
+  const { contentParams, wrapperProps } = createEditorProps(basics);
 
   return (
-    <EditorWrapper
-      placeholders={placeholders}
-      onUndo={handleUndo}
-      onRedo={handleRedo}
-      onInsertPlaceholder={(name) => handlePlaceholderInsertion({ name, editorRef: editorRef.current })}
-      undoDisabled={undoDisabled}
-      redoDisabled={redoDisabled}
-    >
-      <EditorContent
-        value={value}
-        onChange={handleEditorChange}
-        editorRef={editorRef}
-        handleUndo={handleUndo}
-        handleRedo={handleRedo}
-        theme={theme}
-      />
+    <EditorWrapper {...wrapperProps}>
+      {mapToEditorContent(contentParams)}
     </EditorWrapper>
   );
 }

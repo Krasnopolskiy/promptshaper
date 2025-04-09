@@ -6,15 +6,15 @@
  * @module components/placeholder/components/ContentEditor
  */
 import React from 'react';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { Pencil } from 'lucide-react';
+import { ContentEditorDisplay } from './ContentEditorDisplay';
+import { EditorContent } from './EditorContent';
+import { EditorHeaderSection } from './EditorHeaderSection';
 
 /**
  * ContentEditor component props
  * @interface ContentEditorProps
  */
-interface ContentEditorProps {
+export interface ContentEditorProps {
   /** Whether editing mode is active */
   isEditing: boolean;
   /** Function to set editing mode */
@@ -33,171 +33,103 @@ interface ContentEditorProps {
   name: string;
   /** Function to handle keyboard events */
   handleKeyDown: (e: React.KeyboardEvent) => void;
+  /** Maximum height for the textarea */
+  maxHeight?: number;
 }
 
 /**
- * Renders the edit button for the content editor
- * @description Renders a small pencil icon button that toggles editing mode
- * @param {Function} setIsEditing - Function to set editing mode
- * @returns {JSX.Element} The edit button
+ * Type for editor content props
  */
-function EditButton({ setIsEditing }: { setIsEditing: (editing: boolean) => void }): JSX.Element {
-  return (
-    <Button
-      size="icon"
-      variant="ghost"
-      className="h-6 w-6"
-      onClick={() => setIsEditing(true)}
-    >
-      <Pencil className="h-3 w-3 text-muted-foreground"/>
-    </Button>
-  );
-}
-
-/**
- * Renders the content display area when not in edit mode
- * @description Shows the content text or an empty state
- * @param {Object} props - Component props
- * @param {string} props.content - The content to display
- * @param {Function} props.setIsEditing - Function to toggle editing mode
- * @returns {JSX.Element} The content display element
- */
-function ContentDisplay({
-  content,
-  setIsEditing
-}: {
+type EditorContentProps = {
+  /** Whether editing mode is active */
+  isEditing: boolean;
+  /** Current content */
   content: string;
-  setIsEditing: (editing: boolean) => void
-}): JSX.Element {
-  const displayContent = content
-    ? <span className="whitespace-pre-line">{content}</span>
-    : <span className="italic text-muted-foreground">Empty (click to edit)</span>;
-
-  return (
-    <div
-      className="min-h-[40px] rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm cursor-pointer transition-colors hover:bg-muted/20"
-      onClick={() => setIsEditing(true)}
-    >
-      {displayContent}
-    </div>
-  );
-}
-
-/**
- * Renders the textarea for editing content
- * @description Provides an input area for editing the content
- * @param {Object} props - Component props
- * @param {string} props.newContent - The current content being edited
- * @param {Function} props.setNewContent - Function to update content
- * @param {React.RefObject<HTMLTextAreaElement>} props.textareaRef - Reference to the textarea
- * @param {Function} props.handleKeyDown - Function to handle keyboard events
- * @param {string} props.name - The name of the placeholder
- * @returns {JSX.Element} The textarea element
- */
-function ContentTextarea({
-  newContent,
-  setNewContent,
-  textareaRef,
-  handleKeyDown,
-  name
-}: {
-  newContent: string;
+  /** Function to set editing state */
+  setIsEditing: (editing: boolean) => void;
+  /** Function to update content */
   setNewContent: (content: string) => void;
-  textareaRef: React.RefObject<HTMLTextAreaElement>;
-  handleKeyDown: (e: React.KeyboardEvent) => void;
+  /** Placeholder name */
   name: string;
+  /** Maximum height for the textarea */
+  maxHeight?: number;
+};
+
+/**
+ * Type for editor content return props
+ */
+type EditorContentReturnProps = {
+  isEditing: boolean;
+  content: string;
+  handleEditClick: (editing: boolean) => void;
+  setContent: (content: string) => void;
+  name: string;
+  maxHeight?: number;
+};
+
+/**
+ * Creates props for EditorContent component
+ * @param {EditorContentProps} props - Source props with content editing parameters
+ * @returns {EditorContentReturnProps} Formatted props for EditorContent component
+ */
+function createEditorProps(props: EditorContentProps): EditorContentReturnProps {
+  return {
+    isEditing: props.isEditing,
+    content: props.content,
+    /**
+     * Handles click events for editing mode toggle
+     * @param {boolean} editing - Whether to enable editing mode
+     * @returns {void}
+     */
+    handleEditClick: (editing: boolean) => props.setIsEditing(editing),
+    setContent: props.setNewContent,
+    name: props.name,
+    maxHeight: props.maxHeight,
+  };
+}
+
+/**
+ * Editor component for edit mode
+ * @param {EditorContentProps} props - Component props
+ * @returns {JSX.Element} Editor component
+ */
+function EditorMode(props: EditorContentProps): JSX.Element {
+  return <EditorContent {...createEditorProps(props)} />;
+}
+
+/**
+ * Display component for view mode
+ * @param {Object} props - Component props
+ * @param {string} props.content - Current content
+ * @param {Function} props.setIsEditing - Function to set editing state
+ * @returns {JSX.Element} Display component
+ */
+function DisplayMode(props: {
+  content: string;
+  setIsEditing: (editing: boolean) => void;
 }): JSX.Element {
-  return (
-    <Textarea
-      ref={textareaRef}
-      value={newContent}
-      onChange={e => setNewContent(e.target.value)}
-      onKeyDown={handleKeyDown}
-      className="min-h-[100px] text-sm"
-      placeholder={`Enter content for ${name}...`}
-    />
-  );
+  return <ContentEditorDisplay {...props} />;
 }
 
 /**
- * Editor content when in editing mode
- * @param {Pick<ContentEditorProps, 'newContent' | 'setNewContent' | 'textareaRef' | 'handleKeyDown' | 'name'>} props - Component props
- * @returns {JSX.Element} Editor content
+ * Renders editor content based on editing state
+ * @param {EditorContentProps} props - Component props
+ * @returns {JSX.Element} Editor content component
  */
-function EditorContent({
-  newContent,
-  setNewContent,
-  textareaRef,
-  handleKeyDown,
-  name,
-}: Pick<ContentEditorProps, 'newContent' | 'setNewContent' | 'textareaRef' | 'handleKeyDown' | 'name'>): JSX.Element {
-  return (
-    <ContentTextarea
-      newContent={newContent}
-      setNewContent={setNewContent}
-      textareaRef={textareaRef}
-      handleKeyDown={handleKeyDown}
-      name={name}
-    />
-  );
+function RenderContent(props: EditorContentProps): JSX.Element {
+  return props.isEditing
+    ? <EditorMode {...props} />
+    : <DisplayMode content={props.content} setIsEditing={props.setIsEditing} />;
 }
 
 /**
- * Renders the editor header section
- * @param {Pick<ContentEditorProps, 'isEditing' | 'setIsEditing'>} props - Component props
- * @returns {JSX.Element} Editor header
- */
-function EditorHeaderSection({ isEditing, setIsEditing }: Pick<ContentEditorProps, 'isEditing' | 'setIsEditing'>): JSX.Element {
-  return (
-    <div className="flex items-center justify-between">
-      <label className="text-xs text-muted-foreground">Content:</label>
-      {!isEditing && <EditButton setIsEditing={setIsEditing} />}
-    </div>
-  );
-}
-
-/**
- * Renders the editor content section
- * @param {Pick<ContentEditorProps, 'isEditing' | 'newContent' | 'setNewContent' | 'textareaRef' | 'handleKeyDown' | 'name' | 'content' | 'setIsEditing'>} props - Component props
- * @returns {JSX.Element} Editor content
- */
-function EditorContentSection(props: Pick<ContentEditorProps, 'isEditing' | 'newContent' | 'setNewContent' | 'textareaRef' | 'handleKeyDown' | 'name' | 'content' | 'setIsEditing'>): JSX.Element {
-  const { isEditing, newContent, setNewContent, textareaRef, handleKeyDown, name, content, setIsEditing } = props;
-  return isEditing ? (
-    <EditorContent
-      newContent={newContent}
-      setNewContent={setNewContent}
-      textareaRef={textareaRef}
-      handleKeyDown={handleKeyDown}
-      name={name}
-    />
-  ) : (
-    <ContentDisplay content={content} setIsEditing={setIsEditing} />
-  );
-}
-
-/**
- * Renders the complete editor interface
+ * Creates render content props
  * @param {ContentEditorProps} props - Component props
- * @returns {JSX.Element} Complete editor interface
+ * @returns {EditorContentProps} Props for RenderContent
  */
-function EditorInterface(props: ContentEditorProps): JSX.Element {
-  const { isEditing, setIsEditing, content, newContent, setNewContent, textareaRef, name, handleKeyDown } = props;
-  return (
-    <div className="space-y-1">
-      <EditorHeaderSection isEditing={isEditing} setIsEditing={setIsEditing} />
-      <EditorContentSection
-        isEditing={isEditing}
-        newContent={newContent}
-        setNewContent={setNewContent}
-        textareaRef={textareaRef}
-        handleKeyDown={handleKeyDown}
-        name={name}
-        content={content}
-        setIsEditing={setIsEditing}
-      />
-    </div>
-  );
+function createRenderContentProps(props: ContentEditorProps): EditorContentProps {
+  const { isEditing, setIsEditing, content, setNewContent, name, maxHeight } = props;
+  return { isEditing, setIsEditing, content, setNewContent, name, maxHeight };
 }
 
 /**
@@ -206,5 +138,12 @@ function EditorInterface(props: ContentEditorProps): JSX.Element {
  * @returns {JSX.Element} Content editor
  */
 export function ContentEditor(props: ContentEditorProps): JSX.Element {
-  return <EditorInterface {...props} />;
+  const { isEditing, setIsEditing } = props;
+  return (
+    <div className="space-y-1">
+      <EditorHeaderSection isEditing={isEditing} setIsEditing={setIsEditing} />
+      <RenderContent {...createRenderContentProps(props)} />
+    </div>
+  );
 }
+

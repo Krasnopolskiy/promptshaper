@@ -3,308 +3,269 @@
  *
  * @module components/placeholder/utils/renderUtils
  */
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Placeholder } from '@/types';
 import { Card, CardContent } from '@/components/ui/card';
-import { PLACEHOLDER_COLORS } from '@/hooks/usePlaceholders';
 import { PlaceholderCardHeader } from '../PlaceholderCardHeader';
-import { PlaceholderCardContent } from '../PlaceholderCardContent';
 import { ActionHandlers } from './actionHandlers';
-import { StateHandlers, createInitialState, focusInputIfEditing, expandIfNeeded } from './stateHandlers';
+import { StateHandlers } from './stateHandlers';
+import { renderContent } from './contentUtils';
+import { useExpandEffect } from './expandUtils';
 
 /**
- * Header props type
+ * Interface representing the state of a placeholder card
  */
-export interface HeaderProps {
-  /** Placeholder data */
-  placeholder: Placeholder;
-  /** Is card in editing mode */
+export interface PlaceholderState {
+  /** Whether the card is in editing mode */
   isEditing: boolean;
-  /** Is card expanded */
+  /** Whether the card is expanded */
   isExpanded: boolean;
-  /** New name value */
+  /** Optional CSS class name */
+  className?: string;
+  /** Optional inline styles */
+  style?: React.CSSProperties;
+  /** Current name in edit mode */
   newName: string;
-  /** Input field reference */
-  inputRef: React.RefObject<HTMLInputElement>;
-  /** Action handlers */
-  actionHandlers: ActionHandlers;
-  /** State handlers */
-  stateHandlers: StateHandlers;
-}
-
-/**
- * Helper function to create handler props for header
- * @param {ActionHandlers} actionHandlers - Action handlers
- * @param {StateHandlers} stateHandlers - State handlers
- * @returns {Object} Handler props
- */
-function createHeaderHandlerProps(
-  actionHandlers: ActionHandlers,
-  stateHandlers: StateHandlers
-): Partial<React.ComponentProps<typeof PlaceholderCardHeader>> {
-  return {
-    handleKeyDown: actionHandlers.handleKeyDown,
-    setNewName: stateHandlers.setNewName,
-    setIsExpanded: stateHandlers.setIsExpanded,
-    setIsEditing: stateHandlers.setIsEditing,
-    handleSave: actionHandlers.handleSave,
-    handleCancel: actionHandlers.handleCancel,
-    handleCopyToClipboard: actionHandlers.handleCopyToClipboard,
-    handleInsert: actionHandlers.handleInsert,
-    toggleMode: actionHandlers.toggleMode,
-    getModeDescription: actionHandlers.getModeDsc
-  };
-}
-
-/**
- * Renders card header component
- * @param {HeaderProps} props - Component props
- * @returns {JSX.Element} Card header component
- */
-export function renderHeader(props: HeaderProps): JSX.Element {
-  const {
-    placeholder,
-    isEditing,
-    isExpanded,
-    newName,
-    inputRef,
-    actionHandlers,
-    stateHandlers
-  } = props;
-
-  const handlerProps = createHeaderHandlerProps(actionHandlers, stateHandlers);
-
-  return (
-    <PlaceholderCardHeader
-      placeholder={placeholder}
-      isEditing={isEditing}
-      isExpanded={isExpanded}
-      newName={newName}
-      inputRef={inputRef}
-      {...handlerProps}
-    />
-  );
-}
-
-/**
- * Content props type
- */
-export interface ContentProps {
-  /** Is card expanded */
-  isExpanded: boolean;
-  /** Placeholder data */
-  placeholder: Placeholder;
-  /** Is card in editing mode */
-  isEditing: boolean;
-  /** New content value */
+  /** Current content in edit mode */
   newContent: string;
-  /** Selected color value */
+  /** Selected color in edit mode */
   selectedColor: string;
-  /** Textarea field reference */
-  textareaRef: React.RefObject<HTMLTextAreaElement>;
-  /** Action handlers */
-  actionHandlers: ActionHandlers;
-  /** State handlers */
-  stateHandlers: StateHandlers;
 }
 
 /**
- * Renders card content component if expanded
- * @param {ContentProps} props - Component props
- * @returns {JSX.Element | null} Card content component or null
- */
-export function renderContent(props: ContentProps): JSX.Element | null {
-  if (!props.isExpanded) return null;
-
-  return (
-    <PlaceholderCardContent
-      placeholder={props.placeholder}
-      isEditing={props.isEditing}
-      newContent={props.newContent}
-      selectedColor={props.selectedColor}
-      textareaRef={props.textareaRef}
-      placeholderColors={PLACEHOLDER_COLORS}
-      setNewContent={props.stateHandlers.setNewContent}
-      setSelectedColor={props.stateHandlers.setSelectedColor}
-      setIsEditing={props.stateHandlers.setIsEditing}
-      handleCopyToClipboard={props.actionHandlers.handleCopyToClipboard}
-      handleInsert={props.actionHandlers.handleInsert}
-      handleDelete={props.actionHandlers.handleDelete}
-      handleCancel={props.actionHandlers.handleCancel}
-    />
-  );
-}
-
-/**
- * Card render props type
- */
-export interface CardRenderProps {
-  /** Card class name */
-  className: string;
-  /** Card style */
-  style: React.CSSProperties;
-  /** Header props */
-  headerProps: HeaderProps;
-  /** Content props */
-  contentProps: ContentProps;
-}
-
-/**
- * Creates header props object
- * @param {Object} options - Options
- * @param {Placeholder} options.placeholder - The placeholder data object
- * @param {ReturnType<typeof createInitialState>} options.state - Current state of the component
- * @param {React.RefObject<HTMLInputElement>} options.inputRef - Reference to the input element
- * @param {ActionHandlers} options.actionHandlers - Action handler functions
- * @param {StateHandlers} options.stateHandlers - State handler functions
- * @returns {HeaderProps} Header props
- */
-function createHeaderProps(options: {
-  placeholder: Placeholder;
-  state: ReturnType<typeof createInitialState>;
-  inputRef: React.RefObject<HTMLInputElement>;
-  actionHandlers: ActionHandlers;
-  stateHandlers: StateHandlers;
-}): HeaderProps {
-  const { placeholder, state, inputRef, actionHandlers, stateHandlers } = options;
-  const { isEditing, isExpanded, newName } = state;
-
-  return {
-    placeholder,
-    isEditing,
-    isExpanded,
-    newName,
-    inputRef,
-    actionHandlers,
-    stateHandlers
-  };
-}
-
-/**
- * Creates content props object
- * @param {Object} options - Options
- * @param {Placeholder} options.placeholder - The placeholder data object
- * @param {ReturnType<typeof createInitialState>} options.state - Current state of the component
- * @param {React.RefObject<HTMLTextAreaElement>} options.textareaRef - Reference to the textarea element
- * @param {ActionHandlers} options.actionHandlers - Action handler functions
- * @param {StateHandlers} options.stateHandlers - State handler functions
- * @returns {ContentProps} Content props
- */
-function createContentProps(options: {
-  placeholder: Placeholder;
-  state: ReturnType<typeof createInitialState>;
-  textareaRef: React.RefObject<HTMLTextAreaElement>;
-  actionHandlers: ActionHandlers;
-  stateHandlers: StateHandlers;
-}): ContentProps {
-  const { placeholder, state, textareaRef, actionHandlers, stateHandlers } = options;
-  const { isEditing, isExpanded, newContent, selectedColor } = state;
-
-  return {
-    isExpanded,
-    placeholder,
-    isEditing,
-    newContent,
-    selectedColor,
-    textareaRef,
-    actionHandlers,
-    stateHandlers
-  };
-}
-
-/**
- * Creates props for card rendering
- * @param {Object} options - Options object
- * @param {string} options.className - CSS class name for the card
- * @param {React.CSSProperties} options.style - Style object for the card
- * @param {Placeholder} options.placeholder - Placeholder data object
- * @param {Object} options.state - Component state object
- * @param {React.RefObject<HTMLInputElement>} options.inputRef - Reference to input element
- * @param {React.RefObject<HTMLTextAreaElement>} options.textareaRef - Reference to textarea element
- * @param {ActionHandlers} options.actionHandlers - Action handler functions
- * @param {StateHandlers} options.stateHandlers - State handler functions
- * @returns {CardRenderProps} Card render props
- */
-export function createCardRenderProps(options: {
-  className: string;
-  style: React.CSSProperties;
-  placeholder: Placeholder;
-  state: ReturnType<typeof createInitialState>;
-  inputRef: React.RefObject<HTMLInputElement>;
-  textareaRef: React.RefObject<HTMLTextAreaElement>;
-  actionHandlers: ActionHandlers;
-  stateHandlers: StateHandlers;
-}): CardRenderProps {
-  const { className, style, placeholder, state, inputRef, textareaRef, actionHandlers, stateHandlers } = options;
-
-  const headerProps = createHeaderProps({ placeholder, state, inputRef, actionHandlers, stateHandlers });
-  const contentProps = createContentProps({ placeholder, state, textareaRef, actionHandlers, stateHandlers });
-
-  return { className, style, headerProps, contentProps };
-}
-
-/**
- * Configuration for placeholder card rendering
+ * Configuration interface for rendering a placeholder card
  */
 export interface PlaceholderCardRenderConfig {
-  /** Card class name */
-  className: string;
-  /** Card style */
-  style: React.CSSProperties;
+  /** Optional CSS class name for the card */
+  className?: string;
+  /** Optional inline styles for the card */
+  style?: React.CSSProperties;
   /** Placeholder data */
   placeholder: Placeholder;
-  /** Component state */
-  state: ReturnType<typeof createInitialState>;
-  /** Input reference */
+  /** Current state of the card */
+  state: PlaceholderState;
+  /** Reference to the input element */
   inputRef: React.RefObject<HTMLInputElement>;
-  /** Textarea reference */
+  /** Reference to the textarea element */
   textareaRef: React.RefObject<HTMLTextAreaElement>;
-  /** Action handlers */
+  /** Action handlers for card interactions */
   actionHandlers: ActionHandlers;
-  /** State handlers */
+  /** State handlers for card state management */
   stateHandlers: StateHandlers;
 }
 
 /**
- * Renders the placeholder card component
- * @param {PlaceholderCardRenderConfig} config - Configuration for rendering
- * @returns {JSX.Element} Card component
+ * Creates base header props for the placeholder card
+ *
+ * @param {Object} config - Configuration for base header props
+ * @param {PlaceholderState} config.state - Current state
+ * @returns {Object} Base header props
  */
-export function renderPlaceholderCard(
-  config: PlaceholderCardRenderConfig
-): JSX.Element {
-  const renderProps = createCardRenderProps(config);
+function createBaseHeaderProps({ state }: Pick<PlaceholderCardRenderConfig, 'state'>): {
+  isEditing: boolean;
+  isExpanded: boolean;
+} {
+  return {
+    isEditing: state.isEditing,
+    isExpanded: state.isExpanded
+  };
+}
 
+/**
+ * Creates mode description getter function
+ *
+ * @param {Placeholder} placeholder - Placeholder data
+ * @returns {() => string} Mode description getter function
+ */
+function createModeDescriptionGetter(placeholder: Placeholder): () => string {
+  return () => placeholder.mode || 'replace';
+}
+
+/**
+ * Creates base additional header props
+ *
+ * @param {Object} config - Configuration for base additional header props
+ * @returns {Object} Base additional header props
+ */
+function createBaseAdditionalHeaderProps(config: Pick<PlaceholderCardRenderConfig, 'state' | 'inputRef'>): {
+  newName: string;
+  inputRef: React.RefObject<HTMLInputElement>;
+} {
+  const { state, inputRef } = config;
+  return { newName: state.newName, inputRef };
+}
+
+/**
+ * Creates placeholder-related header props
+ *
+ * @param {Object} config - Configuration for placeholder-related header props
+ * @returns {Object} Placeholder-related header props
+ */
+function createPlaceholderHeaderProps(config: Pick<PlaceholderCardRenderConfig, 'placeholder'>): {
+  placeholder: Placeholder;
+  getModeDescription: () => string;
+} {
+  const { placeholder } = config;
+  return {
+    placeholder,
+    getModeDescription: createModeDescriptionGetter(placeholder)
+  };
+}
+
+/**
+ * Creates additional header props for the placeholder card
+ *
+ * @param {Object} config - Configuration for additional header props
+ * @returns {Object} Additional header props
+ */
+function createAdditionalHeaderProps(config: Pick<PlaceholderCardRenderConfig, 'placeholder' | 'state' | 'inputRef'>): {
+  placeholder: Placeholder;
+  newName: string;
+  inputRef: React.RefObject<HTMLInputElement>;
+  getModeDescription: () => string;
+} {
+  return { ...createBaseAdditionalHeaderProps(config), ...createPlaceholderHeaderProps(config) };
+}
+
+/**
+ * Creates header props for the placeholder card
+ *
+ * @param {Object} config - Configuration for header props
+ * @returns {Object} Header props for the PlaceholderCardHeader component
+ */
+function createHeaderProps(config: Pick<PlaceholderCardRenderConfig, 'placeholder' | 'state' | 'inputRef' | 'actionHandlers' | 'stateHandlers'>): React.ComponentProps<typeof PlaceholderCardHeader> {
+  return {
+    ...createBaseHeaderProps(config),
+    ...createAdditionalHeaderProps(config),
+    ...config.actionHandlers,
+    ...config.stateHandlers
+  };
+}
+
+/**
+ * Creates base content props for the placeholder card
+ *
+ * @param {Object} config - Configuration for base content props
+ * @param {PlaceholderState} config.state - Current state
+ * @returns {Object} Base content props
+ */
+function createBaseContentProps({ state }: Pick<PlaceholderCardRenderConfig, 'state'>): {
+  isEditing: boolean;
+  isExpanded: boolean;
+  newContent: string;
+  selectedColor: string;
+} {
+  const { isEditing, isExpanded, newContent, selectedColor } = state;
+  return { isEditing, isExpanded, newContent, selectedColor };
+}
+
+/**
+ * Creates additional content props for the placeholder card
+ *
+ * @param {Object} config - Configuration for additional content props
+ * @returns {Object} Additional content props
+ */
+function createAdditionalContentProps(config: Pick<PlaceholderCardRenderConfig, 'placeholder' | 'textareaRef' | 'actionHandlers' | 'stateHandlers'>): {
+  placeholder: Placeholder;
+  textareaRef: React.RefObject<HTMLTextAreaElement>;
+  actionHandlers: ActionHandlers;
+  stateHandlers: StateHandlers;
+} {
+  const { placeholder, textareaRef, actionHandlers, stateHandlers } = config;
+  return { placeholder, textareaRef, actionHandlers, stateHandlers };
+}
+
+/**
+ * Creates content props for the placeholder card
+ *
+ * @param {Object} config - Configuration for content props
+ * @returns {Object} Content props for the renderContent function
+ */
+function createContentProps(config: Pick<PlaceholderCardRenderConfig, 'placeholder' | 'state' | 'textareaRef' | 'actionHandlers' | 'stateHandlers'>): Parameters<typeof renderContent>[0] {
+  return {
+    ...createBaseContentProps(config),
+    ...createAdditionalContentProps(config)
+  };
+}
+
+/**
+ * Creates card content for the placeholder card
+ *
+ * @param {PlaceholderCardRenderConfig} props - Card configuration
+ * @returns {JSX.Element} Card content element
+ */
+function createCardContent(props: PlaceholderCardRenderConfig): JSX.Element {
   return (
-    <Card className={renderProps.className} style={renderProps.style}>
-      <CardContent className="p-3">
-        {renderHeader(renderProps.headerProps)}
-        {renderContent(renderProps.contentProps)}
+    <>
+      <PlaceholderCardHeader {...createHeaderProps(props)} />
+      <CardContent>
+        {renderContent(createContentProps(props))}
       </CardContent>
-    </Card>
+    </>
   );
 }
 
 /**
- * Custom hook for handling expand effect when editing
- * @param {boolean} isEditing - Is editing active
- * @param {boolean} isExpanded - Is card expanded
- * @param {React.RefObject<HTMLInputElement>} inputRef - Input reference
- * @param {Function} setState - State setter
- * @returns {void}
+ * Creates a state setter function for the expand effect
+ *
+ * @param {StateHandlers} stateHandlers - State handlers
+ * @returns {React.Dispatch<React.SetStateAction<PlaceholderState>>} State setter function
  */
-export function useExpandEffect(
-  isEditing: boolean,
-  isExpanded: boolean,
-  inputRef: React.RefObject<HTMLInputElement>,
-  setState: React.Dispatch<React.SetStateAction<ReturnType<typeof createInitialState>>>
-): void {
-  useEffect(() => {
-    focusInputIfEditing(inputRef, isEditing);
-    expandIfNeeded(isEditing, (expanded) => {
-      if (expanded && !isExpanded) {
-        setState(prev => ({ ...prev, isExpanded: true }));
-      }
-    });
-  }, [isEditing, isExpanded, inputRef, setState]);
+function createExpandStateSetter(stateHandlers: StateHandlers): React.Dispatch<React.SetStateAction<PlaceholderState>> {
+  return (value) => {
+    if (typeof value === 'function') {
+      const newState = value({} as PlaceholderState);
+      stateHandlers.setIsExpanded(newState.isExpanded);
+    } else {
+      stateHandlers.setIsExpanded(value.isExpanded);
+    }
+  };
+}
+
+/**
+ * Creates style props for the card
+ *
+ * @param {PlaceholderCardRenderConfig} props - Card configuration
+ * @returns {Object} Style props
+ */
+function createStyleProps(props: PlaceholderCardRenderConfig): {
+  className: string;
+  style: React.CSSProperties;
+} {
+  const { className = '', style = {} } = props;
+  return { className, style };
+}
+
+/**
+ * Creates card props for the placeholder card
+ *
+ * @param {PlaceholderCardRenderConfig} props - Card configuration
+ * @returns {Object} Card props
+ */
+function createCardProps(props: PlaceholderCardRenderConfig): {
+  className: string;
+  style: React.CSSProperties;
+  children: JSX.Element;
+} {
+  return {
+    ...createStyleProps(props),
+    children: createCardContent(props)
+  };
+}
+
+/**
+ * Renders a placeholder card with header and content
+ *
+ * @param {PlaceholderCardRenderConfig} props - The configuration object for rendering the card
+ * @returns {JSX.Element} The rendered placeholder card
+ */
+export function PlaceholderCardRenderer(props: PlaceholderCardRenderConfig): JSX.Element {
+  useExpandEffect(
+    props.state.isEditing,
+    props.state.isExpanded,
+    props.inputRef,
+    createExpandStateSetter(props.stateHandlers)
+  );
+
+  return <Card {...createCardProps(props)} />;
 }
