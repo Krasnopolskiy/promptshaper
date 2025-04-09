@@ -38,8 +38,8 @@ jobs:
       - name: Build
         run: npm run build
 
-       - name: Workaround 404
-         run: cp dist/index.html dist/404.html
+      - name: Workaround 404
+        run: cp dist/index.html dist/404.html
 
       - name: Setup Pages
         uses: actions/configure-pages@v4

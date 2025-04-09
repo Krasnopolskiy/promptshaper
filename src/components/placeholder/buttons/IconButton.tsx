@@ -26,8 +26,8 @@ interface IconButtonProps {
 }
 
 /** Default props values for the IconButton */
-const defaultSize = 'icon' as const;
-const defaultVariant = 'ghost' as const;
+const defaultSize = 'icon';
+const defaultVariant = 'ghost';
 const defaultClassName = 'h-7 w-7';
 
 /**

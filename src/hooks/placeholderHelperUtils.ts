@@ -38,7 +38,7 @@ export function executeDeletion(
   deletePlaceholder: (id: string) => void
 ): void {
   if (shouldDeletePlaceholder(placeholder)) {
-    deletePlaceholder(placeholder!.id);
+    deletePlaceholder(placeholder.id);
   }
 }
 

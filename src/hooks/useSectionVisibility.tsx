@@ -204,7 +204,7 @@ function observeAllSections(
 ): IntersectionObserver[] {
   return Object.entries(sectionRefs)
     .map(entry => observeSection(entry, setIsVisible))
-    .filter(Boolean) as IntersectionObserver[];
+    .filter(Boolean);
 }
 
 /**

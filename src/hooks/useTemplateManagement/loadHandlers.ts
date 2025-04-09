@@ -130,7 +130,7 @@ function isValidTemplateId(
  * @param {LoadHandlerParams} params - Load handler parameters
  */
 function loadAndProcessTemplate(params: LoadHandlerParams): void {
-  const template = params.onLoadTemplate(params.selectedTemplateId as string);
+  const template = params.onLoadTemplate(params.selectedTemplateId);
   const loadingParams = createLoadingParams(params, template);
   processTemplateLoading(loadingParams);
 }
